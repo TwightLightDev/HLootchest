@@ -9,6 +9,9 @@ import org.bukkit.inventory.ItemStack;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.BoxType;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.sessions.TSessionManager;
+import org.twightlight.hlootchest.config.TemplateConfig;
+import org.twightlight.hlootchest.sessions.setup.SetupSession;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.ArrayList;
@@ -42,7 +45,39 @@ public class MainCommands implements CommandExecutor {
                         p.sendMessage(HLootchest.getNms().getGlobalButtons().get(p).toString());
                         return true;
                     case "reload":
-
+                        return true;
+                    case "template":
+                        TSessionManager session = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+                        switch (args[1].toLowerCase()) {
+                            case "setup":
+                                String name = args[2].toLowerCase();
+                                TConfigManager conf = new TemplateConfig(HLootchest.getInstance(), name, HLootchest.getFilePath() + "/templates");
+                                p.sendMessage("Start setup your template: " + name);
+                                new SetupSession(p, conf, name);
+                            case "input":
+                                if (session instanceof SetupSession) {
+                                    SetupSession session1 = (SetupSession) session;
+                                    session1.newTypeChatSession(args[2].toLowerCase());
+                                    p.sendMessage(Utility.c("&aYou are modifying the value of" + args[2].toLowerCase()));
+                                    p.sendMessage(Utility.c("&aType 'cancel' to cancel this action!"));
+                                } else {
+                                    p.sendMessage(Utility.c("&cInvalid Session!"));
+                                }
+                            case "setup close":
+                                if (session != null) {
+                                    session.close();
+                                } else {
+                                    p.sendMessage(Utility.c("&cInvalid Session!"));
+                                }
+                            case "save":
+                                if (session instanceof SetupSession) {
+                                    SetupSession session1 = (SetupSession) session;
+                                    session1.save();
+                                    p.sendMessage(Utility.c("&aYou saved the template!"));
+                                } else {
+                                    p.sendMessage(Utility.c("&cInvalid Session!"));
+                                }
+                        }
                         return true;
                 }
             }

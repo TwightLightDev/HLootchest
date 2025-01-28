@@ -8,6 +8,7 @@ import org.twightlight.hlootchest.commands.MainCommands;
 import org.twightlight.hlootchest.config.BoxesConfig;
 import org.twightlight.hlootchest.config.MainConfig;
 import org.twightlight.hlootchest.config.TemplateConfig;
+import org.twightlight.hlootchest.listeners.PlayerChat;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.utils.Utility;
 
@@ -15,6 +16,7 @@ public final class HLootchest extends JavaPlugin {
 
     private static NMSHandler nms;
     private static API api;
+    private String path = getDataFolder().getPath();
     public static TConfigManager mainConfig;
     public static TConfigManager templateConfig;
     public static TConfigManager boxesConfig;
@@ -43,17 +45,18 @@ public final class HLootchest extends JavaPlugin {
         this.getCommand("hlootchests").setExecutor(new MainCommands());
     }
     private void loadListeners() {
+        Bukkit.getServer().getPluginManager().registerEvents(new PlayerChat(), HLootchest.getInstance());
+
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoin(), HLootchest.getInstance());
 
     }
 
     private void loadConf() {
         Utility.info("Starting HLootchest...");
-        String path = getDataFolder().getPath();
         Utility.info("Loading config.yml...");
         mainConfig = new MainConfig(this, "config", path);
         Utility.info("Loading templates...");
-        templateConfig = new TemplateConfig(this, mainConfig.getString("template"), path+"/templates");
+        templateConfig = new TemplateConfig(this, mainConfig.getString("template"), getDataFolder().getPath()+"/templates");
         Utility.info("Loading lootchests...");
         boxesConfig = new BoxesConfig(this, "lootchests", path);
 
@@ -69,5 +72,9 @@ public final class HLootchest extends JavaPlugin {
 
     public static API getAPI() {
         return api;
+    }
+
+    public static String getFilePath() {
+        return getInstance().getDataFolder().getPath();
     }
 }
