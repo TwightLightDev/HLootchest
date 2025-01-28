@@ -10,7 +10,7 @@ import org.bukkit.inventory.ItemStack;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.sessions.TSessionManager;
-import org.twightlight.hlootchest.config.TemplateConfig;
+import org.twightlight.hlootchest.config.configs.TemplateConfig;
 import org.twightlight.hlootchest.sessions.setup.SetupSession;
 import org.twightlight.hlootchest.utils.Utility;
 

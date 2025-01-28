@@ -5,9 +5,10 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.commands.MainCommands;
-import org.twightlight.hlootchest.config.BoxesConfig;
+import org.twightlight.hlootchest.config.configs.BoxesConfig;
 import org.twightlight.hlootchest.config.MainConfig;
-import org.twightlight.hlootchest.config.TemplateConfig;
+import org.twightlight.hlootchest.config.configs.MessageConfig;
+import org.twightlight.hlootchest.config.configs.TemplateConfig;
 import org.twightlight.hlootchest.listeners.PlayerChat;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular;
@@ -21,6 +22,7 @@ public final class HLootchest extends JavaPlugin {
     public static TConfigManager mainConfig;
     public static TConfigManager templateConfig;
     public static TConfigManager boxesConfig;
+    public static TConfigManager messagesConfig;
     private static final String version = Bukkit.getServer().getClass().getName().split("\\.")[3];
 
     @Override
@@ -60,6 +62,9 @@ public final class HLootchest extends JavaPlugin {
         templateConfig = new TemplateConfig(this, mainConfig.getString("template"), getDataFolder().getPath()+"/templates");
         Utility.info("Loading lootchests...");
         boxesConfig = new BoxesConfig(this, "lootchests", path);
+        Utility.info("Loading messages.yml...");
+        messagesConfig = new MessageConfig(this, "messages", path);
+
 
     }
 

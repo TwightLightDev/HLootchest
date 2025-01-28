@@ -13,6 +13,7 @@ public interface HLootchest {
         TConfigManager getTemplateConfig();
         TConfigManager getMainConfig();
         TConfigManager getBoxesConfig();
+        TConfigManager getMessageConfig();
     }
 
     interface SessionUtil {

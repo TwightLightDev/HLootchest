@@ -10,6 +10,7 @@ public class API {
     private final HLootchest.ConfigUtil configUtil = new ConfigUtil();
     private final HLootchest.SessionUtil sessionUtil = new SessionUtil();
 
+
     private static class ConfigUtil implements HLootchest.ConfigUtil {
 
         public TConfigManager getTemplateConfig() {
@@ -21,6 +22,7 @@ public class API {
         public TConfigManager getBoxesConfig() {
             return org.twightlight.hlootchest.HLootchest.boxesConfig;
         }
+        public TConfigManager getMessageConfig() { return org.twightlight.hlootchest.HLootchest.messagesConfig; }
     }
 
     private static class SessionUtil implements HLootchest.SessionUtil {

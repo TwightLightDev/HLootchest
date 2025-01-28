@@ -11,6 +11,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.api.objects.TConfigManager;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -32,6 +33,10 @@ public class Utility {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
             return value.stream().map(Utility::c).collect(Collectors.toList());
         return value.stream().map(s -> c(PlaceholderAPI.setPlaceholders(p, s))).collect(Collectors.toList());
+    }
+
+    public static String getMsg(Player p, String path) {
+        return p(p, HLootchest.messagesConfig.getString("Messages." + path).replace("{prefix}", HLootchest.messagesConfig.getString("Messages.prefix")));
     }
 
     public static String c(String value) {
@@ -74,22 +79,20 @@ public class Utility {
             throw new IllegalArgumentException("Invalid location string: " + locString);
         }
 
-        World world = Bukkit.getWorld(parts[0]); // World name
+        World world = Bukkit.getWorld(parts[0]);
         if (world == null) {
             throw new IllegalArgumentException("World not found: " + parts[0]);
         }
 
-        double x = Double.parseDouble(parts[1]); // X coordinate
-        double y = Double.parseDouble(parts[2]); // Y coordinate
-        double z = Double.parseDouble(parts[3]); // Z coordinate
+        double x = Double.parseDouble(parts[1]);
+        double y = Double.parseDouble(parts[2]);
+        double z = Double.parseDouble(parts[3]);
 
-        // Optional yaw and pitch
         float yaw = parts.length > 4 ? Float.parseFloat(parts[4]) : 0.0f;
         float pitch = parts.length > 5 ? Float.parseFloat(parts[5]) : 0.0f;
 
         return new Location(world, x, y, z, yaw, pitch);
     }
-
     public static String locationToString(Location loc) {
         return String.format("%s,%.2f,%.2f,%.2f,%.2f,%.2f",
                 loc.getWorld().getName(),
