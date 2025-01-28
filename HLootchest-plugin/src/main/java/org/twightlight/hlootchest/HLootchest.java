@@ -10,6 +10,7 @@ import org.twightlight.hlootchest.config.MainConfig;
 import org.twightlight.hlootchest.config.TemplateConfig;
 import org.twightlight.hlootchest.listeners.PlayerChat;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
+import org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular;
 import org.twightlight.hlootchest.utils.Utility;
 
 public final class HLootchest extends JavaPlugin {
@@ -39,6 +40,7 @@ public final class HLootchest extends JavaPlugin {
         switch (version) {
             case "v1_8_R3":
                 nms = new org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3(this, version);
+                nms.register("regular", Regular::new);
         }
     }
     private void loadCommands() {
@@ -46,7 +48,6 @@ public final class HLootchest extends JavaPlugin {
     }
     private void loadListeners() {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerChat(), HLootchest.getInstance());
-
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoin(), HLootchest.getInstance());
 
     }

@@ -7,23 +7,22 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.twightlight.hlootchest.api.enums.BoxType;
+import org.twightlight.hlootchest.api.objects.TBox;
 
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BoxManager {
+public class BoxManager implements TBox {
 
     private Player owner;
     int id;
-    private BoxType boxType = BoxType.OTHERS;
     private EntityArmorStand box;
     private boolean clickable = true;
     private Location loc;
     private ItemStack icon;
 
-    public static ConcurrentHashMap<Integer, BoxManager> boxlists = new ConcurrentHashMap<>();
+    public static ConcurrentHashMap<Integer, TBox> boxlists = new ConcurrentHashMap<>();
 
-    public BoxManager(Player player, Location location, ItemStack icon, BoxType boxType) {
+    public BoxManager(Player player, Location location, ItemStack icon) {
         this.owner = player;
 
         this.box = createArmorStand(location);
@@ -33,8 +32,6 @@ public class BoxManager {
         this.loc = location;
 
         this.icon = icon;
-
-        this.boxType = boxType;
 
         boxlists.put(id, this);
         sendSpawnPacket(player, box);
@@ -104,10 +101,6 @@ public class BoxManager {
 
     public ItemStack getIcon() {
         return icon;
-    }
-
-    public BoxType getBoxType() {
-        return boxType;
     }
 
 }

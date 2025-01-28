@@ -4,6 +4,7 @@ import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.twightlight.hlootchest.api.events.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
+import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_8_R3.boxes.BoxManager;
@@ -30,7 +31,7 @@ public class ClickEvent extends PlayerConnection {
         if (button != null && button.isClickable()) {
             handleButtonInteraction(action, button, entityId);
         }
-        BoxManager box = BoxManager.boxlists.get(entityId);
+        TBox box = BoxManager.boxlists.get(entityId);
         if (box != null && box.isClickable()) {
             handleButtonInteraction(action, box);
         }
@@ -50,18 +51,15 @@ public class ClickEvent extends PlayerConnection {
         }
     }
 
-    private void handleButtonInteraction(PacketPlayInUseEntity.EnumEntityUseAction action, BoxManager box) {
-        PlayerOpenLCEvent event = new PlayerOpenLCEvent(this.player.getBukkitEntity());
+    private void handleButtonInteraction(PacketPlayInUseEntity.EnumEntityUseAction action, TBox box) {
+        PlayerOpenLCEvent event = new PlayerOpenLCEvent(this.player.getBukkitEntity(), box);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) {
             return;
         }
         if (action == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT) {
-            if (box instanceof Regular) {
-                Regular box1 = (Regular) box;
-                box1.open();
-            }
+            box.open();
         }
     }
 

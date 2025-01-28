@@ -9,7 +9,6 @@ import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.twightlight.hlootchest.api.enums.BoxType;
 import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveUp;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 
@@ -17,8 +16,8 @@ public class Regular extends BoxManager{
 
     EntityArmorStand sword;
 
-    public Regular(Player player, Location location, ItemStack icon, BoxType boxType) {
-        super(player, location, icon, BoxType.REGULAR);
+    public Regular(Player player, Location location, ItemStack icon) {
+        super(player, location, icon);
         Location loc = location.clone().add(0, 1.1, 0);
         this.sword = createArmorStand(loc);
         Vector3f pose = new Vector3f(90, 90, 0);
@@ -59,7 +58,7 @@ public class Regular extends BoxManager{
                     remove();
                     setClickable(true);
                     ParticleType.of("FLAME").spawn(getOwner(), getLoc().clone().add(0, -1.2, 0), 40, 2, 2, 2);
-                    new Regular(getOwner(), getLoc(), getIcon(), BoxType.REGULAR);
+                    new Regular(getOwner(), getLoc(), getIcon());
                     cancel();
                     return;
                 }

@@ -1,9 +1,9 @@
 package org.twightlight.hlootchest.sessions.setup;
 
 import org.bukkit.entity.Player;
+import org.twightlight.hlootchest.api.enums.SessionType;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.sessions.SessionManager;
-import org.twightlight.hlootchest.api.enums.SessionType;
 
 public class SetupSession extends SessionManager {
 
@@ -18,7 +18,6 @@ public class SetupSession extends SessionManager {
 
     public void save() {
         super.save();
-        getPlayer().sendMessage("Successfully saved your template!");
         file.save();
         file.reload();
     }
@@ -31,7 +30,7 @@ public class SetupSession extends SessionManager {
     public void closeTypeChatSession(String value) {
         isInTypeChat = false;
         if (value != null)
-            file.set(input, value);
+            file.getYml().set(input, value);
     }
 
     public boolean isInTypeChat() {

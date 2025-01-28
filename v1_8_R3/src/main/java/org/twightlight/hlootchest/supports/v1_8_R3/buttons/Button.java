@@ -36,7 +36,7 @@ public class Button implements TButton {
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
 
-    public Button(Player player, Location location, ButtonType type, ItemStack icon) {
+    public Button(ButtonType type, Player player, Location location, ItemStack icon) {
         this.owner = player;
 
         EntityArmorStand armorStand = createArmorStand(location, "Custom");
