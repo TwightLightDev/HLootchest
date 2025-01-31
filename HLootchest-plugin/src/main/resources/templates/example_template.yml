@@ -1,0 +1,28 @@
+regular:
+  settings:
+    location: world, 0, 0, 0
+    rotations:
+      '1':
+        position: HEAD
+        value: 0, 0, 0
+    decoration:
+      location: world, 0, 0, 0
+      rotations:
+        '1':
+          position: HEAD
+          value: 90, 90, 0
+    enable-name: false
+    name: regular
+  buttons:
+    '1':
+      icon:
+        material: SKULL_ITEM
+        data: 3
+        head_value: unknow
+      rotations:
+        '1':
+          position: HEAD
+          value: 0, 0, 0
+      click-sound: ENDERDRAGON_WINGS
+      enable-name: false
+      name: button-A
