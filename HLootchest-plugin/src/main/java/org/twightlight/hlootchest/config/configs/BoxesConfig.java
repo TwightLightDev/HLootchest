@@ -2,6 +2,7 @@ package org.twightlight.hlootchest.config.configs;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.twightlight.hlootchest.config.ConfigManager;
 
 public class BoxesConfig extends ConfigManager {
     public BoxesConfig(Plugin pl, String name, String dir) {

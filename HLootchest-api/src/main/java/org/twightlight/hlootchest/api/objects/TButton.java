@@ -1,7 +1,11 @@
 package org.twightlight.hlootchest.api.objects;
 
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+
+import java.util.List;
 
 public interface TButton {
     int getCustomId();
@@ -13,4 +17,7 @@ public interface TButton {
     boolean isClickable();
     void setClickable(boolean bool);
     ButtonType getType();
+    List<String> getActions();
+    Sound getSound();
+
 }

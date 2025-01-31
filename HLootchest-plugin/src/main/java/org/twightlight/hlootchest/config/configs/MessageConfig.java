@@ -1,11 +1,13 @@
 package org.twightlight.hlootchest.config.configs;
 
-import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
+import org.twightlight.hlootchest.config.ConfigManager;
 
-public class MessageConfig extends ConfigManager{
+public class MessageConfig extends ConfigManager {
     public MessageConfig(Plugin pl, String name, String dir) {
         super(pl, name, dir);
+
+        getYml().options().header("HLootchest by TwightLightDev");
 
         add("prefix", "&e[HLootchest]");
 

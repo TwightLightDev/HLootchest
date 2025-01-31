@@ -11,7 +11,6 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
 
 import java.lang.reflect.Field;
 import java.util.List;
@@ -22,6 +21,10 @@ public class Utility {
     public static void info(String message) {
         System.out.println("[HLootchest] " + message);
     }
+    public static void error(String message) {
+        System.err.println("[HLootchest] " + message);
+    }
+
 
     public static String p(Player p, String value) {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)

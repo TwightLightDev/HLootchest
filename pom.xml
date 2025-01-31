@@ -55,12 +55,6 @@
               </configuration>
           </plugin>
       </plugins>
-      <resources>
-          <resource>
-              <directory>main/src/main/resources</directory>
-              <filtering>false</filtering> <!-- Set to false if you don't need filtering -->
-          </resource>
-      </resources>
   </build>
 
   <repositories>

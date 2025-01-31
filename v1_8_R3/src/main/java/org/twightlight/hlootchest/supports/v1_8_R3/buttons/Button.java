@@ -2,7 +2,9 @@ package org.twightlight.hlootchest.supports.v1_8_R3.buttons;
 
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
@@ -12,6 +14,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.objects.TButton;
+import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveBackward;
 import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveForward;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
@@ -32,23 +35,32 @@ public class Button implements TButton {
     private boolean clickable = true;
     private boolean moveable = true;
     private ButtonType type;
+    private List<String> actions;
+    private Sound sound;
 
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
 
-    public Button(ButtonType type, Player player, Location location, ItemStack icon) {
+    public Button(ButtonType type, Player player, ItemStack icon, String path, TConfigManager config) {
         this.owner = player;
 
-        EntityArmorStand armorStand = createArmorStand(location, "Custom");
+        this.actions = config.getList(path+".actions");
+        this.sound = Sound.valueOf(config.getString(path+".click-sound"));
+
+        Location location = v1_8_R3.stringToLocation(config.getString(path + ".location"));
+
+        EntityArmorStand armorStand = createArmorStand(location, config.getString(path+".name"), config.getBoolean(path+".enable-name"));
         this.id = armorStand.getId();
 
         this.armorstand = armorStand;
+        v1_8_R3.rotate(armorstand, config, path);
 
         buttonIdMap.put(this.id, this);
         playerButtonMap.computeIfAbsent(player, k -> new ArrayList<>()).add(this);
         this.type = type;
         sendSpawnPacket(player, armorStand);
         equipIcon(armorStand, icon);
+
         this.task = Bukkit.getScheduler().runTaskTimer(v1_8_R3.handler.plugin, () -> {
             if (!owner.isOnline()) {
                 cancelTask();
@@ -84,16 +96,17 @@ public class Button implements TButton {
                     isMoved = false;
                 }
             }}, 0L, 5L);
+
     }
 
-
-    private EntityArmorStand createArmorStand(Location location, String name) {
+    private EntityArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
         WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
-        armorStand.setCustomName(name);
-        armorStand.setCustomNameVisible(true);
-        armorStand.setInvisible(false);
+        armorStand.setCustomNameVisible(isNameEnable);
+
+        armorStand.setCustomName(ChatColor.translateAlternateColorCodes('&', name));
+        armorStand.setInvisible(true);
         armorStand.setGravity(false);
 
         armorStand.yaw = location.getYaw();
@@ -181,5 +194,13 @@ public class Button implements TButton {
 
     public ButtonType getType() {
         return type;
+    }
+
+    public List<String> getActions() {
+        return actions;
+    }
+
+    public Sound getSound() {
+        return sound;
     }
 }

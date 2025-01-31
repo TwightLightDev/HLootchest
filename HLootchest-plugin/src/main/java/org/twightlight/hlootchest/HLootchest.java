@@ -5,14 +5,17 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.commands.MainCommands;
+import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.config.configs.BoxesConfig;
-import org.twightlight.hlootchest.config.MainConfig;
+import org.twightlight.hlootchest.config.configs.MainConfig;
 import org.twightlight.hlootchest.config.configs.MessageConfig;
-import org.twightlight.hlootchest.config.configs.TemplateConfig;
-import org.twightlight.hlootchest.listeners.PlayerChat;
+import org.twightlight.hlootchest.listeners.DamageEvent;
+import org.twightlight.hlootchest.listeners.DismountEvent;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular;
 import org.twightlight.hlootchest.utils.Utility;
+
+import java.io.File;
 
 public final class HLootchest extends JavaPlugin {
 
@@ -49,22 +52,26 @@ public final class HLootchest extends JavaPlugin {
         this.getCommand("hlootchests").setExecutor(new MainCommands());
     }
     private void loadListeners() {
-        Bukkit.getServer().getPluginManager().registerEvents(new PlayerChat(), HLootchest.getInstance());
+
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoin(), HLootchest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new DamageEvent(), HLootchest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new DismountEvent(), HLootchest.getInstance());
 
     }
 
     private void loadConf() {
-        Utility.info("Starting HLootchest...");
         Utility.info("Loading config.yml...");
         mainConfig = new MainConfig(this, "config", path);
         Utility.info("Loading templates...");
-        templateConfig = new TemplateConfig(this, mainConfig.getString("template"), getDataFolder().getPath()+"/templates");
+        File file = new File((getDataFolder().getPath()+ "/templates"), "example_template.yml");
+        if (!file.exists()) {
+            saveResource("templates/example_template.yml", false);
+        }
+        templateConfig = new ConfigManager(this, mainConfig.getString("template"), getDataFolder().getPath()+ "/templates");
         Utility.info("Loading lootchests...");
         boxesConfig = new BoxesConfig(this, "lootchests", path);
         Utility.info("Loading messages.yml...");
         messagesConfig = new MessageConfig(this, "messages", path);
-
 
     }
 
@@ -83,4 +90,5 @@ public final class HLootchest extends JavaPlugin {
     public static String getFilePath() {
         return getInstance().getDataFolder().getPath();
     }
+
 }

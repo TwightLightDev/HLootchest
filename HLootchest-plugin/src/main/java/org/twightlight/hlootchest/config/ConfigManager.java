@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.config.configs;
+package org.twightlight.hlootchest.config;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;

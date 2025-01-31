@@ -9,19 +9,23 @@ import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveUp;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 
-public class Regular extends BoxManager{
+public class Regular extends BoxManager {
 
-    EntityArmorStand sword;
+    private EntityArmorStand sword;
 
-    public Regular(Player player, Location location, ItemStack icon) {
-        super(player, location, icon);
-        Location loc = location.clone().add(0, 1.1, 0);
-        this.sword = createArmorStand(loc);
-        Vector3f pose = new Vector3f(90, 90, 0);
-        this.sword.setRightArmPose(pose);
+    public Regular(Player player, ItemStack icon, TConfigManager config, String boxid) {
+        super(player, icon, config, boxid);
+
+        Location loc = v1_8_R3.stringToLocation(config.getString(boxid+".settings.decoration.location"));
+
+        this.sword = createArmorStand(loc, "", false);
+
+        v1_8_R3.rotate(sword, config, boxid+".settings.decoration");
+
         sendSpawnPacket(getOwner(), sword);
         net.minecraft.server.v1_8_R3.ItemStack icon1 = CraftItemStack.asNMSCopy(new ItemStack(Material.DIAMOND_SWORD));
         PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(
@@ -29,19 +33,18 @@ public class Regular extends BoxManager{
                 0,
                 icon1
         );
+
         ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(packet);
         new BukkitRunnable() {
-            long startTime = System.currentTimeMillis();
             @Override
             public void run() {
-                if (System.currentTimeMillis() - startTime > 550) {
+                if (getBox().locY < loc.clone().getY() - 3.4) {
                     cancel();
                 }
                 new MoveUp(getOwner(), sword, (float) -0.2);
                 new MoveUp(getOwner(), getBox(), (float) -0.2);
             }
         }.runTaskTimer(v1_8_R3.handler.plugin, 0L, 1L);
-
     }
 
     @Override
@@ -58,7 +61,7 @@ public class Regular extends BoxManager{
                     remove();
                     setClickable(true);
                     ParticleType.of("FLAME").spawn(getOwner(), getLoc().clone().add(0, -1.2, 0), 40, 2, 2, 2);
-                    new Regular(getOwner(), getLoc(), getIcon());
+                    new Regular(getOwner(), getIcon(), getConfig(), getBoxId());
                     cancel();
                     return;
                 }

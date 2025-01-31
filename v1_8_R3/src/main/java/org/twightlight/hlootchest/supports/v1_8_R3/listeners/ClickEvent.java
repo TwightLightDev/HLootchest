@@ -2,16 +2,20 @@ package org.twightlight.hlootchest.supports.v1_8_R3.listeners;
 
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
+import org.bukkit.Sound;
+import org.bukkit.command.ConsoleCommandSender;
+import org.bukkit.entity.Pig;
+import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_8_R3.boxes.BoxManager;
-import org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 
 import java.lang.reflect.Field;
+import java.util.List;
 
 public class ClickEvent extends PlayerConnection {
     NMSHandler nsm = v1_8_R3.handler;
@@ -47,7 +51,27 @@ public class ClickEvent extends PlayerConnection {
         }
 
         if (action == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT) {
-            
+            player.getBukkitEntity().playSound(player.getBukkitEntity().getLocation(), button.getSound(), 20, 20);
+            List<String> actions = button.getActions();
+            for (String stringAction : actions) {
+                String[] dataset = stringAction.split(" ");
+                if (dataset[0].equals("[player]")) {
+                    player.getBukkitEntity().performCommand(dataset[1].replace("{player}", this.player.getBukkitEntity().getName()));
+                } else if (dataset[0].equals("[console]")) {
+                    ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
+                    Bukkit.getServer().dispatchCommand(console, dataset[1].replace("{player}", this.player.getBukkitEntity().getName()));
+                } else if ((dataset[0].equals("[open]"))) {
+                    v1_8_R3.handler.getBoxFromPlayer(player.getBukkitEntity()).open();
+                } else if ((dataset[0].equals("[close]"))) {
+                    TBox box = v1_8_R3.handler.getBoxFromPlayer(player.getBukkitEntity());
+                    box.getVehicle().remove();
+                    box.getOwner().teleport(box.getPlayerInitialLoc());
+                    box.resetPlayerInitialLoc();
+                    box.remove();
+                    v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.FUNCTIONAL);
+                    v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.REWARD);
+                }
+            }
         }
     }
 
