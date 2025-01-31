@@ -19,5 +19,7 @@ public interface TButton {
     ButtonType getType();
     List<String> getActions();
     Sound getSound();
+    boolean isHiding();
+    void hide(boolean isHiding);
 
 }

@@ -9,16 +9,19 @@ import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveUp;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
+
+import java.util.HashSet;
 
 public class Regular extends BoxManager {
 
     private EntityArmorStand sword;
 
-    public Regular(Player player, ItemStack icon, TConfigManager config, String boxid) {
-        super(player, icon, config, boxid);
+    public Regular(Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
+        super(player, icon, config, boxid, initialLocation);
 
         Location loc = v1_8_R3.stringToLocation(config.getString(boxid+".settings.decoration.location"));
 
@@ -35,6 +38,17 @@ public class Regular extends BoxManager {
         );
 
         ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(packet);
+
+        new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (v1_8_R3.handler.getBoxFromPlayer(getOwner()) != getInstance()) {
+                    cancel();
+                }
+                ParticleType.of("CLOUD").spawn(getOwner(), getLoc().clone().add(0, -1.2, 0), 2, 1, 1, 1, 1);
+            }
+        }.runTaskTimer(v1_8_R3.handler.plugin, 0L, 20L);
+
         new BukkitRunnable() {
             @Override
             public void run() {
@@ -52,6 +66,28 @@ public class Regular extends BoxManager {
         super.open();
         setClickable(false);
         moveUp();
+        v1_8_R3.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, true);
+        new BukkitRunnable() {
+            long startTime = System.currentTimeMillis();
+            @Override
+            public void run() {
+                if (System.currentTimeMillis() - startTime > 3600) {
+                    return;
+                }
+                EntityPlayer craftPlayer = ((CraftPlayer) getOwner()).getHandle();
+                if (craftPlayer.yaw != getPlayerLocation().getYaw() || craftPlayer.pitch != getPlayerLocation().getPitch()) {
+                    PacketPlayOutPosition packet1 = new PacketPlayOutPosition(
+                            craftPlayer.locX,
+                            craftPlayer.locY,
+                            craftPlayer.locZ,
+                            getPlayerLocation().getYaw(),
+                            getPlayerLocation().getPitch(),
+                            new HashSet<>()
+                    );
+                    craftPlayer.playerConnection.sendPacket(packet1);
+                }
+            }
+        }.runTaskTimer(v1_8_R3.handler.plugin, 0L, 1L);
         new BukkitRunnable() {
             double time = 0;
             long startTime = System.currentTimeMillis();
@@ -59,9 +95,10 @@ public class Regular extends BoxManager {
             public void run() {
                 if (System.currentTimeMillis() - startTime > 3000) {
                     remove();
+                    v1_8_R3.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
                     setClickable(true);
-                    ParticleType.of("FLAME").spawn(getOwner(), getLoc().clone().add(0, -1.2, 0), 40, 2, 2, 2);
-                    new Regular(getOwner(), getIcon(), getConfig(), getBoxId());
+                    ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -1.2, 0), 5, 1, 1, 1, 0);
+                    new Regular(getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
                     cancel();
                     return;
                 }
@@ -70,7 +107,6 @@ public class Regular extends BoxManager {
                     return;
                 }
                 time += 1;
-
                 DataWatcher dataWatcher = getBox().getDataWatcher();
                 float x;
                 float z;
@@ -109,10 +145,10 @@ public class Regular extends BoxManager {
             long startTime = System.currentTimeMillis();
             @Override
             public void run() {
-                if (System.currentTimeMillis() - startTime > 800) {
+                if (System.currentTimeMillis() - startTime > 100) {
                     cancel();
                 }
-                new MoveUp(getOwner(), sword, (float) 0.1);
+                new MoveUp(getOwner(), sword, (float) 0.06);
             }
         }.runTaskTimer(v1_8_R3.handler.plugin, 0L, 1L);
     }

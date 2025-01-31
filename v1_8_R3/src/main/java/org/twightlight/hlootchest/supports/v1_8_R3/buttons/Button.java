@@ -37,6 +37,8 @@ public class Button implements TButton {
     private ButtonType type;
     private List<String> actions;
     private Sound sound;
+    private boolean isHiding = false;
+    private ItemStack icon;
 
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
@@ -44,12 +46,12 @@ public class Button implements TButton {
     public Button(ButtonType type, Player player, ItemStack icon, String path, TConfigManager config) {
         this.owner = player;
 
-        this.actions = config.getList(path+".actions");
+        this.actions = (config.getList(path+".actions") != null) ? config.getList(path+".actions") : new ArrayList<>();
         this.sound = Sound.valueOf(config.getString(path+".click-sound"));
 
         Location location = v1_8_R3.stringToLocation(config.getString(path + ".location"));
 
-        EntityArmorStand armorStand = createArmorStand(location, config.getString(path+".name"), config.getBoolean(path+".enable-name"));
+        EntityArmorStand armorStand = createArmorStand(location, (config.getString(path+".name") != null) ? config.getString(path+".name"):"", config.getBoolean(path+".enable-name"));
         this.id = armorStand.getId();
 
         this.armorstand = armorStand;
@@ -60,13 +62,19 @@ public class Button implements TButton {
         this.type = type;
         sendSpawnPacket(player, armorStand);
         equipIcon(armorStand, icon);
-
+        this.icon = icon;
+        Bukkit.getScheduler().runTaskTimer(v1_8_R3.handler.plugin, () -> {
+            if (!owner.isOnline()) {
+                this.cancelTask();
+                return;
+            }
+        }, 0, 0);
         this.task = Bukkit.getScheduler().runTaskTimer(v1_8_R3.handler.plugin, () -> {
             if (!owner.isOnline()) {
                 cancelTask();
                 return;
             }
-            if (owner.getLocation().distance(armorstand.getBukkitEntity().getLocation()) > 5) {
+            if (owner.getLocation().distance(armorstand.getBukkitEntity().getLocation()) > 5 || isHiding) {
                 if (isMoved) {
                     moveBackward();
                     unmovablePeriod(500);
@@ -140,6 +148,17 @@ public class Button implements TButton {
         ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
     }
 
+    public void hide(boolean isHiding) {
+        this.isHiding = isHiding;
+        if (isHiding == true) {
+            PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(armorstand.getId());
+            ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
+        } else {
+            sendSpawnPacket(owner, armorstand);
+            equipIcon(armorstand, icon);
+        }
+    }
+
     public void remove() {
         if (armorstand != null) {
             cancelTask();
@@ -157,11 +176,11 @@ public class Button implements TButton {
     }
 
     public void moveForward() {
-        new MoveForward(owner, armorstand, 1);
+        new MoveForward(owner, armorstand, (float) 0.5);
     }
 
     public void moveBackward() {
-        new MoveBackward(owner, armorstand, 1);
+        new MoveBackward(owner, armorstand, (float) 0.5);
     }
 
     public int getCustomId() {
@@ -202,5 +221,9 @@ public class Button implements TButton {
 
     public Sound getSound() {
         return sound;
+    }
+
+    public boolean isHiding() {
+        return isHiding;
     }
 }

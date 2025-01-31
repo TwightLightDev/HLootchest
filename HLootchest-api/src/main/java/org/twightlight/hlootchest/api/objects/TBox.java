@@ -5,6 +5,8 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.Map;
+
 public interface TBox {
     void open();
     void remove();
@@ -14,6 +16,9 @@ public interface TBox {
     Location getLoc();
     ItemStack getIcon();
     Location getPlayerInitialLoc();
-    void resetPlayerInitialLoc();
-    Pig getVehicle();
+    Map<Player, Pig> getVehiclesList();
+    void removeVehicle(Player p);
+    TBox getInstance();
+    boolean isClickToOpen();
+    Location getPlayerLocation();
 }

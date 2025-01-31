@@ -9,9 +9,7 @@ import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.config.configs.BoxesConfig;
 import org.twightlight.hlootchest.config.configs.MainConfig;
 import org.twightlight.hlootchest.config.configs.MessageConfig;
-import org.twightlight.hlootchest.listeners.DamageEvent;
-import org.twightlight.hlootchest.listeners.DismountEvent;
-import org.twightlight.hlootchest.listeners.PlayerJoin;
+import org.twightlight.hlootchest.listeners.*;
 import org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular;
 import org.twightlight.hlootchest.utils.Utility;
 
@@ -56,6 +54,7 @@ public final class HLootchest extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoin(), HLootchest.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new DamageEvent(), HLootchest.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new DismountEvent(), HLootchest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuit(), HLootchest.getInstance());
 
     }
 

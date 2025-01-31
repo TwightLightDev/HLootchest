@@ -36,7 +36,7 @@ public class ClickEvent extends PlayerConnection {
             handleButtonInteraction(action, button, entityId);
         }
         TBox box = BoxManager.boxlists.get(entityId);
-        if (box != null && box.isClickable()) {
+        if (box != null && box.isClickable() && box.isClickToOpen()) {
             handleButtonInteraction(action, box);
         }
 
@@ -46,12 +46,14 @@ public class ClickEvent extends PlayerConnection {
         PlayerButtonClickEvent event = new PlayerButtonClickEvent(this.player.getBukkitEntity(), button);
         Bukkit.getPluginManager().callEvent(event);
 
-        if (event.isCancelled()) {
+        if (event.isCancelled() || button.isHiding()) {
             return;
         }
 
         if (action == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT) {
-            player.getBukkitEntity().playSound(player.getBukkitEntity().getLocation(), button.getSound(), 20, 20);
+            if (button.getSound() != null) {
+                player.getBukkitEntity().playSound(player.getBukkitEntity().getLocation(), button.getSound(), 20, 20);
+            }
             List<String> actions = button.getActions();
             for (String stringAction : actions) {
                 String[] dataset = stringAction.split(" ");
@@ -64,9 +66,8 @@ public class ClickEvent extends PlayerConnection {
                     v1_8_R3.handler.getBoxFromPlayer(player.getBukkitEntity()).open();
                 } else if ((dataset[0].equals("[close]"))) {
                     TBox box = v1_8_R3.handler.getBoxFromPlayer(player.getBukkitEntity());
-                    box.getVehicle().remove();
+                    box.removeVehicle(player.getBukkitEntity());
                     box.getOwner().teleport(box.getPlayerInitialLoc());
-                    box.resetPlayerInitialLoc();
                     box.remove();
                     v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.FUNCTIONAL);
                     v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.REWARD);
@@ -76,10 +77,8 @@ public class ClickEvent extends PlayerConnection {
     }
 
     private void handleButtonInteraction(PacketPlayInUseEntity.EnumEntityUseAction action, TBox box) {
-        PlayerOpenLCEvent event = new PlayerOpenLCEvent(this.player.getBukkitEntity(), box);
-        Bukkit.getPluginManager().callEvent(event);
 
-        if (event.isCancelled()) {
+        if (!box.isClickToOpen()) {
             return;
         }
         if (action == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT) {

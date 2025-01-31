@@ -27,7 +27,7 @@ public class MainCommands implements CommandExecutor {
                     TConfigManager conf = HLootchest.getAPI().getConfigUtil().getBoxesConfig();
                     ItemStack icon = Utility.createItem(Material.valueOf(conf.getString(identifier + ".icon.material")), conf.getString(identifier + ".icon.head_value"), conf.getInt(identifier + ".icon.data"), "", new ArrayList<>(), false);
                     TConfigManager templateconfig = HLootchest.getAPI().getConfigUtil().getTemplateConfig();
-                    HLootchest.getNms().spawnBox(identifier, p, icon, templateconfig);
+                    HLootchest.getNms().spawnBox(identifier, p, icon, templateconfig, p.getLocation());
 
                     if (templateconfig.getYml().getConfigurationSection(identifier + ".buttons") != null) {
                         Set<String> buttons = templateconfig.getYml().getConfigurationSection(identifier + ".buttons").getKeys(false);

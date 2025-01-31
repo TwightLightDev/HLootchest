@@ -9,6 +9,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.events.ButtonSpawnEvent;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
@@ -37,16 +38,18 @@ public class v1_8_R3 extends NMSHandler {
     }
 
     public void spawnButton(ButtonType type, Player player, ItemStack icon, String path, TConfigManager config) {
-        new Button(type, player, icon, path, config);
+        TButton button = new Button(type, player, icon, path, config);
+        ButtonSpawnEvent event = new ButtonSpawnEvent(player, button);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
-    public TBox spawnBox(String boxid, Player player, ItemStack icon, TConfigManager config) {
+    public TBox spawnBox(String boxid, Player player, ItemStack icon, TConfigManager config, Location initialLocation) {
         LootChestFactory factory = tboxdata.get(boxid);
         if (factory == null) {
             player.sendMessage(ChatColor.RED + "Unknow lootchest type!");
             return null;
         }
-        return factory.create(player, icon, config, boxid);
+        return factory.create(player, icon, config, boxid, initialLocation);
     }
 
     public void removeButtonsFromPlayer(Player player, ButtonType type) {
@@ -58,6 +61,22 @@ public class v1_8_R3 extends NMSHandler {
             for (int i = 0; i < times; i++) {
                 if (getGlobalButtons().get(player).get(0).getType() == type) {
                     getGlobalButtons().get(player).get(0).remove();
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void hideButtonsFromPlayer(Player player, ButtonType type, boolean state) {
+        try {
+            if (getGlobalButtons().get(player) == null) {
+                return;
+            }
+            int times = getGlobalButtons().get(player).size();
+            for (int i = 0; i < times; i++) {
+                if (getGlobalButtons().get(player).get(i).getType() == type) {
+                    getGlobalButtons().get(player).get(i).hide(state);
                 }
             }
         } catch (Exception e) {

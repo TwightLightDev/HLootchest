@@ -8,6 +8,6 @@ import org.twightlight.hlootchest.api.objects.TConfigManager;
 
 @FunctionalInterface
 public interface LootChestFactory {
-    TBox create(Player player, ItemStack icon, TConfigManager config, String boxid);
+    TBox create(Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation);
 }
 
