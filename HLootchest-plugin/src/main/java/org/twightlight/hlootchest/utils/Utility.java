@@ -13,8 +13,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.twightlight.hlootchest.HLootchest;
 
 import java.lang.reflect.Field;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public class Utility {
@@ -104,6 +103,23 @@ public class Utility {
                 loc.getZ(),
                 loc.getYaw(),
                 loc.getPitch());
+    }
+
+    public static <T> Set<T> getRandomElements(Set<T> set, int n) {
+        List<T> list = new ArrayList<>(set);
+        Set<T> randomElements = new HashSet<>();
+        Random random = new Random();
+
+        if (n > list.size()) {
+            throw new IllegalArgumentException("Cannot get more unique elements than the size of the set.");
+        }
+
+        while (randomElements.size() < n) {
+            T element = list.get(random.nextInt(list.size()));
+            randomElements.add(element);
+        }
+
+        return randomElements;
     }
 }
 

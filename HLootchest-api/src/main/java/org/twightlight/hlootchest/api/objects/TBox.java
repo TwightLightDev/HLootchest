@@ -1,10 +1,12 @@
 package org.twightlight.hlootchest.api.objects;
 
 import org.bukkit.Location;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 
+import java.util.List;
 import java.util.Map;
 
 public interface TBox {
@@ -21,4 +23,7 @@ public interface TBox {
     TBox getInstance();
     boolean isClickToOpen();
     Location getPlayerLocation();
+    String getBoxId();
+    TConfigManager getConfig();
+    List<Location> getRewardsLocation();
 }

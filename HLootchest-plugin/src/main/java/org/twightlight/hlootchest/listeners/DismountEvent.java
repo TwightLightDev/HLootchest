@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.listeners;
 
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -15,9 +16,9 @@ public class DismountEvent implements Listener {
         Entity exited = e.getExited();
 
         if (entity instanceof Pig && exited instanceof Player) {
-            Pig pig = (Pig) entity;
+            Pig vehicle = (Pig) entity;
             Player player = (Player) exited;
-            if ("LootchestPig".equals(pig.getCustomName()) && HLootchest.getNms().getBoxFromPlayer(player) != null) {
+            if ("LootchestVehicle".equals(vehicle.getCustomName()) && HLootchest.getNms().getBoxFromPlayer(player) != null) {
                 e.setCancelled(true);
             }
         }

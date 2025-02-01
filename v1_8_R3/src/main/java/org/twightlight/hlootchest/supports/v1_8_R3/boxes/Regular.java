@@ -2,14 +2,18 @@ package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 
 import fr.mrmicky.fastparticles.ParticleType;
 import net.minecraft.server.v1_8_R3.*;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.events.LCSpawnEvent;
+import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveUp;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
@@ -20,10 +24,10 @@ public class Regular extends BoxManager {
 
     private EntityArmorStand sword;
 
-    public Regular(Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
-        super(player, icon, config, boxid, initialLocation);
+    public Regular(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
+        super(location, player, icon, config, boxid, initialLocation);
 
-        Location loc = v1_8_R3.stringToLocation(config.getString(boxid+".settings.decoration.location"));
+        Location loc = v1_8_R3.handler.stringToLocation(config.getString(boxid+".settings.decoration.location"));
 
         this.sword = createArmorStand(loc, "", false);
 
@@ -66,12 +70,16 @@ public class Regular extends BoxManager {
         super.open();
         setClickable(false);
         moveUp();
+
+        ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 3));
+        summonFirework(getOwner());
+
         v1_8_R3.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, true);
         new BukkitRunnable() {
             long startTime = System.currentTimeMillis();
             @Override
             public void run() {
-                if (System.currentTimeMillis() - startTime > 3600) {
+                if (System.currentTimeMillis() - startTime > 3500) {
                     return;
                 }
                 EntityPlayer craftPlayer = ((CraftPlayer) getOwner()).getHandle();
@@ -94,11 +102,17 @@ public class Regular extends BoxManager {
             @Override
             public void run() {
                 if (System.currentTimeMillis() - startTime > 3000) {
+
+                    ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 0));
+                    PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
+                    Bukkit.getPluginManager().callEvent(event);
+
                     remove();
+
                     v1_8_R3.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
                     setClickable(true);
                     ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -1.2, 0), 5, 1, 1, 1, 0);
-                    new Regular(getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
+                    new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
                     cancel();
                     return;
                 }
@@ -106,6 +120,7 @@ public class Regular extends BoxManager {
                     cancel();
                     return;
                 }
+                ParticleType.of("CLOUD").spawn(getOwner(), getLoc().clone().add(0, -0.8, 0), 5, 0, 0, 0, 0);
                 time += 1;
                 DataWatcher dataWatcher = getBox().getDataWatcher();
                 float x;
@@ -155,6 +170,30 @@ public class Regular extends BoxManager {
 
     public EntityArmorStand getSword() {
         return this.sword;
+    }
+
+    public void summonFirework(Player targetPlayer) {
+        EntityFireworks fireworkEntity = new EntityFireworks(((CraftWorld) targetPlayer.getLocation().getWorld()).getHandle());
+
+        fireworkEntity.setPosition(targetPlayer.getLocation().getX(), targetPlayer.getLocation().getY(), targetPlayer.getLocation().getZ());
+
+        NBTTagCompound nbtTag = new NBTTagCompound();
+
+        nbtTag.setByte("Flight", (byte) 0);
+
+        NBTTagList explosions = new NBTTagList();
+        NBTTagCompound explosion = new NBTTagCompound();
+        explosion.setIntArray("Colors", new int[] {0xFF0000});
+        explosion.setByte("Type", (byte) 1);
+        explosions.add(explosion);
+        nbtTag.set("Explosions", explosions);
+
+
+        fireworkEntity.a(nbtTag);
+
+        PacketPlayOutEntityStatus packet = new PacketPlayOutEntityStatus(fireworkEntity, (byte) 17);
+        ((CraftPlayer) targetPlayer).getHandle().playerConnection.sendPacket(packet);
+
     }
 
 }

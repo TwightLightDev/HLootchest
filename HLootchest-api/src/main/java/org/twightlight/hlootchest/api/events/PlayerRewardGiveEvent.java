@@ -5,15 +5,13 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.twightlight.hlootchest.api.objects.TBox;
 
-public class PlayerOpenLCEvent extends Event {
+public class PlayerRewardGiveEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
     private Player player;
-    private boolean cancelled = false;
     private TBox box;
 
-    public PlayerOpenLCEvent(Player player, TBox box) {
-
+    public PlayerRewardGiveEvent(Player player, TBox box) {
         this.box = box;
         this.player = player;
     }
@@ -22,17 +20,8 @@ public class PlayerOpenLCEvent extends Event {
     public Player getPlayer() {
         return this.player;
     }
-
     public TBox getLootChest() {
-        return box;
-    }
-
-    public boolean isCancelled() {
-        return cancelled;
-    }
-
-    public void setCancelled(boolean cancelled) {
-        this.cancelled = cancelled;
+        return this.box;
     }
 
     public HandlerList getHandlers() {
@@ -43,4 +32,3 @@ public class PlayerOpenLCEvent extends Event {
         return HANDLERS;
     }
 }
-

@@ -13,6 +13,7 @@ public class BoxesConfig extends ConfigManager {
         yml.addDefault("regular.icon.material", "SKULL_ITEM");
         yml.addDefault("regular.icon.data", 3);
         yml.addDefault("regular.icon.head_value", "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMjE1ZmZmOGQ4ZThkYWRjMjZkZjQ3MWI2YzYxOTI2N2RmZDI3NDY3MjNjYzIyNWM3YjNiYmYyZjExZTlhYTJiOSJ9fX0");
+        yml.addDefault("regular.reward-amount", 3);
 
         yml.options().copyDefaults(true);
         save();

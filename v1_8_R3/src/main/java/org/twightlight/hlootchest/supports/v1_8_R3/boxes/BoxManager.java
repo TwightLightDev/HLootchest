@@ -3,22 +3,28 @@ package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Pig;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
-import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
-import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPig;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
+import org.bukkit.potion.PotionEffectType;
+import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.events.LCSpawnEvent;
+import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -34,19 +40,18 @@ public class BoxManager implements TBox {
     private String boxid;
     private TBox instance;
     private boolean clickToOpen;
-
     private Location playerLocation;
     private Location initialLocation;
+    private List<Location> rewardsLocation = new ArrayList<>();
+
     private static final Map<Player, Pig> vehicles = new HashMap<>();
     public static final ConcurrentHashMap<Integer, TBox> boxlists = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
 
-    public BoxManager(Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
+    public BoxManager(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
         this.owner = player;
 
         this.initialLocation = initialLocation;
-
-        Location location = v1_8_R3.stringToLocation(config.getString(boxid + ".settings.location"));
 
         this.box = createArmorStand(location, (config.getString(boxid + ".settings.name") != null) ? config.getString(boxid + ".settings.name") : "", (config.getBoolean(boxid + ".settings.enable-name")));
 
@@ -71,7 +76,13 @@ public class BoxManager implements TBox {
         sendSpawnPacket(owner, box);
         equipIcon(box, icon);
 
-        Location Plocation = v1_8_R3.stringToLocation(config.getString(boxid + ".settings.player-location"));
+        if (config.getList(boxid + ".rewards-location") != null) {
+            for (String reward : config.getList(boxid + ".rewards-location")) {
+                rewardsLocation.add(v1_8_R3.handler.stringToLocation(reward));
+            }
+        }
+
+        Location Plocation = v1_8_R3.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
 
         playerLocation = Plocation;
 
@@ -79,24 +90,36 @@ public class BoxManager implements TBox {
 
             owner.teleport(Plocation);
 
-            Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
-
-            Entity entity = ((CraftWorld) Plocation.getWorld()).getHandle().getEntity(vehicle.getUniqueId());
-            if (entity instanceof EntityPig) {
-                NBTTagCompound nbt = new NBTTagCompound();
-                entity.c(nbt);
-                nbt.setByte("NoAI", (byte) 1);
-                entity.f(nbt);
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                if (!online.equals(owner)) {
+                    online.hidePlayer(owner);
+                }
             }
 
-            vehicle.setCustomName("LootchestPig");
-            vehicle.setCustomNameVisible(false);
+
+            Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
             vehicle.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
 
-            vehicle.setPassenger(owner);
+            vehicle.setCustomName("LootchestVehicle");
+            vehicle.setCustomNameVisible(false);
 
+            EntityPig entityPig = ((CraftPig) vehicle).getHandle();
+            NBTTagCompound tag = entityPig.getNBTTag();
+
+            if(tag == null) {
+                tag = new NBTTagCompound();
+            }
+
+            entityPig.c(tag);
+            tag.setInt("NoAI", 1);
+
+            entityPig.f(tag);
+
+            vehicle.setPassenger(owner);
             vehicles.put(owner, vehicle);
         }
+        LCSpawnEvent event = new LCSpawnEvent(owner, this);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     public EntityArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
@@ -136,6 +159,8 @@ public class BoxManager implements TBox {
         if (event.isCancelled()) {
             return;
         }
+
+        v1_8_R3.handler.removeButtonsFromPlayer(owner, ButtonType.REWARD);
     }
 
     public void remove() {
@@ -200,5 +225,9 @@ public class BoxManager implements TBox {
 
     public Location getPlayerLocation() {
         return playerLocation;
+    }
+
+    public List<Location> getRewardsLocation() {
+        return rewardsLocation;
     }
 }

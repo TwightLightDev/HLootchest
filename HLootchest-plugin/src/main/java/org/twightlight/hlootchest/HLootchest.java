@@ -55,6 +55,7 @@ public final class HLootchest extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new DamageEvent(), HLootchest.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new DismountEvent(), HLootchest.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuit(), HLootchest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new RewardListener(), HLootchest.getInstance());
 
     }
 

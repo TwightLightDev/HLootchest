@@ -1,6 +1,5 @@
 package org.twightlight.hlootchest.api.objects;
 
-import org.bukkit.Location;
 import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.enums.ButtonType;

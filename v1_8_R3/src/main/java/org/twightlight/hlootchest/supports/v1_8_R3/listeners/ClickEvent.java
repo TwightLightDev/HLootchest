@@ -2,12 +2,10 @@ package org.twightlight.hlootchest.supports.v1_8_R3.listeners;
 
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
-import org.bukkit.Sound;
 import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.entity.Pig;
+import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.PlayerButtonClickEvent;
-import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
@@ -56,7 +54,7 @@ public class ClickEvent extends PlayerConnection {
             }
             List<String> actions = button.getActions();
             for (String stringAction : actions) {
-                String[] dataset = stringAction.split(" ");
+                String[] dataset = stringAction.split(" ", 2);
                 if (dataset[0].equals("[player]")) {
                     player.getBukkitEntity().performCommand(dataset[1].replace("{player}", this.player.getBukkitEntity().getName()));
                 } else if (dataset[0].equals("[console]")) {
@@ -69,6 +67,11 @@ public class ClickEvent extends PlayerConnection {
                     box.removeVehicle(player.getBukkitEntity());
                     box.getOwner().teleport(box.getPlayerInitialLoc());
                     box.remove();
+                    for (Player online : Bukkit.getOnlinePlayers()) {
+                        if (!online.equals(player.getBukkitEntity())) {
+                            online.showPlayer(player.getBukkitEntity());
+                        }
+                    }
                     v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.FUNCTIONAL);
                     v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.REWARD);
                 }
