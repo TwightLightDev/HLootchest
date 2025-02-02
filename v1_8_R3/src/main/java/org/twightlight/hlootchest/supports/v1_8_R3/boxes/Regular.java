@@ -5,14 +5,12 @@ import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.events.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveUp;
@@ -72,7 +70,6 @@ public class Regular extends BoxManager {
         moveUp();
 
         ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 3));
-        summonFirework(getOwner());
 
         v1_8_R3.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, true);
         new BukkitRunnable() {
@@ -172,28 +169,5 @@ public class Regular extends BoxManager {
         return this.sword;
     }
 
-    public void summonFirework(Player targetPlayer) {
-        EntityFireworks fireworkEntity = new EntityFireworks(((CraftWorld) targetPlayer.getLocation().getWorld()).getHandle());
-
-        fireworkEntity.setPosition(targetPlayer.getLocation().getX(), targetPlayer.getLocation().getY(), targetPlayer.getLocation().getZ());
-
-        NBTTagCompound nbtTag = new NBTTagCompound();
-
-        nbtTag.setByte("Flight", (byte) 0);
-
-        NBTTagList explosions = new NBTTagList();
-        NBTTagCompound explosion = new NBTTagCompound();
-        explosion.setIntArray("Colors", new int[] {0xFF0000});
-        explosion.setByte("Type", (byte) 1);
-        explosions.add(explosion);
-        nbtTag.set("Explosions", explosions);
-
-
-        fireworkEntity.a(nbtTag);
-
-        PacketPlayOutEntityStatus packet = new PacketPlayOutEntityStatus(fireworkEntity, (byte) 17);
-        ((CraftPlayer) targetPlayer).getHandle().playerConnection.sendPacket(packet);
-
-    }
 
 }

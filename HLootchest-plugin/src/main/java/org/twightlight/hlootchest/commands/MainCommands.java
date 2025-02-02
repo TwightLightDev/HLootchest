@@ -9,16 +9,17 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.config.ConfigManager;
+import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Set;
+import java.util.*;
 
 
 public class MainCommands implements CommandExecutor {
@@ -37,13 +38,46 @@ public class MainCommands implements CommandExecutor {
 
                     if (templateconfig.getYml().getConfigurationSection(identifier + ".buttons") != null) {
                         Set<String> buttons = templateconfig.getYml().getConfigurationSection(identifier + ".buttons").getKeys(false);
-                        for (String button : buttons) {
-                            String path = identifier + ".buttons" + "." + button;
-                            ItemStack buttonicon = Utility.createItem(Material.valueOf(templateconfig.getString(path + ".icon.material")), templateconfig.getString(path + ".icon.head_value"), templateconfig.getInt(path + ".icon.data"), "", new ArrayList<>(), false);
-                            Location location1 = HLootchest.getNms().stringToLocation(templateconfig.getString(path + ".location"));
 
-                            HLootchest.getNms().spawnButton(location1, ButtonType.FUNCTIONAL, p, buttonicon, path, templateconfig);
+                        PriorityQueue<ButtonTask> taskQueue = new PriorityQueue<>(Comparator.comparingInt(ButtonTask::getDelay));
+
+                        for (String button : buttons) {
+                            String path = identifier + ".buttons." + button;
+                            int delay = templateconfig.getYml().contains(path + ".delay") ? templateconfig.getInt(path + ".delay") : 0;
+
+                            taskQueue.add(new ButtonTask(path, delay));
                         }
+
+                        if (taskQueue.isEmpty()) {
+                            return true;
+                        }
+
+                        new BukkitRunnable() {
+                            int currentTick = 0;
+                            @Override
+                            public void run() {
+                                // Process all tasks that should be run now
+                                while (!taskQueue.isEmpty() && taskQueue.peek().getDelay() <= currentTick) {
+                                    ButtonTask task = taskQueue.poll(); // Get the task with the smallest delay
+                                    String path = task.getPath();
+
+                                    // Retrieve button icon and location
+                                    String iconMaterial = templateconfig.getString(path + ".icon.material");
+                                    String iconHeadValue = templateconfig.getString(path + ".icon.head_value");
+                                    int iconData = templateconfig.getInt(path + ".icon.data");
+                                    String locationString = templateconfig.getString(path + ".location");
+
+                                    // Create the icon item and spawn button
+                                    ItemStack buttonIcon = Utility.createItem(Material.valueOf(iconMaterial), iconHeadValue, iconData, "", new ArrayList<>(), false);
+                                    Location location = HLootchest.getNms().stringToLocation(locationString);
+
+
+                                    HLootchest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, buttonIcon, path, templateconfig);;
+                                }
+
+                                currentTick++;
+                            }
+                        }.runTaskTimer(HLootchest.getInstance(), 0L, 1L);
                     }
                 }
             } else {
@@ -95,4 +129,24 @@ public class MainCommands implements CommandExecutor {
         }
         return true;
     }
+
+    private static class ButtonTask {
+        private final String path;
+        private final int delay;
+
+        public ButtonTask(String path, int delay) {
+            this.path = path;
+            this.delay = delay;
+        }
+
+        public String getPath() {
+            return path;
+        }
+
+        public int getDelay() {
+            return delay;
+        }
+    }
 }
+
+

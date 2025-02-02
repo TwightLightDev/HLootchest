@@ -11,6 +11,7 @@ import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
@@ -42,6 +43,7 @@ public class Button implements TButton {
     private ItemStack icon = null;
     private TConfigManager config;
     private String pathToButton;
+    private String nameVisibleMode = "always";
 
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
@@ -60,18 +62,56 @@ public class Button implements TButton {
         this.actions = (config.getList(path+".actions") != null) ? config.getList(path+".actions") : new ArrayList<>();
         this.sound = Sound.valueOf(config.getString(path+".click-sound"));
 
-        EntityArmorStand armorStand = createArmorStand(location, (config.getString(path+".name") != null) ? config.getString(path+".name"):"", config.getBoolean(path+".enable-name"));
+        boolean enableName = (config.getYml().contains(path+".enable-name")) ? config.getBoolean(path+".enable-name") : false;
+        if (config.getYml().contains(path+".name-visible-mode") && enableName) {
+            String mode = config.getString(path+".name-visible-mode");
+            if (mode.equals("hover")) {
+                enableName = false;
+            }
+            nameVisibleMode = mode;
+        }
+
+
+        EntityArmorStand armorStand = createArmorStand(location, (config.getString(path+".name") != null) ? config.getString(path+".name"):"", enableName);
         this.id = armorStand.getId();
 
         this.armorstand = armorStand;
         v1_8_R3.rotate(armorstand, config, path);
+
+
+        boolean rotateOnSpawn = (config.getYml().contains(path+".rotate-on-spawn")) ? config.getBoolean(path+".rotate-on-spawn") : false;
 
         buttonIdMap.put(this.id, this);
         playerButtonMap.computeIfAbsent(player, k -> new ArrayList<>()).add(this);
         linkedStands.put(this, new ArrayList<>());
 
         this.type = type;
+
         sendSpawnPacket(player, armorStand);
+
+        if (rotateOnSpawn) {
+            float angle = (float) (location.clone().getYaw() - config.getDouble(path+".final-degrees"));
+
+            new BukkitRunnable() {
+                int i = 0;
+                @Override
+                public void run() {
+                    if (!owner.isOnline() || i >= 8) {
+                        this.cancel();
+                        return;
+                    }
+
+                    i ++;
+
+                    DataWatcher dataWatcher = armorstand.getDataWatcher();
+
+                    Vector3f pose = new Vector3f(0, location.getYaw() - ((angle/8) * i), 0);
+                    dataWatcher.watch(11, pose);
+                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorstand.getId(), dataWatcher, true);
+                    ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
+                }
+            }.runTaskTimer(v1_8_R3.handler.plugin, 10L, 1L);
+        }
 
         boolean isHoldingIcon = (config.getYml().contains(path + ".holding-icon")) ? config.getBoolean(pathToButton + ".holding-icon") : true;
         if (isHoldingIcon) {
@@ -115,6 +155,9 @@ public class Button implements TButton {
             if (owner.getLocation().distance(armorstand.getBukkitEntity().getLocation()) > 5 || isHiding) {
                 if (isMoved) {
                     moveBackward();
+                    if (nameVisibleMode.equals("hover")) {
+                        sendNameVisibilityPacket(owner, armorstand, false);
+                    }
                     unmovablePeriod(500);
                     isMoved = false;
                 }
@@ -132,12 +175,18 @@ public class Button implements TButton {
             if (dotProduct > 0.98) {
                 if (!isMoved && moveable) {
                     moveForward();
+                    if (nameVisibleMode.equals("hover")) {
+                        sendNameVisibilityPacket(owner, armorstand, true);
+                    }
                     unmovablePeriod(500);
                     isMoved = true;
                 }
             } else {
                 if (isMoved && moveable) {
                     moveBackward();
+                    if (nameVisibleMode.equals("hover")) {
+                        sendNameVisibilityPacket(owner, armorstand, false);
+                    }
                     unmovablePeriod(500);
                     isMoved = false;
                 }
