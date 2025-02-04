@@ -3,6 +3,7 @@ package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 import fr.mrmicky.fastparticles.ParticleType;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -54,7 +55,7 @@ public class Regular extends BoxManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (getBox().locY < loc.clone().getY() - 3.4) {
+                if (getBox().locY < loc.clone().getY() - 5.4) {
                     cancel();
                 }
                 new MoveUp(getOwner(), sword, (float) -0.2);
@@ -69,7 +70,7 @@ public class Regular extends BoxManager {
         setClickable(false);
         moveUp();
 
-        ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 3));
+        v1_8_R3.handler.setFakeGameMode(getOwner(), GameMode.SPECTATOR);
 
         v1_8_R3.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, true);
         new BukkitRunnable() {
@@ -100,15 +101,17 @@ public class Regular extends BoxManager {
             public void run() {
                 if (System.currentTimeMillis() - startTime > 3000) {
 
-                    ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 0));
                     PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
                     Bukkit.getPluginManager().callEvent(event);
 
                     remove();
 
+                    ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 0));
+
                     v1_8_R3.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
+
                     setClickable(true);
-                    ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -1.2, 0), 5, 1, 1, 1, 0);
+                    ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -3.2, 0), 2, 0.5, 0.5, 0.5, 0);
                     new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
                     cancel();
                     return;
@@ -117,7 +120,7 @@ public class Regular extends BoxManager {
                     cancel();
                     return;
                 }
-                ParticleType.of("CLOUD").spawn(getOwner(), getLoc().clone().add(0, -0.8, 0), 5, 0, 0, 0, 0);
+                ParticleType.of("CLOUD").spawn(getOwner(), getLoc().clone().add(0, -2.8, 0), 1, 0, 0, 0, 0);
                 time += 1;
                 DataWatcher dataWatcher = getBox().getDataWatcher();
                 float x;

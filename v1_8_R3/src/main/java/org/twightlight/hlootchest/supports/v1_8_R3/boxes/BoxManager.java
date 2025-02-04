@@ -3,12 +3,12 @@ package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPig;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -43,6 +43,7 @@ public class BoxManager implements TBox {
     private Location playerLocation;
     private Location initialLocation;
     private List<Location> rewardsLocation = new ArrayList<>();
+    private GameMode gm;
 
     private static final Map<Player, Pig> vehicles = new HashMap<>();
     public static final ConcurrentHashMap<Integer, TBox> boxlists = new ConcurrentHashMap<>();
@@ -68,6 +69,8 @@ public class BoxManager implements TBox {
         this.config = config;
 
         this.boxid = boxid;
+
+        this.gm = player.getGameMode();
 
         v1_8_R3.rotate(box, config, boxid + ".settings");
 
@@ -228,6 +231,10 @@ public class BoxManager implements TBox {
     }
 
     public List<Location> getRewardsLocation() {
-        return rewardsLocation;
+        return new ArrayList<>(rewardsLocation);
+    }
+
+    public GameMode getGm() {
+        return gm;
     }
 }

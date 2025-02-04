@@ -105,21 +105,43 @@ public class Utility {
                 loc.getPitch());
     }
 
-    public static <T> Set<T> getRandomElements(Set<T> set, int n) {
+    public static <T> Set<T> getRandomElements(Set<T> set, List<Integer> chances, int n) {
+        if (set.size() != chances.size()) {
+            throw new IllegalArgumentException("The size of the set and the chances list must be the same.");
+        }
+
+        int totalChance = chances.get(chances.size()-1);
+
         List<T> list = new ArrayList<>(set);
         Set<T> randomElements = new HashSet<>();
         Random random = new Random();
 
-        if (n > list.size()) {
-            throw new IllegalArgumentException("Cannot get more unique elements than the size of the set.");
+        if (n > set.size()) {
+            throw new IllegalArgumentException("Cannot select more unique elements than are in the set.");
         }
 
         while (randomElements.size() < n) {
-            T element = list.get(random.nextInt(list.size()));
-            randomElements.add(element);
+            int randValue = random.nextInt(totalChance);
+
+            int i = closestGreater(chances, randValue);
+            randomElements.add(list.get(i));
         }
 
         return randomElements;
+
+    }
+
+    public static int closestGreater(List<Integer> A, int x) {
+        int lo = 0, hi = A.size() - 1;
+        while (lo <= hi) {
+            int mid = (lo + hi) / 2;
+            if (A.get(mid) <= x) {
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
+            }
+        }
+        return lo;
     }
 }
 

@@ -1,7 +1,7 @@
 package org.twightlight.hlootchest.api.objects;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -26,4 +26,5 @@ public interface TBox {
     String getBoxId();
     TConfigManager getConfig();
     List<Location> getRewardsLocation();
+    GameMode getGm();
 }

@@ -1,11 +1,8 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.buttons;
 
 import net.minecraft.server.v1_8_R3.*;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.Sound;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
@@ -20,6 +17,7 @@ import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveBackward;
 import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveForward;
+import org.twightlight.hlootchest.supports.v1_8_R3.animations.Spinning;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 
 import java.util.*;
@@ -34,7 +32,7 @@ public class Button implements TButton {
     private final EntityArmorStand armorstand;
     private boolean isMoved = false;
     private final BukkitTask task;
-    private boolean clickable = true;
+    private boolean clickable = false;
     private boolean moveable = true;
     private ButtonType type;
     private List<String> actions;
@@ -47,9 +45,10 @@ public class Button implements TButton {
 
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
+
+    public static final Map<EntityArmorStand, String> linkedStandsSettings = new HashMap<>();
     public static final Map<TButton, List<EntityArmorStand>> linkedStands = new HashMap<>();
     public static final Map<EntityArmorStand, ItemStack> linkedStandsIcon = new HashMap<>();
-
 
     public Button(Location location, ButtonType type, Player player, ItemStack icon, String path, TConfigManager config) {
         this.owner = player;
@@ -62,9 +61,9 @@ public class Button implements TButton {
         this.actions = (config.getList(path+".actions") != null) ? config.getList(path+".actions") : new ArrayList<>();
         this.sound = Sound.valueOf(config.getString(path+".click-sound"));
 
-        boolean enableName = (config.getYml().contains(path+".enable-name")) ? config.getBoolean(path+".enable-name") : false;
-        if (config.getYml().contains(path+".name-visible-mode") && enableName) {
-            String mode = config.getString(path+".name-visible-mode");
+        boolean enableName = (config.getYml().contains(path+".name")) ? config.getBoolean(path+".name.enable") : false;
+        if (config.getYml().contains(path+".name.visible-mode") && enableName) {
+            String mode = config.getString(path+".name.visible-mode");
             if (mode.equals("hover")) {
                 enableName = false;
             }
@@ -72,14 +71,11 @@ public class Button implements TButton {
         }
 
 
-        EntityArmorStand armorStand = createArmorStand(location, (config.getString(path+".name") != null) ? config.getString(path+".name"):"", enableName);
+        EntityArmorStand armorStand = createArmorStand(location, (config.getString(path+".name.display-name") != null) ? config.getString(path+".name.display-name"):"", enableName);
         this.id = armorStand.getId();
 
         this.armorstand = armorStand;
         v1_8_R3.rotate(armorstand, config, path);
-
-
-        boolean rotateOnSpawn = (config.getYml().contains(path+".rotate-on-spawn")) ? config.getBoolean(path+".rotate-on-spawn") : false;
 
         buttonIdMap.put(this.id, this);
         playerButtonMap.computeIfAbsent(player, k -> new ArrayList<>()).add(this);
@@ -89,28 +85,29 @@ public class Button implements TButton {
 
         sendSpawnPacket(player, armorStand);
 
+        boolean rotateOnSpawn = (config.getYml().contains(path+".rotate-on-spawn")) ? config.getBoolean(path+".rotate-on-spawn.enable") : false;
         if (rotateOnSpawn) {
-            float angle = (float) (location.clone().getYaw() - config.getDouble(path+".final-degrees"));
-
+            float angle = (float) (location.clone().getYaw() - config.getDouble(path+".rotate-on-spawn.final-yaw"));
+            boolean reverse = config.getBoolean(path+".rotate-on-spawn.reverse");
             new BukkitRunnable() {
                 int i = 0;
                 @Override
                 public void run() {
-                    if (!owner.isOnline() || i >= 8) {
+                    if (!owner.isOnline() || i >= 1) {
                         this.cancel();
                         return;
                     }
 
                     i ++;
-
-                    DataWatcher dataWatcher = armorstand.getDataWatcher();
-
-                    Vector3f pose = new Vector3f(0, location.getYaw() - ((angle/8) * i), 0);
-                    dataWatcher.watch(11, pose);
-                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorstand.getId(), dataWatcher, true);
-                    ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
+                    int multiply;
+                    if (reverse) {
+                        multiply = 1;
+                    } else {
+                        multiply = -1;
+                    }
+                    new Spinning(owner, armorstand, location.clone().getYaw() - ((angle) * i * multiply));
                 }
-            }.runTaskTimer(v1_8_R3.handler.plugin, 10L, 1L);
+            }.runTaskTimer(v1_8_R3.handler.plugin, 2L, 1L);
         }
 
         boolean isHoldingIcon = (config.getYml().contains(path + ".holding-icon")) ? config.getBoolean(pathToButton + ".holding-icon") : true;
@@ -118,6 +115,8 @@ public class Button implements TButton {
             equipIcon(armorStand, icon);
             this.icon = icon;
         }
+
+        unmovablePeriod(150);
 
         if (config.getYml().getConfigurationSection(path + ".children") != null) {
 
@@ -135,8 +134,18 @@ public class Button implements TButton {
                 }
 
                 if (childlocation != null) {
-                    EntityArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name") != null) ? config.getString(newpath + ".name") : "", config.getBoolean(newpath + ".enable-name"));
+                    boolean childEnableName = (config.getYml().contains(newpath+".name")) ? config.getBoolean(newpath+".name.enable") : false;
+                    String childNameVisibleMode = "always";
+                    if (config.getYml().contains(newpath+".name.visible-mode") && childEnableName) {
+                        String mode = config.getString(newpath+".name.visible-mode");
+                        if (mode.equals("hover")) {
+                            childEnableName = false;
+                        }
+                        childNameVisibleMode = mode;
+                    }
+                    EntityArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "", childEnableName);
                     v1_8_R3.rotate(child, config, newpath);
+                    linkedStandsSettings.put(child, childNameVisibleMode);
                     linkedStands.get(this).add(child);
                     sendSpawnPacket(player, child);
                     if (config.getYml().contains(newpath + ".icon")) {
@@ -158,6 +167,11 @@ public class Button implements TButton {
                     if (nameVisibleMode.equals("hover")) {
                         sendNameVisibilityPacket(owner, armorstand, false);
                     }
+                    for (EntityArmorStand stand : linkedStands.get(this)) {
+                        if (linkedStandsSettings.get(stand).equals("hover")) {
+                            sendNameVisibilityPacket(owner, stand, false);
+                        }
+                    }
                     unmovablePeriod(500);
                     isMoved = false;
                 }
@@ -178,6 +192,11 @@ public class Button implements TButton {
                     if (nameVisibleMode.equals("hover")) {
                         sendNameVisibilityPacket(owner, armorstand, true);
                     }
+                    for (EntityArmorStand stand : linkedStands.get(this)) {
+                        if (linkedStandsSettings.get(stand).equals("hover")) {
+                            sendNameVisibilityPacket(owner, stand, true);
+                        }
+                    }
                     unmovablePeriod(500);
                     isMoved = true;
                 }
@@ -186,6 +205,11 @@ public class Button implements TButton {
                     moveBackward();
                     if (nameVisibleMode.equals("hover")) {
                         sendNameVisibilityPacket(owner, armorstand, false);
+                    }
+                    for (EntityArmorStand stand : linkedStands.get(this)) {
+                        if (linkedStandsSettings.get(stand).equals("hover")) {
+                            sendNameVisibilityPacket(owner, stand, false);
+                        }
                     }
                     unmovablePeriod(500);
                     isMoved = false;
@@ -287,6 +311,7 @@ public class Button implements TButton {
     }
 
     public void moveForward() {
+        clickable = true;
         new MoveForward(owner, armorstand, (float) 0.5);
         for (EntityArmorStand stand : linkedStands.get(this)) {
             new MoveForward(owner, stand, (float) 0.5);
@@ -294,6 +319,7 @@ public class Button implements TButton {
     }
 
     public void moveBackward() {
+        clickable = false;
         new MoveBackward(owner, armorstand, (float) 0.5);
         for (EntityArmorStand stand : linkedStands.get(this)) {
             new MoveBackward(owner, stand, (float) 0.5);

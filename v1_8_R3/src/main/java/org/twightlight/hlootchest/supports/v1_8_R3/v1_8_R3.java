@@ -4,6 +4,7 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.server.v1_8_R3.EntityArmorStand;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
+import net.minecraft.server.v1_8_R3.PacketPlayOutGameStateChange;
 import net.minecraft.server.v1_8_R3.Vector3f;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -211,6 +212,20 @@ public class v1_8_R3 extends NMSHandler {
                     armorStand.setLeftLegPose(rotation);
                 }
             }
+        }
+    }
+
+    public void setFakeGameMode(Player p, GameMode gamemode) {
+        switch (gamemode) {
+            case SURVIVAL:
+                ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 0));
+            case CREATIVE:
+                ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 1));
+            case ADVENTURE:
+                ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 2));
+            case SPECTATOR:
+                ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 3));
+
         }
 
     }

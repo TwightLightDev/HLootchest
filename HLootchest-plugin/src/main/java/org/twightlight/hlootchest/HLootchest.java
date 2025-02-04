@@ -2,15 +2,17 @@ package org.twightlight.hlootchest;
 
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.twightlight.hlootchest.api.database.DatabaseType;
+import org.twightlight.hlootchest.api.database.TDatabase;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.commands.MainCommands;
 import org.twightlight.hlootchest.config.ConfigManager;
-import org.twightlight.hlootchest.config.configs.BoxesConfig;
 import org.twightlight.hlootchest.config.configs.MainConfig;
 import org.twightlight.hlootchest.config.configs.MessageConfig;
+import org.twightlight.hlootchest.database.SQLite;
 import org.twightlight.hlootchest.listeners.*;
-import org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular;
+import org.twightlight.hlootchest.supports.PlaceholdersAPI;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.io.File;
@@ -20,11 +22,14 @@ public final class HLootchest extends JavaPlugin {
     private static NMSHandler nms;
     private static API api;
     private String path = getDataFolder().getPath();
+    private boolean papi = false;
     public static TConfigManager mainConfig;
     public static TConfigManager templateConfig;
     public static TConfigManager boxesConfig;
     public static TConfigManager messagesConfig;
+    public static TDatabase db;
     private static final String version = Bukkit.getServer().getClass().getName().split("\\.")[3];
+
 
     @Override
     public void onEnable() {
@@ -33,6 +38,9 @@ public final class HLootchest extends JavaPlugin {
         loadCommands();
         loadListeners();
         loadConf();
+        loadDatabase();
+        loadPlaceholdersAPI();
+        loadCredit();
     }
 
     @Override
@@ -43,7 +51,7 @@ public final class HLootchest extends JavaPlugin {
         switch (version) {
             case "v1_8_R3":
                 nms = new org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3(this, version);
-                nms.register("regular", Regular::new);
+                nms.register("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
         }
     }
     private void loadCommands() {
@@ -52,27 +60,61 @@ public final class HLootchest extends JavaPlugin {
     private void loadListeners() {
 
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoin(), HLootchest.getInstance());
-        Bukkit.getServer().getPluginManager().registerEvents(new DamageEvent(), HLootchest.getInstance());
-        Bukkit.getServer().getPluginManager().registerEvents(new DismountEvent(), HLootchest.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuit(), HLootchest.getInstance());
-        Bukkit.getServer().getPluginManager().registerEvents(new RewardListener(), HLootchest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new LootChests(), HLootchest.getInstance());
 
     }
 
     private void loadConf() {
         Utility.info("Loading config.yml...");
         mainConfig = new MainConfig(this, "config", path);
+
         Utility.info("Loading templates...");
         File file = new File((getDataFolder().getPath()+ "/templates"), "example_template.yml");
         if (!file.exists()) {
             saveResource("templates/example_template.yml", false);
         }
         templateConfig = new ConfigManager(this, mainConfig.getString("template"), getDataFolder().getPath()+ "/templates");
+
         Utility.info("Loading lootchests...");
-        boxesConfig = new BoxesConfig(this, "lootchests", path);
+        File file2 = new File(getDataFolder().getPath(), "lootchests.yml");
+        if (!file2.exists()) {
+            saveResource("lootchests.yml", false);
+        }
+        boxesConfig = new ConfigManager(this, "lootchests", path);
+
         Utility.info("Loading messages.yml...");
         messagesConfig = new MessageConfig(this, "messages", path);
 
+    }
+
+    private void loadDatabase() {
+        Utility.info("Connecting to database...");
+        String provider = mainConfig.getString("storage.source");
+        switch (provider) {
+            case "SQLite":
+                Utility.info("Using SQLite as database provider...");
+                db = new SQLite(this, DatabaseType.SQLITE);
+        }
+        Utility.info("Your database is ready!");
+    }
+
+    private void loadCredit() {
+        Utility.info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        Utility.info("HLootchest by TwightLight");
+        Utility.info("Github Link: https://github.com/TwightLightDev/HLootchest");
+        Utility.info("Minecraft Version: " + version);
+        Utility.info("Plugin Version: " + getVersion());
+        Utility.info("Author: " + getDescription().getAuthors().toString());
+        Utility.info("PlaceholderAPI: " + isPlaceholderAPI());
+        Utility.info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+    }
+
+    private void loadPlaceholdersAPI() {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
+            new PlaceholdersAPI(this).register();
+            papi = true;
+        }
     }
 
     public static NMSHandler getNms() {
@@ -89,6 +131,14 @@ public final class HLootchest extends JavaPlugin {
 
     public static String getFilePath() {
         return getInstance().getDataFolder().getPath();
+    }
+
+    public boolean isPlaceholderAPI() {
+        return papi;
+    }
+
+    public static String getVersion() {
+        return "1.0.0";
     }
 
 }

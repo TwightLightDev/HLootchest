@@ -31,7 +31,7 @@ public class ClickEvent extends PlayerConnection {
 
         PacketPlayInUseEntity.EnumEntityUseAction action = packet.a();
         if (button != null && button.isClickable()) {
-            handleButtonInteraction(action, button, entityId);
+            handleButtonInteraction(action, button);
         }
         TBox box = BoxManager.boxlists.get(entityId);
         if (box != null && box.isClickable() && box.isClickToOpen()) {
@@ -40,7 +40,7 @@ public class ClickEvent extends PlayerConnection {
 
     }
 
-    private void handleButtonInteraction(PacketPlayInUseEntity.EnumEntityUseAction action, TButton button, int entityId) {
+    private void handleButtonInteraction(PacketPlayInUseEntity.EnumEntityUseAction action, TButton button) {
         PlayerButtonClickEvent event = new PlayerButtonClickEvent(this.player.getBukkitEntity(), button);
         Bukkit.getPluginManager().callEvent(event);
 
