@@ -19,6 +19,7 @@ import java.util.*;
 public class LootChestSessions implements TSessions {
 
     Player player;
+
     public static final Map<Player, TSessions> sessions = new HashMap<>();
 
     public LootChestSessions(Player p, String identifier) {
@@ -41,10 +42,14 @@ public class LootChestSessions implements TSessions {
 
                 PriorityQueue<ButtonTask> taskQueue = new PriorityQueue<>(Comparator.comparingInt(ButtonTask::getDelay));
 
+                int highestdelay = 0;
+
                 for (String button : buttons) {
                     String path = identifier + ".buttons." + button;
                     int delay = templateconfig.getYml().contains(path + ".delay") ? templateconfig.getInt(path + ".delay") : 0;
-
+                    if (delay > highestdelay) {
+                        highestdelay = delay;
+                    }
                     taskQueue.add(new ButtonTask(path, delay));
                 }
 
@@ -52,10 +57,15 @@ public class LootChestSessions implements TSessions {
                     return;
                 }
 
+                int stop = highestdelay;
                 new BukkitRunnable() {
                     int currentTick = 0;
                     @Override
                     public void run() {
+                        if (currentTick > stop) {
+                            this.cancel();
+                            return;
+                        }
 
                         while (!taskQueue.isEmpty() && taskQueue.peek().getDelay() <= currentTick) {
                             ButtonTask task = taskQueue.poll();
@@ -74,7 +84,7 @@ public class LootChestSessions implements TSessions {
 
                         currentTick++;
                     }
-                }.runTaskTimer(HLootchest.getInstance(), 0L, 1L);
+                }.runTaskTimer(HLootchest.getInstance(), 0L, 2L);
             }
         }
     }

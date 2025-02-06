@@ -6,12 +6,14 @@ import org.twightlight.hlootchest.api.database.DatabaseType;
 import org.twightlight.hlootchest.api.database.TDatabase;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
+import org.twightlight.hlootchest.commands.AdminCommand;
 import org.twightlight.hlootchest.commands.MainCommands;
 import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.config.configs.MainConfig;
-import org.twightlight.hlootchest.config.configs.MessageConfig;
 import org.twightlight.hlootchest.database.SQLite;
-import org.twightlight.hlootchest.listeners.*;
+import org.twightlight.hlootchest.listeners.LootChests;
+import org.twightlight.hlootchest.listeners.PlayerJoin;
+import org.twightlight.hlootchest.listeners.PlayerQuit;
 import org.twightlight.hlootchest.supports.PlaceholdersAPI;
 import org.twightlight.hlootchest.utils.Utility;
 
@@ -56,6 +58,8 @@ public final class HLootchest extends JavaPlugin {
     }
     private void loadCommands() {
         this.getCommand("hlootchests").setExecutor(new MainCommands());
+        this.getCommand("hlootchestsadmin").setExecutor(new AdminCommand());
+
     }
     private void loadListeners() {
 
@@ -84,7 +88,11 @@ public final class HLootchest extends JavaPlugin {
         boxesConfig = new ConfigManager(this, "lootchests", path);
 
         Utility.info("Loading messages.yml...");
-        messagesConfig = new MessageConfig(this, "messages", path);
+        File file4 = new File(getDataFolder().getPath(), "messages.yml");
+        if (!file4.exists()) {
+            saveResource("messages.yml", false);
+        }
+        messagesConfig = new ConfigManager(this, "messages", path);
 
     }
 

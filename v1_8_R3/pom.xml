@@ -70,5 +70,9 @@
           <groupId>fr.mrmicky</groupId>
           <artifactId>FastParticles</artifactId>
       </dependency>
+      <dependency>
+          <groupId>me.clip</groupId>
+          <artifactId>placeholderapi</artifactId>
+      </dependency>
   </dependencies>
 </project>

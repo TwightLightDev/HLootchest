@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.buttons;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Material;
 import org.bukkit.*;
@@ -15,9 +16,7 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.ButtonSpawnEvent;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveBackward;
-import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveForward;
-import org.twightlight.hlootchest.supports.v1_8_R3.animations.Spinning;
+import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 
 import java.util.*;
@@ -42,6 +41,7 @@ public class Button implements TButton {
     private TConfigManager config;
     private String pathToButton;
     private String nameVisibleMode = "always";
+    private boolean removed = false;
 
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
@@ -85,6 +85,22 @@ public class Button implements TButton {
 
         sendSpawnPacket(player, armorStand);
 
+        if (config.getYml().contains(path + ".name.refresh-interval")) {
+            int interval = config.getInt(path + ".name.refresh-interval");
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (!owner.isOnline() || removed) {
+                        this.cancel();
+                        return;
+                    }
+                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
+                    armorstand.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', config.getString(path+".name.display-name"))));
+                    ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
+                }
+            }.runTaskTimer(v1_8_R3.handler.plugin, 0L, interval);
+        }
+
         boolean rotateOnSpawn = (config.getYml().contains(path+".rotate-on-spawn")) ? config.getBoolean(path+".rotate-on-spawn.enable") : false;
         if (rotateOnSpawn) {
             float angle = (float) (location.clone().getYaw() - config.getDouble(path+".rotate-on-spawn.final-yaw"));
@@ -105,7 +121,7 @@ public class Button implements TButton {
                     } else {
                         multiply = -1;
                     }
-                    new Spinning(owner, armorstand, location.clone().getYaw() - ((angle) * i * multiply));
+                    Animations.Spinning(owner, armorstand, location.clone().getYaw() - ((angle) * i * multiply));
                 }
             }.runTaskTimer(v1_8_R3.handler.plugin, 2L, 1L);
         }
@@ -148,6 +164,23 @@ public class Button implements TButton {
                     linkedStandsSettings.put(child, childNameVisibleMode);
                     linkedStands.get(this).add(child);
                     sendSpawnPacket(player, child);
+
+                    if (config.getYml().contains(newpath + ".name.refresh-interval")) {
+                        int interval = config.getInt(newpath + ".name.refresh-interval");
+                        new BukkitRunnable() {
+                            @Override
+                            public void run() {
+                                if (!owner.isOnline() || removed) {
+                                    this.cancel();
+                                    return;
+                                }
+                                PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(child.getId(), child.getDataWatcher(), true);
+                                child.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath+".name.display-name"))));
+                                ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
+                            }
+                        }.runTaskTimer(v1_8_R3.handler.plugin, 0L, interval);
+                    }
+
                     if (config.getYml().contains(newpath + ".icon")) {
                         ItemStack childicon = v1_8_R3.createItem(Material.valueOf(config.getString(newpath + ".icon.material")), config.getString(newpath + ".icon.head_value"), config.getInt(newpath + ".icon.data"), "", new ArrayList<>(), false);
                         equipIcon(child, childicon);
@@ -156,66 +189,76 @@ public class Button implements TButton {
                 }
             }
         }
-        this.task = Bukkit.getScheduler().runTaskTimer(v1_8_R3.handler.plugin, () -> {
-            if (!owner.isOnline()) {
-                cancelTask();
-                return;
-            }
-            if (owner.getLocation().distance(armorstand.getBukkitEntity().getLocation()) > 5 || isHiding) {
-                if (isMoved) {
-                    moveBackward();
-                    if (nameVisibleMode.equals("hover")) {
-                        sendNameVisibilityPacket(owner, armorstand, false);
-                    }
-                    for (EntityArmorStand stand : linkedStands.get(this)) {
-                        if (linkedStandsSettings.get(stand).equals("hover")) {
-                            sendNameVisibilityPacket(owner, stand, false);
-                        }
-                    }
-                    unmovablePeriod(500);
-                    isMoved = false;
+        boolean moveForward = (config.getYml().contains(path + ".move-forward")) ? config.getBoolean(path + ".move-forward") : true;
+        if (moveForward) {
+            this.task = Bukkit.getScheduler().runTaskTimer(v1_8_R3.handler.plugin, () -> {
+                if (owner == null || armorstand == null || !owner.isOnline()) {
+                    cancelTask();
+                    return;
                 }
-                return;
-            }
-
-            Location playerEye = owner.getEyeLocation();
-            Vector playerDirection = playerEye.getDirection();
-            Vector playerPosition = playerEye.toVector();
-
-            Vector armorStandPosition = new Vector(armorstand.locX, armorstand.locY + 1.6, armorstand.locZ);
-            Vector toArmorStand = armorStandPosition.subtract(playerPosition).normalize();
-            double dotProduct = playerDirection.dot(toArmorStand);
-
-            if (dotProduct > 0.98) {
-                if (!isMoved && moveable) {
-                    moveForward();
-                    if (nameVisibleMode.equals("hover")) {
-                        sendNameVisibilityPacket(owner, armorstand, true);
-                    }
-                    for (EntityArmorStand stand : linkedStands.get(this)) {
-                        if (linkedStandsSettings.get(stand).equals("hover")) {
-                            sendNameVisibilityPacket(owner, stand, true);
-                        }
-                    }
-                    unmovablePeriod(500);
-                    isMoved = true;
+                if (linkedStands == null || !linkedStands.containsKey(this)) {
+                    cancelTask();
+                    return;
                 }
-            } else {
-                if (isMoved && moveable) {
-                    moveBackward();
-                    if (nameVisibleMode.equals("hover")) {
-                        sendNameVisibilityPacket(owner, armorstand, false);
-                    }
-                    for (EntityArmorStand stand : linkedStands.get(this)) {
-                        if (linkedStandsSettings.get(stand).equals("hover")) {
-                            sendNameVisibilityPacket(owner, stand, false);
-                        }
-                    }
-                    unmovablePeriod(500);
-                    isMoved = false;
-                }
-            }}, 0L, 5L);
 
+                if (owner.getLocation().distance(armorstand.getBukkitEntity().getLocation()) > 5 || isHiding) {
+                    if (isMoved) {
+                        moveBackward();
+                        if (nameVisibleMode.equals("hover")) {
+                            sendNameVisibilityPacket(owner, armorstand, false);
+                        }
+                        for (EntityArmorStand stand : linkedStands.get(this)) {
+                            if (linkedStandsSettings.get(stand).equals("hover")) {
+                                sendNameVisibilityPacket(owner, stand, false);
+                            }
+                        }
+                        unmovablePeriod(500);
+                        isMoved = false;
+                    }
+                    return;
+                }
+
+                Location playerEye = owner.getEyeLocation();
+                Vector playerDirection = playerEye.getDirection();
+                Vector playerPosition = playerEye.toVector();
+
+                Vector armorStandPosition = new Vector(armorstand.locX, armorstand.locY + 1.6, armorstand.locZ);
+                Vector toArmorStand = armorStandPosition.subtract(playerPosition).normalize();
+                double dotProduct = playerDirection.dot(toArmorStand);
+
+                if (dotProduct > 0.98) {
+                    if (!isMoved && moveable) {
+                        moveForward();
+                        if (nameVisibleMode.equals("hover")) {
+                            sendNameVisibilityPacket(owner, armorstand, true);
+                        }
+                        for (EntityArmorStand stand : linkedStands.get(this)) {
+                            if (linkedStandsSettings.get(stand).equals("hover")) {
+                                sendNameVisibilityPacket(owner, stand, true);
+                            }
+                        }
+                        unmovablePeriod(500);
+                        isMoved = true;
+                    }
+                } else {
+                    if (isMoved && moveable) {
+                        moveBackward();
+                        if (nameVisibleMode.equals("hover")) {
+                            sendNameVisibilityPacket(owner, armorstand, false);
+                        }
+                        for (EntityArmorStand stand : linkedStands.get(this)) {
+                            if (linkedStandsSettings.get(stand).equals("hover")) {
+                                sendNameVisibilityPacket(owner, stand, false);
+                            }
+                        }
+                        unmovablePeriod(500);
+                        isMoved = false;
+                    }
+                }
+            }, 0L, 5L);
+        } else {
+            this.task = null;
+        }
     }
 
     private EntityArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
@@ -223,8 +266,7 @@ public class Button implements TButton {
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
         armorStand.setCustomNameVisible(isNameEnable);
-
-        armorStand.setCustomName(ChatColor.translateAlternateColorCodes('&', name));
+        armorStand.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', name)));
         armorStand.setInvisible(true);
         armorStand.setGravity(false);
 
@@ -291,6 +333,7 @@ public class Button implements TButton {
 
     public void remove() {
         if (armorstand != null) {
+            removed = true;
             cancelTask();
             sendDespawnPacket(owner, armorstand);
             for (EntityArmorStand stand : linkedStands.get(this)) {
@@ -312,17 +355,17 @@ public class Button implements TButton {
 
     public void moveForward() {
         clickable = true;
-        new MoveForward(owner, armorstand, (float) 0.5);
+        Animations.MoveForward(owner, armorstand, (float) 0.5);
         for (EntityArmorStand stand : linkedStands.get(this)) {
-            new MoveForward(owner, stand, (float) 0.5);
+            Animations.MoveForward(owner, stand, (float) 0.5);
         }
     }
 
     public void moveBackward() {
         clickable = false;
-        new MoveBackward(owner, armorstand, (float) 0.5);
+        Animations.MoveBackward(owner, armorstand, (float) 0.5);
         for (EntityArmorStand stand : linkedStands.get(this)) {
-            new MoveBackward(owner, stand, (float) 0.5);
+            Animations.MoveBackward(owner, stand, (float) 0.5);
         }
     }
 
@@ -351,7 +394,9 @@ public class Button implements TButton {
     }
 
     public void cancelTask() {
-        this.task.cancel();
+        if (this.task != null) {
+            this.task.cancel();
+        }
     }
 
     public boolean isMoved() {

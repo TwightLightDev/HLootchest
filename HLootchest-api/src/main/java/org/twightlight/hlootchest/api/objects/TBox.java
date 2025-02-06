@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 public interface TBox {
-    void open();
+    boolean open();
     void remove();
     boolean isClickable();
     void setClickable(boolean bool);
@@ -26,5 +26,4 @@ public interface TBox {
     String getBoxId();
     TConfigManager getConfig();
     List<Location> getRewardsLocation();
-    GameMode getGm();
 }

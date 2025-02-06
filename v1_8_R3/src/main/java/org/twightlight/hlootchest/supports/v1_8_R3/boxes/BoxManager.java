@@ -1,9 +1,9 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPig;
@@ -43,7 +43,6 @@ public class BoxManager implements TBox {
     private Location playerLocation;
     private Location initialLocation;
     private List<Location> rewardsLocation = new ArrayList<>();
-    private GameMode gm;
 
     private static final Map<Player, Pig> vehicles = new HashMap<>();
     public static final ConcurrentHashMap<Integer, TBox> boxlists = new ConcurrentHashMap<>();
@@ -54,7 +53,7 @@ public class BoxManager implements TBox {
 
         this.initialLocation = initialLocation;
 
-        this.box = createArmorStand(location, (config.getString(boxid + ".settings.name") != null) ? config.getString(boxid + ".settings.name") : "", (config.getBoolean(boxid + ".settings.enable-name")));
+        this.box = createArmorStand(location, "", false);
 
         this.clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
 
@@ -70,13 +69,12 @@ public class BoxManager implements TBox {
 
         this.boxid = boxid;
 
-        this.gm = player.getGameMode();
-
         v1_8_R3.rotate(box, config, boxid + ".settings");
 
         boxlists.put(id, this);
         boxPlayerlists.put(owner, this);
         sendSpawnPacket(owner, box);
+
         equipIcon(box, icon);
 
         if (config.getList(boxid + ".rewards-location") != null) {
@@ -130,7 +128,7 @@ public class BoxManager implements TBox {
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
         armorStand.setCustomNameVisible(isNameEnable);
-        armorStand.setCustomName(ChatColor.translateAlternateColorCodes('&', name));
+        armorStand.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', name)));
         armorStand.setInvisible(true);
         armorStand.setGravity(false);
 
@@ -155,15 +153,17 @@ public class BoxManager implements TBox {
         ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
     }
 
-    public void open() {
+    public boolean open() {
+
+        v1_8_R3.handler.removeButtonsFromPlayer(owner, ButtonType.REWARD);
+
         PlayerOpenLCEvent event = new PlayerOpenLCEvent(owner, this);
         Bukkit.getPluginManager().callEvent(event);
 
         if (event.isCancelled()) {
-            return;
+            return false;
         }
-
-        v1_8_R3.handler.removeButtonsFromPlayer(owner, ButtonType.REWARD);
+        return true;
     }
 
     public void remove() {
@@ -234,7 +234,4 @@ public class BoxManager implements TBox {
         return new ArrayList<>(rewardsLocation);
     }
 
-    public GameMode getGm() {
-        return gm;
-    }
 }

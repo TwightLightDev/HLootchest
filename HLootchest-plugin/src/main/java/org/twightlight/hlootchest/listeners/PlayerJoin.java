@@ -20,11 +20,14 @@ public class PlayerJoin implements Listener{
         } catch (Exception ex) {
             ex.printStackTrace();
         }
-        Map<String, Integer> lchsData = HLootchest.getAPI().getDatabaseUtil().getLootChestData(player);
+        Map<String, Integer> lchsData = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "lootchests");
+        Map<String, Integer> lchsData1 = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "opened");
         Set<String> listLchs = HLootchest.getNms().getRegistrationData().keySet();
         for (String lcType : listLchs) {
             lchsData.putIfAbsent(lcType, 0);
+            lchsData1.putIfAbsent(lcType, 0);
         }
-        HLootchest.getAPI().getDatabaseUtil().pullData(player, lchsData);
+        HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, lchsData, "lootchests");
+        HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, lchsData1, "opened");
     }
 }

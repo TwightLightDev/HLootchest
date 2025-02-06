@@ -14,7 +14,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.supports.v1_8_R3.animations.MoveUp;
+import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
+import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Firework;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 
 import java.util.HashSet;
@@ -45,30 +46,26 @@ public class Regular extends BoxManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (v1_8_R3.handler.getBoxFromPlayer(getOwner()) != getInstance()) {
-                    cancel();
-                }
-                ParticleType.of("CLOUD").spawn(getOwner(), getLoc().clone().add(0, -1.2, 0), 2, 1, 1, 1, 1);
-            }
-        }.runTaskTimer(v1_8_R3.handler.plugin, 0L, 20L);
-
-        new BukkitRunnable() {
-            @Override
-            public void run() {
                 if (getBox().locY < loc.clone().getY() - 5.4) {
                     cancel();
                 }
-                new MoveUp(getOwner(), sword, (float) -0.2);
-                new MoveUp(getOwner(), getBox(), (float) -0.2);
+                Animations.MoveUp(getOwner(), sword, (float) -0.2);
+                Animations.MoveUp(getOwner(), getBox(), (float) -0.2);
             }
         }.runTaskTimer(v1_8_R3.handler.plugin, 0L, 1L);
     }
 
     @Override
-    public void open() {
-        super.open();
+    public boolean open() {
+
+        if (!super.open()) {
+            return false;
+        }
+
         setClickable(false);
         moveUp();
+
+        Firework.spawnFirework(getOwner().getLocation(), getOwner());
 
         v1_8_R3.handler.setFakeGameMode(getOwner(), GameMode.SPECTATOR);
 
@@ -145,6 +142,7 @@ public class Regular extends BoxManager {
                 ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(packet);
             }
         }.runTaskTimer(v1_8_R3.handler.plugin, 20L, 1L);
+        return true;
     }
 
     @Override
@@ -163,7 +161,7 @@ public class Regular extends BoxManager {
                 if (System.currentTimeMillis() - startTime > 100) {
                     cancel();
                 }
-                new MoveUp(getOwner(), sword, (float) 0.06);
+                Animations.MoveUp(getOwner(), sword, (float) 0.06);
             }
         }.runTaskTimer(v1_8_R3.handler.plugin, 0L, 1L);
     }

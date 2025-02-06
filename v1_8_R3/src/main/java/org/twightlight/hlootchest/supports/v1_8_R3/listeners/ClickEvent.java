@@ -1,7 +1,9 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.listeners;
 
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.enums.ButtonType;
@@ -60,6 +62,11 @@ public class ClickEvent extends PlayerConnection {
                 } else if (dataset[0].equals("[console]")) {
                     ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
                     Bukkit.getServer().dispatchCommand(console, dataset[1].replace("{player}", this.player.getBukkitEntity().getName()));
+                } else if (dataset[0].equals("[message]")) {
+                    player.getBukkitEntity().sendMessage(
+                            ChatColor.translateAlternateColorCodes('&'
+                            , PlaceholderAPI.setPlaceholders(player.getBukkitEntity()
+                            , dataset[1])));
                 } else if ((dataset[0].equals("[open]"))) {
                     v1_8_R3.handler.getBoxFromPlayer(player.getBukkitEntity()).open();
                 } else if ((dataset[0].equals("[close]"))) {

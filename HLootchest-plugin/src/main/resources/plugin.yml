@@ -14,3 +14,12 @@ commands:
       - lootchest
       - lc
       - hlc
+  hlootchestsadmin:
+    description: admin command
+    usage: /hlootchestsadmin
+    aliases:
+      - hlootchestadmin
+      - lootchestsadmin
+      - lootchestadmin
+      - lca
+      - hlca

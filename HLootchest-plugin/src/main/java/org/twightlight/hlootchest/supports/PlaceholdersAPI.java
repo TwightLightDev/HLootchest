@@ -32,11 +32,19 @@ public class PlaceholdersAPI extends PlaceholderExpansion {
         API api = HLootchest.getAPI();
         switch (placeholder.toLowerCase()) {
             case "total":
-                int sum = api.getDatabaseUtil().getLootChestData(player)
+                int sum = api.getDatabaseUtil().getDb().getLootChestData(player, "lootchests")
                         .values().stream().mapToInt(Integer::intValue).sum();
                 return String.valueOf(sum);
+
             default:
-                return String.valueOf(api.getDatabaseUtil().getLootChestData(player).getOrDefault(placeholder, 0));
+                String[] args = placeholder.toLowerCase().split("_");
+                switch (args[0]) {
+                    case "current":
+                        return String.valueOf(api.getDatabaseUtil().getDb().getLootChestData(player, "lootchests").getOrDefault(args[1], -1));
+                    case "opened":
+                        return String.valueOf(api.getDatabaseUtil().getDb().getLootChestData(player, "opened").getOrDefault(args[1], -1));
+                }
         }
+        return null;
     }
 }

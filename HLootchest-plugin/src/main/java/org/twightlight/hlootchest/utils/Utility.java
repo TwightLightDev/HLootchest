@@ -41,6 +41,16 @@ public class Utility {
         return p(p, HLootchest.messagesConfig.getString("Messages." + path).replace("{prefix}", HLootchest.messagesConfig.getString("Messages.prefix")));
     }
 
+    public static void sendHelp(Player p, String target) {
+        List<String> helps = HLootchest.messagesConfig.getList("Messages." + target + "-help");
+        if (helps == null) {
+            return;
+        }
+        for (String s : helps) {
+            p.sendMessage(p(p, s));
+        }
+    }
+
     public static String c(String value) {
         return ChatColor.translateAlternateColorCodes('&', value);
     }

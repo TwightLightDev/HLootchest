@@ -11,12 +11,10 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
-import org.twightlight.hlootchest.API;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.utils.Utility;
 
@@ -87,14 +85,15 @@ public class LootChests implements Listener {
         Player p = e.getPlayer();
         String boxid = e.getLootChest().getBoxId();
         org.twightlight.hlootchest.api.HLootchest.DatabaseUtil api = HLootchest.getAPI().getDatabaseUtil();
-        if (api.getLootChestData(p).get(boxid) > 0) {
+        if (api.getDb().getLootChestData(p, "lootchests").get(boxid) > 0) {
             try {
-                api.addLootChest(p, boxid, -1);
+                api.getDb().addData(p, boxid, -1, "lootchests");
+                api.getDb().addData(p, boxid, 1, "opened");
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage());
             }
         } else {
-            p.sendMessage(Utility.c(HLootchest.getAPI().getConfigUtil().getMainConfig().getString("Messages.noLootchest")));
+            p.sendMessage(Utility.getMsg(p, "noLootchest"));
             e.setCancelled(true);
         }
     }
