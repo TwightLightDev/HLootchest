@@ -6,6 +6,8 @@
       <element id="module-output" name="HLootchest-api" />
       <element id="module-output" name="HLootchest-plugin" />
       <element id="module-output" name="v1_8_R3" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/net/objecthunter/exp4j/0.4.8/exp4j-0.4.8.jar" path-in-jar="/" />
+      <element id="module-output" name="v1_12_R1" />
     </root>
   </artifact>
 </component>

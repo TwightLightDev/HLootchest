@@ -24,12 +24,10 @@ public class AdminCommand implements CommandExecutor {
                 return true;
             } else {
                 switch (args[0].toLowerCase()) {
-                    case "help":
-                        Utility.sendHelp(p, "admin");
-                        return true;
                     case "reload":
                         HLootchest.getAPI().getConfigUtil().getTemplateConfig().reload();
                         HLootchest.getAPI().getConfigUtil().getBoxesConfig().reload();
+                        HLootchest.getAPI().getConfigUtil().getMessageConfig().reload();
                         p.sendMessage(Utility.getMsg(p, "reload"));
                         return true;
                     case "template":
@@ -105,12 +103,15 @@ public class AdminCommand implements CommandExecutor {
                             File[] files = new File((HLootchest.getFilePath() + "/templates")).listFiles();
                             p.sendMessage(ChatColor.GREEN + "Available templates:");
                             for (File file : files) {
-                                p.sendMessage("- " + file.getName());
+                                p.sendMessage("- " + file.getName().replace(".yml", ""));
                             }
                             return true;
                         } catch (NullPointerException ex) {
                             throw new NullPointerException(ex.getMessage());
                         }
+                    default:
+                        Utility.sendHelp(p, "admin");
+                        return true;
                 }
             }
         }

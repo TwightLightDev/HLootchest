@@ -2,9 +2,7 @@ package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 
 import fr.mrmicky.fastparticles.ParticleType;
 import net.minecraft.server.v1_8_R3.*;
-import org.bukkit.Bukkit;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
@@ -15,7 +13,6 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
-import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Firework;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 
 import java.util.HashSet;
@@ -64,9 +61,14 @@ public class Regular extends BoxManager {
 
         setClickable(false);
         moveUp();
-
-        Firework.spawnFirework(getOwner().getLocation(), getOwner());
-
+        FireworkEffect effect = FireworkEffect.builder()
+                .flicker(false)
+                .with(FireworkEffect.Type.BURST) // Choose the firework type (e.g., BURST, STAR, CREEPER, etc.)
+                .withColor(Color.RED, Color.ORANGE, Color.YELLOW) // Add multiple colors
+                .withFade(Color.GREEN, Color.BLUE) // Add colors to fade to
+                .withTrail() // Add a trail to the firework
+                .build();
+        Animations.spawnFireWork(getOwner(), getOwner().getLocation(), effect);
         v1_8_R3.handler.setFakeGameMode(getOwner(), GameMode.SPECTATOR);
 
         v1_8_R3.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, true);
@@ -98,6 +100,8 @@ public class Regular extends BoxManager {
             public void run() {
                 if (System.currentTimeMillis() - startTime > 3000) {
 
+                    getOwner().playSound(getOwner().getLocation(), Sound.CAT_MEOW, 20, 5);
+
                     PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
                     Bukkit.getPluginManager().callEvent(event);
 
@@ -109,6 +113,9 @@ public class Regular extends BoxManager {
 
                     setClickable(true);
                     ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -3.2, 0), 2, 0.5, 0.5, 0.5, 0);
+
+                    getOwner().playSound(getOwner().getLocation(), Sound.EXPLODE, 5, 5);
+
                     new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
                     cancel();
                     return;
@@ -117,6 +124,9 @@ public class Regular extends BoxManager {
                     cancel();
                     return;
                 }
+
+                getOwner().playSound(getOwner().getLocation(), Sound.CHICKEN_EGG_POP, 5, 5);
+
                 ParticleType.of("CLOUD").spawn(getOwner(), getLoc().clone().add(0, -2.8, 0), 1, 0, 0, 0, 0);
                 time += 1;
                 DataWatcher dataWatcher = getBox().getDataWatcher();

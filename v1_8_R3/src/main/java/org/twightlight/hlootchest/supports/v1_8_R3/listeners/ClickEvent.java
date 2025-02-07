@@ -4,6 +4,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.GameMode;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.enums.ButtonType;
@@ -12,6 +13,7 @@ import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_8_R3.boxes.BoxManager;
+import org.twightlight.hlootchest.supports.v1_8_R3.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
 
 import java.lang.reflect.Field;
@@ -51,8 +53,8 @@ public class ClickEvent extends PlayerConnection {
         }
 
         if (action == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT) {
-            if (button.getSound() != null) {
-                player.getBukkitEntity().playSound(player.getBukkitEntity().getLocation(), button.getSound(), 20, 20);
+            if (((Button) button).getSound() != null) {
+                player.getBukkitEntity().playSound(player.getBukkitEntity().getLocation(), ((Button) button).getSound().getSound(), ((Button) button).getSound().getYaw(), ((Button) button).getSound().getPitch());
             }
             List<String> actions = button.getActions();
             for (String stringAction : actions) {
@@ -81,6 +83,8 @@ public class ClickEvent extends PlayerConnection {
                     }
                     v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.FUNCTIONAL);
                     v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.REWARD);
+                    player.getBukkitEntity().setGameMode(GameMode.SPECTATOR);
+                    player.getBukkitEntity().setGameMode(GameMode.SURVIVAL);
                 }
             }
         }

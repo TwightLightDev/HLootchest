@@ -2,6 +2,8 @@ package org.twightlight.hlootchest.supports.v1_8_R3.buttons;
 
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.*;
+import net.objecthunter.exp4j.Expression;
+import net.objecthunter.exp4j.ExpressionBuilder;
 import org.bukkit.Material;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
@@ -35,7 +37,7 @@ public class Button implements TButton {
     private boolean moveable = true;
     private ButtonType type;
     private List<String> actions;
-    private Sound sound;
+    private ButtonSound sound;
     private boolean isHiding = false;
     private ItemStack icon = null;
     private TConfigManager config;
@@ -59,7 +61,9 @@ public class Button implements TButton {
         Bukkit.getPluginManager().callEvent(event);
 
         this.actions = (config.getList(path+".actions") != null) ? config.getList(path+".actions") : new ArrayList<>();
-        this.sound = Sound.valueOf(config.getString(path+".click-sound"));
+        if (config.getYml().contains(path+".click-sound")) {
+            this.sound = new ButtonSound(Sound.valueOf(config.getString(path + ".click-sound.sound")), (float) config.getDouble(path + ".click-sound.yaw"), (float) config.getDouble(path + ".click-sound.pitch"));
+        }
 
         boolean enableName = (config.getYml().contains(path+".name")) ? config.getBoolean(path+".name.enable") : false;
         if (config.getYml().contains(path+".name.visible-mode") && enableName) {
@@ -146,7 +150,27 @@ public class Button implements TButton {
                     childlocation = v1_8_R3.handler.stringToLocation(config.getString(newpath + ".location"));
                 } else if (config.getString(newpath + ".location-offset") != null) {
                     String[] offsetXYZ = config.getString(newpath + ".location-offset").split(",");
-                    childlocation = location.clone().add(Double.parseDouble(offsetXYZ[0]), Double.parseDouble(offsetXYZ[1]), Double.parseDouble(offsetXYZ[2]));
+
+                    double yaw = armorstand.yaw;
+                    Vector vector = armorstand.getBukkitEntity().getLocation().getDirection().normalize();
+
+                    Expression exp = new ExpressionBuilder(offsetXYZ[0])
+                            .variables("yaw", "VectorX")
+                            .build()
+                            .setVariable("yaw", Math.toRadians(yaw))
+                            .setVariable("VectorX", vector.getX());
+                    Expression exp1 = new ExpressionBuilder(offsetXYZ[1])
+                            .variables("yaw", "VectorY")
+                            .build()
+                            .setVariable("yaw", Math.toRadians(yaw))
+                            .setVariable("VectorY", vector.getY());
+                    Expression exp2 = new ExpressionBuilder(offsetXYZ[2])
+                            .variables("yaw", "VectorZ")
+                            .build()
+                            .setVariable("yaw", Math.toRadians(yaw))
+                            .setVariable("VectorZ", vector.getZ());
+
+                    childlocation = location.clone().add(exp.evaluate(), exp1.evaluate(), exp2.evaluate());
                 }
 
                 if (childlocation != null) {
@@ -191,6 +215,12 @@ public class Button implements TButton {
         }
         boolean moveForward = (config.getYml().contains(path + ".move-forward")) ? config.getBoolean(path + ".move-forward") : true;
         if (moveForward) {
+            ButtonSound hoverSound;
+            if (config.getYml().contains(path+".hover-sound")) {
+                hoverSound = new ButtonSound(Sound.valueOf(config.getString(path + ".hover-sound.sound")), (float) config.getDouble(path + ".hover-sound.yaw"), (float) config.getDouble(path + ".hover-sound.pitch"));
+            } else {
+                hoverSound = null;
+            }
             this.task = Bukkit.getScheduler().runTaskTimer(v1_8_R3.handler.plugin, () -> {
                 if (owner == null || armorstand == null || !owner.isOnline()) {
                     cancelTask();
@@ -219,16 +249,21 @@ public class Button implements TButton {
                 }
 
                 Location playerEye = owner.getEyeLocation();
-                Vector playerDirection = playerEye.getDirection();
+                Vector playerDirection = playerEye.getDirection().normalize();
                 Vector playerPosition = playerEye.toVector();
 
                 Vector armorStandPosition = new Vector(armorstand.locX, armorstand.locY + 1.6, armorstand.locZ);
+
                 Vector toArmorStand = armorStandPosition.subtract(playerPosition).normalize();
+
                 double dotProduct = playerDirection.dot(toArmorStand);
 
                 if (dotProduct > 0.98) {
                     if (!isMoved && moveable) {
                         moveForward();
+                        if (hoverSound != null) {
+                            getOwner().playSound(getOwner().getLocation(), hoverSound.getSound(), hoverSound.getYaw(), hoverSound.getPitch());
+                        }
                         if (nameVisibleMode.equals("hover")) {
                             sendNameVisibilityPacket(owner, armorstand, true);
                         }
@@ -419,11 +454,35 @@ public class Button implements TButton {
         return actions;
     }
 
-    public Sound getSound() {
+    public ButtonSound getSound() {
         return sound;
     }
 
     public boolean isHiding() {
         return isHiding;
+    }
+
+    public class ButtonSound {
+        Sound sound;
+        float yaw;
+        float pitch;
+
+        public ButtonSound(Sound sound, float yaw, float pitch) {
+            this.sound = sound;
+            this.yaw = yaw;
+            this.pitch = pitch;
+        }
+
+        public Sound getSound() {
+            return this.sound;
+        }
+
+        public float getYaw() {
+            return this.yaw;
+        }
+
+        public float getPitch() {
+            return this.pitch;
+        }
     }
 }

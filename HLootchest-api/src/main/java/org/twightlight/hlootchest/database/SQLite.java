@@ -100,7 +100,7 @@ public class SQLite implements TDatabase {
         PreparedStatement ps = null;
         try {
             conn = getConnection();
-            ps = conn.prepareStatement("SELECT" + column + " FROM hlootchest WHERE player = ?");
+            ps = conn.prepareStatement("SELECT " + column + " FROM hlootchest WHERE player = ?");
             ps.setString(1, player.getUniqueId().toString());
             ResultSet rs = ps.executeQuery();
             Map<String, Integer> lootchests = null;

@@ -17,7 +17,6 @@ public interface TButton {
     void setClickable(boolean bool);
     ButtonType getType();
     List<String> getActions();
-    Sound getSound();
     boolean isHiding();
     void hide(boolean isHiding);
 

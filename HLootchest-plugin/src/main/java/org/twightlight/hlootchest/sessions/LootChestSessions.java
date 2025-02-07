@@ -84,7 +84,7 @@ public class LootChestSessions implements TSessions {
 
                         currentTick++;
                     }
-                }.runTaskTimer(HLootchest.getInstance(), 0L, 2L);
+                }.runTaskTimer(HLootchest.getInstance(), 0L, 1L);
             }
         }
     }
@@ -99,9 +99,10 @@ public class LootChestSessions implements TSessions {
                 online.showPlayer(player);
             }
         }
-        HLootchest.getNms().setFakeGameMode(player, GameMode.SURVIVAL);
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.FUNCTIONAL);
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.REWARD);
+        player.setGameMode(GameMode.SPECTATOR);
+        player.setGameMode(GameMode.SURVIVAL);
     }
 
     private static class ButtonTask {

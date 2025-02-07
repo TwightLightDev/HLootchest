@@ -198,18 +198,27 @@ public class v1_8_R3 extends NMSHandler {
             for (String s : rotations) {
                 Vector3f rotation = v1_8_R3.stringToVector3f(config.getString(path + ".rotations" + "." + s + ".value"));
                 String position = config.getString(path + ".rotations" + "." + s + ".position");
-                if (position.equals("HEAD")) {
-                    armorStand.setHeadPose(rotation);
-                } else if (position.equals("BODY")) {
-                    armorStand.setBodyPose(rotation);
-                } else if (position.equals("RIGHT_ARM")) {
-                    armorStand.setRightArmPose(rotation);
-                } else if (position.equals("LEFT_ARM")) {
-                    armorStand.setLeftArmPose(rotation);
-                } else if (position.equals("RIGHT_LEG")) {
-                    armorStand.setRightLegPose(rotation);
-                } else if (position.equals("LEFT_LEG")) {
-                    armorStand.setLeftLegPose(rotation);
+                switch (position) {
+                    case "HEAD":
+                        armorStand.setHeadPose(rotation);
+                        break;
+                    case "BODY":
+                        armorStand.setBodyPose(rotation);
+                        break;
+                    case "RIGHT_ARM":
+                        armorStand.setRightArmPose(rotation);
+                        break;
+                    case "LEFT_ARM":
+                        armorStand.setLeftArmPose(rotation);
+                        break;
+                    case "RIGHT_LEG":
+                        armorStand.setRightLegPose(rotation);
+                        break;
+                    case "LEFT_LEG":
+                        armorStand.setLeftLegPose(rotation);
+                        break;
+                    default:
+                        break;
                 }
             }
         }

@@ -9,6 +9,7 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.twightlight.hlootchest.HLootchest;
@@ -95,6 +96,18 @@ public class LootChests implements Listener {
         } else {
             p.sendMessage(Utility.getMsg(p, "noLootchest"));
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onEntityDamage(EntityDamageEvent e) {
+        Entity entity = e.getEntity();
+
+        if (entity instanceof Pig) {
+            Pig vehicle = (Pig) entity;
+            if ("LootchestVehicle".equals(vehicle.getCustomName())) {
+                e.setCancelled(true);
+            }
         }
     }
 }

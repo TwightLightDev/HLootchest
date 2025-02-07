@@ -15,6 +15,7 @@
       <module> HLootchest-plugin </module>
       <module> HLootchest-api </module>
       <module> v1_8_R3 </module>
+      <module> v1_12_R1 </module>
   </modules>
 
   <properties>
@@ -108,6 +109,11 @@
               <artifactId>FastParticles</artifactId>
               <version>2.0.1</version>
               <scope>compile</scope>
+          </dependency>
+          <dependency>
+              <groupId>com.github.cryptomorin</groupId>
+              <artifactId>XSeries</artifactId>
+              <version>11.2.1</version>
           </dependency>
       </dependencies>
     </dependencyManagement>

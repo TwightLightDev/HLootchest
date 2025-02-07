@@ -54,6 +54,11 @@ public final class HLootchest extends JavaPlugin {
             case "v1_8_R3":
                 nms = new org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3(this, version);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
+                break;
+            case "v1_12_R1":
+                nms = new org.twightlight.hlootchest.supports.v1_12_R1.v1_12_R1(this, version);
+                nms.register("regular", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Regular::new);
+                break;
         }
     }
     private void loadCommands() {

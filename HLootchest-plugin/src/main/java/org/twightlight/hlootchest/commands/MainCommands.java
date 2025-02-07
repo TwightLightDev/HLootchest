@@ -23,9 +23,6 @@ public class MainCommands implements CommandExecutor {
                 return true;
             } else {
                 switch (args[0].toLowerCase()) {
-                    case "help":
-                        Utility.sendHelp(p, "player");
-                        return true;
                     case "leave":
                         TBox box = HLootchest.getNms().getBoxFromPlayer(p);
                         if (HLootchest.getNms().getBoxFromPlayer(p) != null) {
@@ -40,23 +37,28 @@ public class MainCommands implements CommandExecutor {
                             HLootchest.getNms().removeButtonsFromPlayer(p, ButtonType.FUNCTIONAL);
                             HLootchest.getNms().removeButtonsFromPlayer(p, ButtonType.REWARD);
                         }
+                        return true;
                     case "open":
                         if (args.length < 2) {
                             p.sendMessage(ChatColor.RED + "Please enter lootchest type!");
                             return true;
                         }
-                        String type = args[0].toLowerCase();
+                        String type = args[1].toLowerCase();
                         if (!HLootchest.getNms().getRegistrationData().containsKey(type)) {
                             p.sendMessage(Utility.getMsg(p, "lootchestNotFound"));
                             return true;
                         }
                         new LootChestSessions(p, type);
+                        return true;
                     case "list":
                         Set<String> types = HLootchest.getNms().getRegistrationData().keySet();
                         p.sendMessage(ChatColor.GREEN + "Available lootchest types:");
                         for (String type1 : types) {
                             p.sendMessage("- " + type1);
                         }
+                        return true;
+                    default:
+                        Utility.sendHelp(p, "player");
                         return true;
                 }
             }

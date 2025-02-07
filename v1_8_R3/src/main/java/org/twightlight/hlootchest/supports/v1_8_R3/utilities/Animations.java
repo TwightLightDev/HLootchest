@@ -1,10 +1,14 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.utilities;
 
-import net.minecraft.server.v1_8_R3.EntityArmorStand;
-import net.minecraft.server.v1_8_R3.PacketPlayOutEntityTeleport;
-import org.bukkit.Location;
+import net.minecraft.server.v1_8_R3.*;
+import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemStack;
+import org.bukkit.inventory.meta.FireworkMeta;
 
 public class Animations {
     public static void DrawCircle(Player player, EntityArmorStand packetArmorStand, Location center, double radius, int points, double rotX, double rotY, double rotZ) {
@@ -119,5 +123,22 @@ public class Animations {
 
         PacketPlayOutEntityTeleport teleportPacket = new PacketPlayOutEntityTeleport(packetArmorStand);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(teleportPacket);
+    }
+
+    public static void spawnFireWork(Player player, Location location, FireworkEffect effect) {
+        ItemStack sF = new org.bukkit.inventory.ItemStack(Material.FIREWORK);
+        FireworkMeta fireworkMeta = (FireworkMeta) sF.getItemMeta();
+
+        fireworkMeta.addEffect(effect);
+        fireworkMeta.setPower(2);
+        sF.setItemMeta(fireworkMeta);
+        EntityFireworks firework = new EntityFireworks(((CraftWorld) location.getWorld()).getHandle(), location.getX(), location.getY(), location.getZ(), CraftItemStack.asNMSCopy(sF));
+
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutSpawnEntity(firework, 76));
+        firework.expectedLifespan = 0;
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityMetadata(firework.getId(), firework.getDataWatcher(), true));
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityStatus(firework, (byte) 17));
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(new PacketPlayOutEntityDestroy(firework.getId()));
+        player.playSound(location, Sound.FIREWORK_BLAST, (float) 10, (float) 10);
     }
 }
