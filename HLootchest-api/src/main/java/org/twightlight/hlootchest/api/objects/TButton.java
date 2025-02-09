@@ -19,5 +19,4 @@ public interface TButton {
     List<String> getActions();
     boolean isHiding();
     void hide(boolean isHiding);
-
 }

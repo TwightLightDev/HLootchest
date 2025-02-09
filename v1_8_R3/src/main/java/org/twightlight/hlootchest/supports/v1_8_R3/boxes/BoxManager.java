@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 
+import com.cryptomorin.xseries.XPotion;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
@@ -14,13 +15,12 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.potion.PotionEffectType;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
+import org.twightlight.hlootchest.supports.v1_8_R3.Main;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -69,7 +69,7 @@ public class BoxManager implements TBox {
 
         this.boxid = boxid;
 
-        v1_8_R3.rotate(box, config, boxid + ".settings");
+        Main.rotate(box, config, boxid + ".settings");
 
         boxlists.put(id, this);
         boxPlayerlists.put(owner, this);
@@ -79,11 +79,11 @@ public class BoxManager implements TBox {
 
         if (config.getList(boxid + ".rewards-location") != null) {
             for (String reward : config.getList(boxid + ".rewards-location")) {
-                rewardsLocation.add(v1_8_R3.handler.stringToLocation(reward));
+                rewardsLocation.add(Main.handler.stringToLocation(reward));
             }
         }
 
-        Location Plocation = v1_8_R3.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
+        Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
 
         playerLocation = Plocation;
 
@@ -99,7 +99,7 @@ public class BoxManager implements TBox {
 
 
             Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
-            vehicle.addPotionEffect(new PotionEffect(PotionEffectType.INVISIBILITY, Integer.MAX_VALUE, 1, false, false));
+            vehicle.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));
 
             vehicle.setCustomName("LootchestVehicle");
             vehicle.setCustomNameVisible(false);
@@ -155,7 +155,7 @@ public class BoxManager implements TBox {
 
     public boolean open() {
 
-        v1_8_R3.handler.removeButtonsFromPlayer(owner, ButtonType.REWARD);
+        Main.handler.removeButtonsFromPlayer(owner, ButtonType.REWARD);
 
         PlayerOpenLCEvent event = new PlayerOpenLCEvent(owner, this);
         Bukkit.getPluginManager().callEvent(event);

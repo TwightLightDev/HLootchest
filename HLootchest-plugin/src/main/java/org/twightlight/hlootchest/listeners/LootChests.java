@@ -48,7 +48,7 @@ public class LootChests implements Listener {
         Random random = new Random();
         for (String reward : rewards) {
             String path = boxid + ".rewards-list" + "." + reward;
-            ItemStack buttonicon = Utility.createItem(Material.valueOf(boxConf.getString(path + ".icon.material")), boxConf.getString(path + ".icon.head_value"), boxConf.getInt(path + ".icon.data"), "", new ArrayList<>(), false);
+            ItemStack buttonicon = HLootchest.getNms().createItem(Material.valueOf(boxConf.getString(path + ".icon.material")), boxConf.getString(path + ".icon.head_value"), boxConf.getInt(path + ".icon.data"), "", new ArrayList<>(), false);
 
             List<String> rewardactions = boxConf.getList(path + ".rewards");
             for (String action : rewardactions) {

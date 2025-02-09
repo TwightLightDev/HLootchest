@@ -2,6 +2,8 @@ package org.twightlight.hlootchest.api.supports;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
@@ -37,5 +39,6 @@ public abstract class NMSHandler {
     public abstract Map<String, LootChestFactory> getRegistrationData();
     public abstract Location stringToLocation(String locString);
     public abstract void setFakeGameMode(Player p, GameMode gamemode);
-
+    public abstract void playSound(Player player, Location location, String sound, float yaw, float pitch);
+    public abstract ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted);
 }

@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.utils;
 
+import com.cryptomorin.xseries.XMaterial;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.clip.placeholderapi.PlaceholderAPI;
@@ -55,36 +56,6 @@ public class Utility {
         return ChatColor.translateAlternateColorCodes('&', value);
     }
 
-    public static ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted) {
-        ItemStack i = HLootchest.getNms().createItemStack(String.valueOf(material), 1, (short) data);
-        ItemMeta itemMeta = i.getItemMeta();
-        itemMeta.setDisplayName(c(displayName));
-        if (!lore.isEmpty()) {
-            itemMeta.setLore(lore);
-        }
-        if (enchanted) {
-            itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
-        }
-        itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
-        i.setItemMeta(itemMeta);
-        if (material.equals(Material.SKULL_ITEM) &&
-                headUrl != null) {
-            SkullMeta skullMeta = (SkullMeta) i.getItemMeta();
-            GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-            profile.getProperties().put("textures", new Property("textures", headUrl));
-            try {
-                Field field = skullMeta.getClass().getDeclaredField("profile");
-                field.setAccessible(true);
-                field.set(skullMeta, profile);
-            } catch (IllegalArgumentException | NoSuchFieldException | SecurityException |
-                     IllegalAccessException exception) {
-                exception.printStackTrace();
-                return null;
-            }
-            i.setItemMeta(skullMeta);
-        }
-        return i;
-    }
     public static Location stringToLocation(String locString) {
         String[] parts = locString.split(",");
         if (parts.length < 4) {

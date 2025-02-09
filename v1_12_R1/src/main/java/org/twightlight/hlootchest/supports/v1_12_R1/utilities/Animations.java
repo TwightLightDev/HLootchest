@@ -124,6 +124,15 @@ public class Animations {
 
         PacketPlayOutEntityTeleport teleportPacket = new PacketPlayOutEntityTeleport(packetArmorStand);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(teleportPacket);
+
+        PacketPlayOutEntity.PacketPlayOutEntityLook lookPacket = new PacketPlayOutEntity.PacketPlayOutEntityLook(
+                packetArmorStand.getId(),
+                (byte) ((val * 256.0F) / 360.0F),
+                (byte) ((packetArmorStand.pitch * 256.0F) / 360.0F),
+                true // OnGround flag
+        );
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(lookPacket);
+
     }
 
     public static void spawnFireWork(Player player, Location location, FireworkEffect effect) {

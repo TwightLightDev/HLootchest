@@ -8,6 +8,7 @@
       <element id="module-output" name="v1_8_R3" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/net/objecthunter/exp4j/0.4.8/exp4j-0.4.8.jar" path-in-jar="/" />
       <element id="module-output" name="v1_12_R1" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/cryptomorin/XSeries/9.0.0/XSeries-9.0.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

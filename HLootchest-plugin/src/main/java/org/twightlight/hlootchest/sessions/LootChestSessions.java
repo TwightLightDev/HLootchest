@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.sessions;
 
+import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -27,7 +28,8 @@ public class LootChestSessions implements TSessions {
             player = p;
             sessions.put(p, this);
             TConfigManager conf = HLootchest.getAPI().getConfigUtil().getBoxesConfig();
-            ItemStack icon = Utility.createItem(Material.valueOf(conf.getString(identifier + ".icon.material")),
+            ItemStack icon = HLootchest.getNms().createItem(
+                    XMaterial.valueOf(conf.getString(identifier + ".icon.material")).parseMaterial(),
                     conf.getString(identifier + ".icon.head_value"),
                     conf.getInt(identifier + ".icon.data"), "",
                     new ArrayList<>(),
@@ -76,7 +78,7 @@ public class LootChestSessions implements TSessions {
                             int iconData = templateconfig.getInt(path + ".icon.data");
                             String locationString = templateconfig.getString(path + ".location");
 
-                            ItemStack buttonIcon = Utility.createItem(Material.valueOf(iconMaterial), iconHeadValue, iconData, "", new ArrayList<>(), false);
+                            ItemStack buttonIcon = HLootchest.getNms().createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false);
                             Location location = HLootchest.getNms().stringToLocation(locationString);
 
                             HLootchest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, buttonIcon, path, templateconfig);;

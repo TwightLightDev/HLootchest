@@ -1,10 +1,11 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.buttons;
 
+import com.cryptomorin.xseries.XMaterial;
+import com.cryptomorin.xseries.XSound;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.*;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
-import org.bukkit.Material;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
@@ -19,7 +20,7 @@ import org.twightlight.hlootchest.api.events.ButtonSpawnEvent;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
-import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
+import org.twightlight.hlootchest.supports.v1_8_R3.Main;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -62,7 +63,7 @@ public class Button implements TButton {
 
         this.actions = (config.getList(path+".actions") != null) ? config.getList(path+".actions") : new ArrayList<>();
         if (config.getYml().contains(path+".click-sound")) {
-            this.sound = new ButtonSound(Sound.valueOf(config.getString(path + ".click-sound.sound")), (float) config.getDouble(path + ".click-sound.yaw"), (float) config.getDouble(path + ".click-sound.pitch"));
+            this.sound = new ButtonSound(XSound.valueOf(config.getString(path + ".click-sound.sound")).parseSound(), (float) config.getDouble(path + ".click-sound.yaw"), (float) config.getDouble(path + ".click-sound.pitch"));
         }
 
         boolean enableName = (config.getYml().contains(path+".name")) ? config.getBoolean(path+".name.enable") : false;
@@ -79,7 +80,7 @@ public class Button implements TButton {
         this.id = armorStand.getId();
 
         this.armorstand = armorStand;
-        v1_8_R3.rotate(armorstand, config, path);
+        Main.rotate(armorstand, config, path);
 
         buttonIdMap.put(this.id, this);
         playerButtonMap.computeIfAbsent(player, k -> new ArrayList<>()).add(this);
@@ -102,7 +103,7 @@ public class Button implements TButton {
                     armorstand.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', config.getString(path+".name.display-name"))));
                     ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
                 }
-            }.runTaskTimer(v1_8_R3.handler.plugin, 0L, interval);
+            }.runTaskTimer(Main.handler.plugin, 0L, interval);
         }
 
         boolean rotateOnSpawn = (config.getYml().contains(path+".rotate-on-spawn")) ? config.getBoolean(path+".rotate-on-spawn.enable") : false;
@@ -127,7 +128,7 @@ public class Button implements TButton {
                     }
                     Animations.Spinning(owner, armorstand, location.clone().getYaw() - ((angle) * i * multiply));
                 }
-            }.runTaskTimer(v1_8_R3.handler.plugin, 2L, 1L);
+            }.runTaskTimer(Main.handler.plugin, 2L, 1L);
         }
 
         boolean isHoldingIcon = (config.getYml().contains(path + ".holding-icon")) ? config.getBoolean(pathToButton + ".holding-icon") : true;
@@ -147,7 +148,7 @@ public class Button implements TButton {
                 Location childlocation = null;
 
                 if (config.getString(newpath + ".location") != null) {
-                    childlocation = v1_8_R3.handler.stringToLocation(config.getString(newpath + ".location"));
+                    childlocation = Main.handler.stringToLocation(config.getString(newpath + ".location"));
                 } else if (config.getString(newpath + ".location-offset") != null) {
                     String[] offsetXYZ = config.getString(newpath + ".location-offset").split(",");
 
@@ -184,7 +185,7 @@ public class Button implements TButton {
                         childNameVisibleMode = mode;
                     }
                     EntityArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "", childEnableName);
-                    v1_8_R3.rotate(child, config, newpath);
+                    Main.rotate(child, config, newpath);
                     linkedStandsSettings.put(child, childNameVisibleMode);
                     linkedStands.get(this).add(child);
                     sendSpawnPacket(player, child);
@@ -202,11 +203,11 @@ public class Button implements TButton {
                                 child.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath+".name.display-name"))));
                                 ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
                             }
-                        }.runTaskTimer(v1_8_R3.handler.plugin, 0L, interval);
+                        }.runTaskTimer(Main.handler.plugin, 0L, interval);
                     }
 
                     if (config.getYml().contains(newpath + ".icon")) {
-                        ItemStack childicon = v1_8_R3.createItem(Material.valueOf(config.getString(newpath + ".icon.material")), config.getString(newpath + ".icon.head_value"), config.getInt(newpath + ".icon.data"), "", new ArrayList<>(), false);
+                        ItemStack childicon = Main.handler.createItem(XMaterial.valueOf(config.getString(newpath + ".icon.material")).parseMaterial(), config.getString(newpath + ".icon.head_value"), config.getInt(newpath + ".icon.data"), "", new ArrayList<>(), false);
                         equipIcon(child, childicon);
                         linkedStandsIcon.put(child, childicon);
                     }
@@ -217,11 +218,11 @@ public class Button implements TButton {
         if (moveForward) {
             ButtonSound hoverSound;
             if (config.getYml().contains(path+".hover-sound")) {
-                hoverSound = new ButtonSound(Sound.valueOf(config.getString(path + ".hover-sound.sound")), (float) config.getDouble(path + ".hover-sound.yaw"), (float) config.getDouble(path + ".hover-sound.pitch"));
+                hoverSound = new ButtonSound(XSound.valueOf(config.getString(path + ".hover-sound.sound")).parseSound(), (float) config.getDouble(path + ".hover-sound.yaw"), (float) config.getDouble(path + ".hover-sound.pitch"));
             } else {
                 hoverSound = null;
             }
-            this.task = Bukkit.getScheduler().runTaskTimer(v1_8_R3.handler.plugin, () -> {
+            this.task = Bukkit.getScheduler().runTaskTimer(Main.handler.plugin, () -> {
                 if (owner == null || armorstand == null || !owner.isOnline()) {
                     cancelTask();
                     return;
@@ -262,7 +263,7 @@ public class Button implements TButton {
                     if (!isMoved && moveable) {
                         moveForward();
                         if (hoverSound != null) {
-                            getOwner().playSound(getOwner().getLocation(), hoverSound.getSound(), hoverSound.getYaw(), hoverSound.getPitch());
+                            Main.handler.playSound(getOwner(), getOwner().getLocation(), hoverSound.getSoundString(), hoverSound.getYaw(), hoverSound.getPitch());
                         }
                         if (nameVisibleMode.equals("hover")) {
                             sendNameVisibilityPacket(owner, armorstand, true);
@@ -475,6 +476,10 @@ public class Button implements TButton {
 
         public Sound getSound() {
             return this.sound;
+        }
+
+        public String getSoundString() {
+            return XSound.matchXSound(this.sound).name();
         }
 
         public float getYaw() {

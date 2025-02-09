@@ -14,13 +14,13 @@ import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_8_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.buttons.Button;
-import org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3;
+import org.twightlight.hlootchest.supports.v1_8_R3.Main;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
 public class ClickEvent extends PlayerConnection {
-    NMSHandler nsm = v1_8_R3.handler;
+    NMSHandler nsm = Main.handler;
 
     public ClickEvent(NetworkManager networkManager, EntityPlayer entityPlayer) {
         super(MinecraftServer.getServer(), networkManager, entityPlayer);
@@ -54,7 +54,7 @@ public class ClickEvent extends PlayerConnection {
 
         if (action == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT) {
             if (((Button) button).getSound() != null) {
-                player.getBukkitEntity().playSound(player.getBukkitEntity().getLocation(), ((Button) button).getSound().getSound(), ((Button) button).getSound().getYaw(), ((Button) button).getSound().getPitch());
+                Main.handler.playSound(player.getBukkitEntity(), player.getBukkitEntity().getLocation(), ((Button) button).getSound().getSoundString(), ((Button) button).getSound().getYaw(), ((Button) button).getSound().getPitch());
             }
             List<String> actions = button.getActions();
             for (String stringAction : actions) {
@@ -70,9 +70,9 @@ public class ClickEvent extends PlayerConnection {
                             , PlaceholderAPI.setPlaceholders(player.getBukkitEntity()
                             , dataset[1])));
                 } else if ((dataset[0].equals("[open]"))) {
-                    v1_8_R3.handler.getBoxFromPlayer(player.getBukkitEntity()).open();
+                    Main.handler.getBoxFromPlayer(player.getBukkitEntity()).open();
                 } else if ((dataset[0].equals("[close]"))) {
-                    TBox box = v1_8_R3.handler.getBoxFromPlayer(player.getBukkitEntity());
+                    TBox box = Main.handler.getBoxFromPlayer(player.getBukkitEntity());
                     box.removeVehicle(player.getBukkitEntity());
                     box.getOwner().teleport(box.getPlayerInitialLoc());
                     box.remove();
@@ -81,8 +81,8 @@ public class ClickEvent extends PlayerConnection {
                             online.showPlayer(player.getBukkitEntity());
                         }
                     }
-                    v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.FUNCTIONAL);
-                    v1_8_R3.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.REWARD);
+                    Main.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.FUNCTIONAL);
+                    Main.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.REWARD);
                     player.getBukkitEntity().setGameMode(GameMode.SPECTATOR);
                     player.getBukkitEntity().setGameMode(GameMode.SURVIVAL);
                 }

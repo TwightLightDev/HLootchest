@@ -1,7 +1,6 @@
-# HLootchest by TwightLightDev
 regular:
   icon:
-    material: SKULL_ITEM
+    material: PLAYER_HEAD
     data: 3
     head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2VmODBhYWFlZWY2ZjliMjg3ODg1OTgyMmQ4MWFjNzBiZDhjNzk2YjFkMTdjYzQxYjc5N2NiMmJjNjU1MWZlYiJ9fX0====
   reward-amount: 3
@@ -10,140 +9,124 @@ regular:
       icon:
         material: BARRIER
         data: 0
-      holding-icon: false
+      holding-icon: true
+      rotations:
+        '1':
+          position: RIGHT_ARM
+          value: -90, 0, 90
       click-sound:
-        sound: ENDERDRAGON_WINGS
+        sound: UI_BUTTON_CLICK
         yaw: 10
         pitch: 10
-      move-forward: false
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
+      move-forward: true
       name:
         enable: false
         name: ''
       chance: 30
       rewards:
-      - '[console] give {player} dirt 1'
+        - '[console] give {player} dirt 1'
       actions:
-      - '[message] Congrats, it works!'
+        - '[message] Congrats, it works!'
       children:
         '1':
-          location-offset: 0, -1.3, 0
+          location-offset: 0.5 * VectorX, -1.3, 0.5 * VectorZ
           name:
             enable: true
             display-name: '&aDirt x1'
-        '2':
-          location-offset: -0.05, 0, 0
-          name:
-            enable: false
-            display-name: ''
-          rotations:
-            '1':
-              position: RIGHT_ARM
-              value: -90, 0, 90
-          icon:
-            material: BARRIER
-            data: 0
     '2':
       icon:
         material: BARRIER
         data: 0
-      holding-icon: false
+      holding-icon: true
+      rotations:
+        '1':
+          position: RIGHT_ARM
+          value: -90, 0, 90
       chance: 30
       click-sound:
-        sound: ENDERDRAGON_WINGS
+        sound: UI_BUTTON_CLICK
         yaw: 10
         pitch: 10
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
       name:
         enable: false
         name: ''
       rewards:
-      - '[console] give {player} stone 1'
+        - '[console] give {player} stone 1'
       actions:
-      - '[message] Congrats, it works!'
+        - '[message] Congrats, it works!'
       children:
         '1':
-          location-offset: 0, -1.3, 0
+          location-offset: 0.5 * VectorX, -1.3, 0.5 * VectorZ
           name:
             enable: true
             display-name: '&7Stone x1'
-        '2':
-          location-offset: -0.05, 0, 0
-          name:
-            enable: false
-            display-name: ''
-          rotations:
-            '1':
-              position: RIGHT_ARM
-              value: -90, 0, 90
-          icon:
-            material: BARRIER
-            data: 0
     '3':
       icon:
         material: BARRIER
         data: 0
-      holding-icon: false
+      holding-icon: true
+      rotations:
+        '1':
+          position: RIGHT_ARM
+          value: -90, 0, 90
       click-sound:
-        sound: ENDERDRAGON_WINGS
+        sound: UI_BUTTON_CLICK
         yaw: 10
         pitch: 10
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
       chance: 10
       name:
         enable: false
         name: ''
       rewards:
-      - '[console] give {player} diamond_block 1'
+        - '[console] give {player} diamond_block 1'
       actions:
-      - '[message] Congrats, it works!'
+        - '[message] Congrats, it works!'
       children:
         '1':
-          location-offset: 0, -1.3, 0
+          location-offset: 0.5 * VectorX, -1.3, 0.5 * VectorZ
           name:
             enable: true
             display-name: '&bDiamond Block x1'
-        '2':
-          location-offset: -0.05, 0, 0
-          name:
-            enable: false
-            display-name: ''
-          rotations:
-            '1':
-              position: RIGHT_ARM
-              value: -90, 0, 90
-          icon:
-            material: BARRIER
-            data: 0
     '4':
       icon:
         material: BARRIER
         data: 0
-      holding-icon: false
+      holding-icon: true
+      rotations:
+        '1':
+          position: RIGHT_ARM
+          value: -90, 0, 90
       click-sound:
-        sound: ENDERDRAGON_WINGS
+        sound: UI_BUTTON_CLICK
         yaw: 10
         pitch: 10
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
       chance: 30
       name:
         enable: false
         name: ''
       rewards:
-      - '[console] give {player} diamond 1'
+        - '[console] give {player} diamond 1'
       actions:
-      - '[message] Congrats, it works!'
+        - '[message] Congrats, it works!'
       children:
         '1':
-          location-offset: 0, -1.3, 0
+          location-offset: 0.5 * VectorX, -1.3, 0.5 * VectorZ
           name:
             enable: true
             display-name: '&bDiamond x1'
-        '2':
-          location-offset: -0.05, 0, 0
-          name:
-            enable: false
-            display-name: ''
-          rotations:
-            '1':
-              position: RIGHT_ARM
-              value: -90, 0, 90
-          icon:
-            material: BARRIER
-            data: 0

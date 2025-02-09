@@ -15,6 +15,7 @@ import org.twightlight.hlootchest.listeners.LootChests;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
 import org.twightlight.hlootchest.supports.PlaceholdersAPI;
+import org.twightlight.hlootchest.supports.v1_8_R3.Main;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.io.File;
@@ -52,11 +53,11 @@ public final class HLootchest extends JavaPlugin {
     private void loadNMS() {
         switch (version) {
             case "v1_8_R3":
-                nms = new org.twightlight.hlootchest.supports.v1_8_R3.v1_8_R3(this, version);
+                nms = new Main(this, version);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
                 break;
             case "v1_12_R1":
-                nms = new org.twightlight.hlootchest.supports.v1_12_R1.v1_12_R1(this, version);
+                nms = new org.twightlight.hlootchest.supports.v1_12_R1.Main(this, version);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Regular::new);
                 break;
         }

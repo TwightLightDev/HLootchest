@@ -1,5 +1,7 @@
 package org.twightlight.hlootchest.supports.v1_12_R1;
 
+import com.cryptomorin.xseries.XMaterial;
+import com.cryptomorin.xseries.XSound;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.server.v1_12_R1.EntityArmorStand;
@@ -28,12 +30,12 @@ import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class v1_12_R1 extends NMSHandler {
+public class Main extends NMSHandler {
 
     public static NMSHandler handler;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
 
-    public v1_12_R1(Plugin pl, String name) {
+    public Main(Plugin pl, String name) {
         super(pl, name);
         handler = this;
     }
@@ -105,18 +107,29 @@ public class v1_12_R1 extends NMSHandler {
         return org.twightlight.hlootchest.supports.v1_12_R1.boxes.BoxManager.boxPlayerlists.getOrDefault(player, null);
     }
 
+    public void playSound(Player player, Location location, String sound, float yaw, float pitch) {
+        player.playSound(location,
+                XSound.valueOf(sound).parseSound(),
+                yaw,
+                pitch);
+    }
+
     public ItemStack createItemStack(String material, int amount, short data) {
         ItemStack i;
         try {
-            i = new ItemStack(Material.valueOf(material), amount, data);
+            Material Xmaterial = XMaterial.valueOf(material).parseMaterial();
+            if (Xmaterial == null) {
+                return XMaterial.BEDROCK.parseItem();
+            }
+            i = new ItemStack(Xmaterial, amount, data);
         } catch (Exception ex) {
-            i = new ItemStack(Material.BEDROCK);
+            i = XMaterial.BEDROCK.parseItem();
         }
         return i;
     }
 
-    public static ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted) {
-        ItemStack i = handler.createItemStack(String.valueOf(material), 1, (short) data);
+    public ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted) {
+        ItemStack i = handler.createItemStack(XMaterial.matchXMaterial(material).name(), 1, (short) data);
         ItemMeta itemMeta = i.getItemMeta();
         itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
         if (!lore.isEmpty()) {
@@ -127,7 +140,7 @@ public class v1_12_R1 extends NMSHandler {
         }
         itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
         i.setItemMeta(itemMeta);
-        if (material.equals(Material.SKULL_ITEM) &&
+        if (material.equals(XMaterial.PLAYER_HEAD.parseMaterial()) &&
                 headUrl != null) {
             SkullMeta skullMeta = (SkullMeta) i.getItemMeta();
             GameProfile profile = new GameProfile(UUID.randomUUID(), null);
@@ -193,7 +206,7 @@ public class v1_12_R1 extends NMSHandler {
         if (config.getYml().getConfigurationSection(path+".rotations") != null) {
             Set<String> rotations = config.getYml().getConfigurationSection(path + ".rotations").getKeys(false);
             for (String s : rotations) {
-                Vector3f rotation = v1_12_R1.stringToVector3f(config.getString(path + ".rotations" + "." + s + ".value"));
+                Vector3f rotation = Main.stringToVector3f(config.getString(path + ".rotations" + "." + s + ".value"));
                 String position = config.getString(path + ".rotations" + "." + s + ".position");
                 switch (position) {
                     case "HEAD":

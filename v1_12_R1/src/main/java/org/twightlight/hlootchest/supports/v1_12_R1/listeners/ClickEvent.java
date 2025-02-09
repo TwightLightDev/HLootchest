@@ -17,13 +17,13 @@ import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_12_R1.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_12_R1.buttons.Button;
-import org.twightlight.hlootchest.supports.v1_12_R1.v1_12_R1;
+import org.twightlight.hlootchest.supports.v1_12_R1.Main;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
 public class ClickEvent extends PlayerConnection {
-    NMSHandler nsm = v1_12_R1.handler;
+    NMSHandler nsm = Main.handler;
 
     public ClickEvent(NetworkManager networkManager, EntityPlayer entityPlayer) {
         super(((org.bukkit.craftbukkit.v1_12_R1.CraftServer) Bukkit.getServer()).getServer()
@@ -57,7 +57,7 @@ public class ClickEvent extends PlayerConnection {
 
         if (action == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT) {
             if (((Button) button).getSound() != null) {
-                player.getBukkitEntity().playSound(player.getBukkitEntity().getLocation(), ((Button) button).getSound().getSound(), ((Button) button).getSound().getYaw(), ((Button) button).getSound().getPitch());
+                Main.handler.playSound(player.getBukkitEntity(), player.getBukkitEntity().getLocation(), ((Button) button).getSound().getSoundString(), ((Button) button).getSound().getYaw(), ((Button) button).getSound().getPitch());
             }
             List<String> actions = button.getActions();
             for (String stringAction : actions) {
@@ -72,19 +72,19 @@ public class ClickEvent extends PlayerConnection {
                             ChatColor.translateAlternateColorCodes('&',
                                     PlaceholderAPI.setPlaceholders(player.getBukkitEntity(), dataset[1])));
                 } else if ((dataset[0].equals("[open]"))) {
-                    v1_12_R1.handler.getBoxFromPlayer(player.getBukkitEntity()).open();
+                    Main.handler.getBoxFromPlayer(player.getBukkitEntity()).open();
                 } else if ((dataset[0].equals("[close]"))) {
-                    TBox box = v1_12_R1.handler.getBoxFromPlayer(player.getBukkitEntity());
+                    TBox box = Main.handler.getBoxFromPlayer(player.getBukkitEntity());
                     box.removeVehicle(player.getBukkitEntity());
                     box.getOwner().teleport(box.getPlayerInitialLoc());
                     box.remove();
                     for (Player online : Bukkit.getOnlinePlayers()) {
                         if (!online.equals(player.getBukkitEntity())) {
-                            online.showPlayer(v1_12_R1.handler.plugin, player.getBukkitEntity());
+                            online.showPlayer(Main.handler.plugin, player.getBukkitEntity());
                         }
                     }
-                    v1_12_R1.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.FUNCTIONAL);
-                    v1_12_R1.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.REWARD);
+                    Main.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.FUNCTIONAL);
+                    Main.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.REWARD);
                     player.getBukkitEntity().setGameMode(GameMode.SPECTATOR);
                     player.getBukkitEntity().setGameMode(GameMode.SURVIVAL);
                 }

@@ -33,7 +33,7 @@ public class AdminCommand implements CommandExecutor {
                     case "template":
                         if (args.length > 2) {
                             String name = args[2].toLowerCase();
-                            File file = new File(HLootchest.getFilePath()+ "/templates", name + ".yml");
+                            File file = new File(HLootchest.getFilePath()+ "/v1_8_R3/templates", name + ".yml");
                             switch (args[1].toLowerCase()) {
                                 case "delete":
                                     boolean isDeleted = file.delete();
@@ -44,7 +44,7 @@ public class AdminCommand implements CommandExecutor {
                                 case "select":
                                     if (file.exists()) {
                                         HLootchest.getAPI().getConfigUtil().getMainConfig().set("template", name);
-                                        HLootchest.templateConfig = new ConfigManager(HLootchest.getInstance(), HLootchest.getAPI().getConfigUtil().getMainConfig().getString("template"), HLootchest.getFilePath() + "/templates");
+                                        HLootchest.templateConfig = new ConfigManager(HLootchest.getInstance(), HLootchest.getAPI().getConfigUtil().getMainConfig().getString("template"), HLootchest.getFilePath() + "/v1_8_R3/templates");
                                         p.sendMessage(Utility.getMsg(p, "templateSelected").replace("{template}", name));
                                         return true;
                                     } else {
@@ -100,7 +100,7 @@ public class AdminCommand implements CommandExecutor {
                         }
                     case "templateslist":
                         try {
-                            File[] files = new File((HLootchest.getFilePath() + "/templates")).listFiles();
+                            File[] files = new File((HLootchest.getFilePath() + "/v1_8_R3/templates")).listFiles();
                             p.sendMessage(ChatColor.GREEN + "Available templates:");
                             for (File file : files) {
                                 p.sendMessage("- " + file.getName().replace(".yml", ""));
