@@ -4,7 +4,6 @@ import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -13,7 +12,6 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.objects.TSessions;
-import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;
 

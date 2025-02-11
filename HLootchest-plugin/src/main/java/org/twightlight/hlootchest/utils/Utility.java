@@ -1,21 +1,14 @@
 package org.twightlight.hlootchest.utils;
 
-import com.cryptomorin.xseries.XMaterial;
-import com.mojang.authlib.GameProfile;
-import com.mojang.authlib.properties.Property;
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.*;
-import org.bukkit.enchantments.Enchantment;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.World;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemFlag;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.ItemMeta;
-import org.bukkit.inventory.meta.SkullMeta;
 import org.twightlight.hlootchest.HLootchest;
 
-import java.lang.reflect.Field;
 import java.util.*;
-import java.util.stream.Collectors;
 
 public class Utility {
     public static void info(String message) {
@@ -30,12 +23,6 @@ public class Utility {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
             return c(value);
         return c(PlaceholderAPI.setPlaceholders(p, value));
-    }
-
-    public static List<String> p(Player p, List<String> value) {
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
-            return value.stream().map(Utility::c).collect(Collectors.toList());
-        return value.stream().map(s -> c(PlaceholderAPI.setPlaceholders(p, s))).collect(Collectors.toList());
     }
 
     public static String getMsg(Player p, String path) {

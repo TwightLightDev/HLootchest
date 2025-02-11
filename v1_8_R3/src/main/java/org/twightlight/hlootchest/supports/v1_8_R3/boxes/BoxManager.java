@@ -1,7 +1,6 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 
 import com.cryptomorin.xseries.XPotion;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -128,7 +127,7 @@ public class BoxManager implements TBox {
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
         armorStand.setCustomNameVisible(isNameEnable);
-        armorStand.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', name)));
+        armorStand.setCustomName(Main.p(owner, ChatColor.translateAlternateColorCodes('&', name)));
         armorStand.setInvisible(true);
         armorStand.setGravity(false);
 
@@ -143,7 +142,17 @@ public class BoxManager implements TBox {
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
-    public void equipIcon(EntityArmorStand armorStand, ItemStack bukkiticon) {
+    public void equipIcon(ItemStack bukkiticon) {
+        net.minecraft.server.v1_8_R3.ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
+        PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(
+                box.getId(),
+                4,
+                icon
+        );
+        ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
+    }
+
+    private void equipIcon(EntityArmorStand armorStand, ItemStack bukkiticon) {
         net.minecraft.server.v1_8_R3.ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
         PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(
                 armorStand.getId(),

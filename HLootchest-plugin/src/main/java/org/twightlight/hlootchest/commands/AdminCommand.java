@@ -33,7 +33,7 @@ public class AdminCommand implements CommandExecutor {
                     case "template":
                         if (args.length > 2) {
                             String name = args[2].toLowerCase();
-                            File file = new File(HLootchest.getFilePath()+ "/v1_8_R3/templates", name + ".yml");
+                            File file = new File(HLootchest.getFilePath()+ "/templates", name + ".yml");
                             switch (args[1].toLowerCase()) {
                                 case "delete":
                                     boolean isDeleted = file.delete();

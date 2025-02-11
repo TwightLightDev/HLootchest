@@ -1,8 +1,10 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.utilities;
 
 import net.minecraft.server.v1_8_R3.*;
-import org.bukkit.*;
+import org.bukkit.FireworkEffect;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;

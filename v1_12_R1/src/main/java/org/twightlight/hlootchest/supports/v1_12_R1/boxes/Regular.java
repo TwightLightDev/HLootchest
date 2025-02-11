@@ -13,8 +13,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.supports.v1_12_R1.utilities.Animations;
 import org.twightlight.hlootchest.supports.v1_12_R1.Main;
+import org.twightlight.hlootchest.supports.v1_12_R1.utilities.Animations;
 
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
@@ -114,7 +114,7 @@ public class Regular extends BoxManager {
 
                     remove();
 
-                    ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 0));
+                    Main.handler.setFakeGameMode(getOwner(), GameMode.SURVIVAL);
 
                     Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
 
@@ -181,10 +181,5 @@ public class Regular extends BoxManager {
             }
         }.runTaskTimer(Main.handler.plugin, 0L, 1L);
     }
-
-    public EntityArmorStand getSword() {
-        return this.sword;
-    }
-
 
 }

@@ -31,7 +31,7 @@ public final class HLootchest extends JavaPlugin {
     public static TConfigManager boxesConfig;
     public static TConfigManager messagesConfig;
     public static TDatabase db;
-    private static final String version = Bukkit.getServer().getClass().getName().split("\\.")[3];
+    private static final String version = Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1];
 
 
     @Override
@@ -48,18 +48,27 @@ public final class HLootchest extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        Bukkit.getScheduler().cancelTasks(this);
+        Utility.info("HLootchest has been disabled successfully!");
     }
 
     private void loadNMS() {
         switch (version) {
-            case "v1_8_R3":
+            case "8":
                 nms = new Main(this, version);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
                 break;
-            case "v1_12_R1":
+            case "12":
                 nms = new org.twightlight.hlootchest.supports.v1_12_R1.Main(this, version);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Regular::new);
                 break;
+            case "17":
+                nms = new org.twightlight.hlootchest.supports.v1_17_R1.Main(this, version);
+                nms.register("regular", org.twightlight.hlootchest.supports.v1_17_R1.boxes.Regular::new);
+                break;
+            default:
+                Utility.info("Sorry, this version is unsupported! Hlootchest will be disable!");
+                Bukkit.getPluginManager().disablePlugin(this);
         }
     }
     private void loadCommands() {
@@ -117,7 +126,7 @@ public final class HLootchest extends JavaPlugin {
         Utility.info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
         Utility.info("HLootchest by TwightLight");
         Utility.info("Github Link: https://github.com/TwightLightDev/HLootchest");
-        Utility.info("Minecraft Version: " + version);
+        Utility.info("Minecraft Version: " + Bukkit.getBukkitVersion());
         Utility.info("Plugin Version: " + getVersion());
         Utility.info("Author: " + getDescription().getAuthors().toString());
         Utility.info("PlaceholderAPI: " + isPlaceholderAPI());

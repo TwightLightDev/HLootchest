@@ -2,11 +2,13 @@ package org.twightlight.hlootchest.supports.v1_8_R3.buttons;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.*;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
-import org.bukkit.*;
+import org.bukkit.Bukkit;
+import org.bukkit.ChatColor;
+import org.bukkit.Location;
+import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
@@ -19,8 +21,8 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.ButtonSpawnEvent;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
 import org.twightlight.hlootchest.supports.v1_8_R3.Main;
+import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
@@ -100,7 +102,7 @@ public class Button implements TButton {
                         return;
                     }
                     PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
-                    armorstand.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', config.getString(path+".name.display-name"))));
+                    armorstand.setCustomName(Main.p(owner, ChatColor.translateAlternateColorCodes('&', config.getString(path+".name.display-name"))));
                     ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
                 }
             }.runTaskTimer(Main.handler.plugin, 0L, interval);
@@ -200,7 +202,7 @@ public class Button implements TButton {
                                     return;
                                 }
                                 PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(child.getId(), child.getDataWatcher(), true);
-                                child.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath+".name.display-name"))));
+                                child.setCustomName(Main.p(owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath+".name.display-name"))));
                                 ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
                             }
                         }.runTaskTimer(Main.handler.plugin, 0L, interval);
@@ -302,7 +304,7 @@ public class Button implements TButton {
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
         armorStand.setCustomNameVisible(isNameEnable);
-        armorStand.setCustomName(PlaceholderAPI.setPlaceholders(owner, ChatColor.translateAlternateColorCodes('&', name)));
+        armorStand.setCustomName(Main.p(owner, ChatColor.translateAlternateColorCodes('&', name)));
         armorStand.setInvisible(true);
         armorStand.setGravity(false);
 
@@ -330,6 +332,21 @@ public class Button implements TButton {
             moveable = true;
             scheduler.shutdown();
         }, time, TimeUnit.MILLISECONDS);
+    }
+    public void equipIcon(ItemStack bukkiticon) {
+        if (bukkiticon != null) {
+            net.minecraft.server.v1_8_R3.ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
+            int slot = 4;
+            if (type == ButtonType.REWARD) {
+                slot = 0;
+            }
+            PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(
+                    armorstand.getId(),
+                    slot,
+                    icon
+            );
+            ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
+        }
     }
 
     private void equipIcon(EntityArmorStand armorStand, ItemStack bukkiticon) {

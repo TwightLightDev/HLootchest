@@ -18,7 +18,7 @@ public class PlayerJoin implements Listener{
         try {
             HLootchest.getAPI().getDatabaseUtil().getDb().createPlayerData(player);
         } catch (Exception ex) {
-            ex.printStackTrace();
+            throw new RuntimeException(ex.getMessage());
         }
         Map<String, Integer> lchsData = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "lootchests");
         Map<String, Integer> lchsData1 = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "opened");

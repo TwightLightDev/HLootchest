@@ -8,12 +8,11 @@ public class MainConfig extends ConfigManager {
     public MainConfig(Plugin pl, String name, String dir) {
         super(pl, name, dir);
         YamlConfiguration yml = getYml();
-        yml.options().header("HLootchest by TwightLightDev");
-
         yml.addDefault("debug", false);
         yml.addDefault("template", "example_template");
 
         yml.addDefault("storage.source", "SQLite");
+
 
         yml.options().copyDefaults(true);
         save();

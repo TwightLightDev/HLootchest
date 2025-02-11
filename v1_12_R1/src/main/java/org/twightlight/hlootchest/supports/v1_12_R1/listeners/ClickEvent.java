@@ -15,15 +15,15 @@ import org.twightlight.hlootchest.api.events.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
+import org.twightlight.hlootchest.supports.v1_12_R1.Main;
 import org.twightlight.hlootchest.supports.v1_12_R1.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_12_R1.buttons.Button;
-import org.twightlight.hlootchest.supports.v1_12_R1.Main;
 
 import java.lang.reflect.Field;
 import java.util.List;
 
 public class ClickEvent extends PlayerConnection {
-    NMSHandler nsm = Main.handler;
+    NMSHandler nms = Main.handler;
 
     public ClickEvent(NetworkManager networkManager, EntityPlayer entityPlayer) {
         super(((org.bukkit.craftbukkit.v1_12_R1.CraftServer) Bukkit.getServer()).getServer()
@@ -35,7 +35,7 @@ public class ClickEvent extends PlayerConnection {
         super.a(packet);
 
         int entityId = getEntityId(packet);
-        TButton button = nsm.getButtonFromId(entityId);
+        TButton button = nms.getButtonFromId(entityId);
 
         PacketPlayInUseEntity.EnumEntityUseAction action = packet.a();
         if (button != null && button.isClickable()) {

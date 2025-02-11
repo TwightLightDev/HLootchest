@@ -4,6 +4,7 @@ import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_8_R3.EntityArmorStand;
 import net.minecraft.server.v1_8_R3.EntityPlayer;
 import net.minecraft.server.v1_8_R3.PacketPlayOutGameStateChange;
@@ -39,6 +40,12 @@ public class Main extends NMSHandler {
     public Main(Plugin pl, String name) {
         super(pl, name);
         handler = this;
+    }
+
+    public static String p(Player p, String value) {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
+            return ChatColor.translateAlternateColorCodes('&', value);
+        return ChatColor.translateAlternateColorCodes('&', (PlaceholderAPI.setPlaceholders(p, value)));
     }
 
     public void registerButtonClick(Player player) {
@@ -240,12 +247,16 @@ public class Main extends NMSHandler {
         switch (gamemode) {
             case SURVIVAL:
                 ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 0));
+                break;
             case CREATIVE:
                 ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 1));
+                break;
             case ADVENTURE:
                 ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 2));
+                break;
             case SPECTATOR:
                 ((CraftPlayer) p).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 3));
+                break;
         }
     }
 }

@@ -1,6 +1,5 @@
 package org.twightlight.hlootchest.api.objects;
 
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -12,6 +11,7 @@ import java.util.Map;
 public interface TBox {
     boolean open();
     void remove();
+    void equipIcon(ItemStack bukkiticon);
     boolean isClickable();
     void setClickable(boolean bool);
     Player getOwner();

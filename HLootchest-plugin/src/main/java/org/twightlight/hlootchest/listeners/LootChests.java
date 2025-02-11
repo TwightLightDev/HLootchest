@@ -75,8 +75,12 @@ public class LootChests implements Listener {
         if (entity instanceof Pig && exited instanceof Player && !exited.hasPermission("hlootchests.bypass")) {
             Pig vehicle = (Pig) entity;
             Player player = (Player) exited;
-            if ("LootchestVehicle".equals(vehicle.getCustomName()) && HLootchest.getNms().getBoxFromPlayer(player) != null) {
-                e.setCancelled(true);
+            if ("LootchestVehicle".equals(vehicle.getCustomName()) && HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(player) != null) {
+                if (!HLootchest.getAPI().getConfigUtil().getMainConfig().getBoolean("lootchest.exit-vehicle-to-close")) {
+                    e.setCancelled(true);
+                    return;
+                }
+                HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(player).close();
             }
         }
     }

@@ -13,8 +13,8 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
 import org.twightlight.hlootchest.supports.v1_8_R3.Main;
+import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
 
 import java.util.HashSet;
 
@@ -108,11 +108,12 @@ public class Regular extends BoxManager {
 
                     remove();
 
-                    ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(new PacketPlayOutGameStateChange(3, 0));
+                    Main.handler.setFakeGameMode(getOwner(), GameMode.SURVIVAL);
 
                     Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
 
                     setClickable(true);
+
                     ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -3.2, 0), 2, 0.5, 0.5, 0.5, 0);
 
                     Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_GENERIC_EXPLODE.name(), 20, 5);
@@ -176,10 +177,4 @@ public class Regular extends BoxManager {
             }
         }.runTaskTimer(Main.handler.plugin, 0L, 1L);
     }
-
-    public EntityArmorStand getSword() {
-        return this.sword;
-    }
-
-
 }
