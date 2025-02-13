@@ -6,7 +6,6 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.core.Vector3f;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import net.minecraft.server.level.EntityPlayer;
 import org.bukkit.*;
@@ -131,7 +130,7 @@ public class Main extends NMSHandler {
             if (Xmaterial == null) {
                 return XMaterial.BEDROCK.parseItem();
             }
-            i = new ItemStack(Xmaterial, amount, data);
+            i = new ItemStack(Xmaterial, amount);
         } catch (Exception ex) {
             i = XMaterial.BEDROCK.parseItem();
         }
@@ -149,6 +148,7 @@ public class Main extends NMSHandler {
             itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
         }
         itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        itemMeta.setCustomModelData(data);
         i.setItemMeta(itemMeta);
         if (material.equals(XMaterial.PLAYER_HEAD.parseMaterial()) &&
                 headUrl != null) {

@@ -66,6 +66,14 @@ public final class HLootchest extends JavaPlugin {
                 nms = new org.twightlight.hlootchest.supports.v1_17_R1.Main(this, version);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_17_R1.boxes.Regular::new);
                 break;
+            case "18":
+                nms = new org.twightlight.hlootchest.supports.v1_18_R2.Main(this, version);
+                nms.register("regular", org.twightlight.hlootchest.supports.v1_18_R2.boxes.Regular::new);
+                break;
+            case "19":
+                nms = new org.twightlight.hlootchest.supports.v1_19_R3.Main(this, version);
+                nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                break;
             default:
                 Utility.info("Sorry, this version is unsupported! Hlootchest will be disable!");
                 Bukkit.getPluginManager().disablePlugin(this);

@@ -29,7 +29,8 @@ public class LootChestSessions implements TSessions {
             ItemStack icon = HLootchest.getNms().createItem(
                     XMaterial.valueOf(conf.getString(identifier + ".icon.material")).parseMaterial(),
                     conf.getString(identifier + ".icon.head_value"),
-                    conf.getInt(identifier + ".icon.data"), "",
+                    (conf.getYml().contains(identifier + ".icon.data")) ? conf.getInt(identifier + ".icon.data") : 0,
+                    "",
                     new ArrayList<>(),
                     false);
             TConfigManager templateconfig = HLootchest.getAPI().getConfigUtil().getTemplateConfig();
@@ -73,7 +74,7 @@ public class LootChestSessions implements TSessions {
 
                             String iconMaterial = templateconfig.getString(path + ".icon.material");
                             String iconHeadValue = templateconfig.getString(path + ".icon.head_value");
-                            int iconData = templateconfig.getInt(path + ".icon.data");
+                            int iconData = (templateconfig.getYml().contains(path + ".icon.data")) ? templateconfig.getInt(path + ".icon.data") : 0;
                             String locationString = templateconfig.getString(path + ".location");
 
                             ItemStack buttonIcon = HLootchest.getNms().createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false);
