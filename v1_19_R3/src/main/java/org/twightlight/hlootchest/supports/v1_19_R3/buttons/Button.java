@@ -2,39 +2,18 @@ package org.twightlight.hlootchest.supports.v1_19_R3.buttons;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
-import com.mojang.datafixers.util.Pair;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
-import net.minecraft.network.chat.IChatBaseComponent;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EnumItemSlot;
-import net.minecraft.world.entity.decoration.EntityArmorStand;
-import net.minecraft.world.level.World;
 import net.objecthunter.exp4j.Expression;
 import net.objecthunter.exp4j.ExpressionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.craftbukkit.v1_19_R3.entity.CraftArmorStand;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
@@ -46,12 +25,18 @@ import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_19_R3.Main;
 import org.twightlight.hlootchest.supports.v1_19_R3.utilities.Animations;
 
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
+
 public class Button implements TButton {
     private final int id;
 
     private final Player owner;
 
-    private final EntityArmorStand armorstand;
+    private final ArmorStand armorstand;
 
     private boolean isMoved = false;
 
@@ -83,11 +68,11 @@ public class Button implements TButton {
 
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
 
-    public static final Map<EntityArmorStand, String> linkedStandsSettings = new HashMap<>();
+    public static final Map<ArmorStand, String> linkedStandsSettings = new HashMap<>();
 
-    public static final Map<TButton, List<EntityArmorStand>> linkedStands = new HashMap<>();
+    public static final Map<TButton, List<ArmorStand>> linkedStands = new HashMap<>();
 
-    public static final Map<EntityArmorStand, ItemStack> linkedStandsIcon = new HashMap<>();
+    public static final Map<ArmorStand, ItemStack> linkedStandsIcon = new HashMap<>();
 
     public Button(final Location location, ButtonType type, Player player, ItemStack icon, final String path, final TConfigManager config) {
         this.owner = player;
@@ -105,12 +90,10 @@ public class Button implements TButton {
                 enableName = false;
             this.nameVisibleMode = mode;
         }
-        final EntityArmorStand armorStand = createArmorStand(location, (config.getString(path + ".name.display-name") != null) ? config.getString(path + ".name.display-name") : "", enableName);
-        this.id = armorStand.af();
+        final ArmorStand armorStand = createArmorStand(location, (config.getString(path + ".name.display-name") != null) ? config.getString(path + ".name.display-name") : "", enableName);
+        this.id = ((CraftArmorStand) armorStand).getEntityId();
         this.armorstand = armorStand;
         Main.rotate(this.armorstand, config, path);
-        PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(this.armorstand.af(), this.armorstand.aj().c());
-        (((CraftPlayer)this.owner).getHandle()).b.a((Packet)metadataPacket);
         buttonIdMap.put(Integer.valueOf(this.id), this);
         playerButtonMap.computeIfAbsent(player, k -> new ArrayList()).add(this);
         linkedStands.put(this, new ArrayList<>());
@@ -124,9 +107,7 @@ public class Button implements TButton {
                         cancel();
                         return;
                     }
-                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.af(), armorStand.aj().c());
-                    Button.this.armorstand.b(IChatBaseComponent.a(Main.p(Button.this.owner, ChatColor.translateAlternateColorCodes('&', config.getString(path + ".name.display-name")))));
-                    (((CraftPlayer)Button.this.owner).getHandle()).b.a((Packet)packet);
+                    armorstand.setCustomName(Main.p(Button.this.owner, ChatColor.translateAlternateColorCodes('&', config.getString(path + ".name.display-name"))));
                 }
             }).runTaskTimer(Main.handler.plugin, 0L, interval);
         }
@@ -149,7 +130,7 @@ public class Button implements TButton {
                     } else {
                         multiply = -1;
                     }
-                    Animations.Spinning(Button.this.owner, Button.this.armorstand, location.clone().getYaw() - angle * this.i * multiply);
+                    Animations.spin(Button.this.owner, armorstand, location.clone().getYaw() - angle * this.i * multiply);
                 }
             }).runTaskTimer(Main.handler.plugin, 2L, 1L);
         }
@@ -168,8 +149,8 @@ public class Button implements TButton {
                     childlocation = Main.handler.stringToLocation(config.getString(newpath + ".location"));
                 } else if (config.getString(newpath + ".location-offset") != null) {
                     String[] offsetXYZ = config.getString(newpath + ".location-offset").split(",");
-                    double yaw = this.armorstand.getBukkitYaw();
-                    Vector vector = this.armorstand.getBukkitEntity().getLocation().getDirection().normalize();
+                    double yaw = this.armorstand.getLocation().getYaw();
+                    Vector vector = this.armorstand.getLocation().getDirection().normalize();
                     Expression exp = (new ExpressionBuilder(offsetXYZ[0])).variables(new String[] { "yaw", "VectorX" }).build().setVariable("yaw", Math.toRadians(yaw)).setVariable("VectorX", vector.getX());
                     Expression exp1 = (new ExpressionBuilder(offsetXYZ[1])).variables(new String[] { "yaw", "VectorY" }).build().setVariable("yaw", Math.toRadians(yaw)).setVariable("VectorY", vector.getY());
                     Expression exp2 = (new ExpressionBuilder(offsetXYZ[2])).variables(new String[] { "yaw", "VectorZ" }).build().setVariable("yaw", Math.toRadians(yaw)).setVariable("VectorZ", vector.getZ());
@@ -184,12 +165,10 @@ public class Button implements TButton {
                             childEnableName = false;
                         childNameVisibleMode = mode;
                     }
-                    final EntityArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "", childEnableName);
+                    final ArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "", childEnableName);
                     Main.rotate(child, config, newpath);
-                    PacketPlayOutEntityMetadata metadataPacket1 = new PacketPlayOutEntityMetadata(child.af(), child.aj().c());
-                    (((CraftPlayer)this.owner).getHandle()).b.a((Packet)metadataPacket1);
                     linkedStandsSettings.put(child, childNameVisibleMode);
-                    ((List<EntityArmorStand>)linkedStands.get(this)).add(child);
+                    linkedStands.get(this).add(child);
                     sendSpawnPacket(player, child);
                     if (config.getYml().contains(newpath + ".name.refresh-interval")) {
                         int interval = config.getInt(newpath + ".name.refresh-interval");
@@ -199,9 +178,7 @@ public class Button implements TButton {
                                     cancel();
                                     return;
                                 }
-                                PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(child.af(), child.aj().c());
-                                child.b(IChatBaseComponent.a(Main.p(Button.this.owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath + ".name.display-name")))));
-                                (((CraftPlayer)Button.this.owner).getHandle()).b.a((Packet)packet);
+                                child.setCustomName(Main.p(Button.this.owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath + ".name.display-name"))));
                             }
                         }).runTaskTimer(Main.handler.plugin, 0L, interval);
                     }
@@ -230,15 +207,15 @@ public class Button implements TButton {
                     cancelTask();
                     return;
                 }
-                if (this.owner.getLocation().distance(this.armorstand.getBukkitEntity().getLocation()) > 5.0D || this.isHiding) {
+                if (this.owner.getLocation().distance(this.armorstand.getLocation()) > 5.0D || this.isHiding) {
                     if (this.isMoved) {
-                        moveBackward();
                         if (this.nameVisibleMode.equals("hover"))
-                            sendNameVisibilityPacket(this.owner, this.armorstand, false);
-                        for (EntityArmorStand stand : linkedStands.get(this)) {
-                            if (((String)linkedStandsSettings.get(stand)).equals("hover"))
-                                sendNameVisibilityPacket(this.owner, stand, false);
+                            sendNameVisibilityPacket(this.armorstand ,false);
+                        for (ArmorStand stand : linkedStands.get(this)) {
+                            if ((linkedStandsSettings.get(stand)).equals("hover"))
+                                sendNameVisibilityPacket(stand, false);
                         }
+                        moveBackward();
                         unmovablePeriod(500);
                         this.isMoved = false;
                     }
@@ -247,31 +224,32 @@ public class Button implements TButton {
                 Location playerEye = this.owner.getEyeLocation();
                 Vector playerDirection = playerEye.getDirection().normalize();
                 Vector playerPosition = playerEye.toVector();
-                Vector armorStandPosition = new Vector(this.armorstand.dl(), this.armorstand.dn() + 1.6D, this.armorstand.dr());
+                Vector armorStandPosition = new Vector(armorstand.getLocation().getX(), armorstand.getLocation().getY() + 1.6D, armorstand.getLocation().getZ());
                 Vector toArmorStand = armorStandPosition.subtract(playerPosition).normalize();
                 double dotProduct = playerDirection.dot(toArmorStand);
                 if (dotProduct > 0.98D) {
                     if (!this.isMoved && this.moveable) {
-                        moveForward();
                         if (hoverSound != null)
                             Main.handler.playSound(getOwner(), getOwner().getLocation(), hoverSound.getSoundString(), hoverSound.getYaw(), hoverSound.getPitch());
                         if (this.nameVisibleMode.equals("hover"))
-                            sendNameVisibilityPacket(this.owner, this.armorstand, true);
-                        for (EntityArmorStand stand : linkedStands.get(this)) {
-                            if (((String)linkedStandsSettings.get(stand)).equals("hover"))
-                                sendNameVisibilityPacket(this.owner, stand, true);
+                            sendNameVisibilityPacket(this.armorstand, true);
+                        for (ArmorStand stand : linkedStands.get(this)) {
+                            if ((linkedStandsSettings.get(stand)).equals("hover"))
+                                sendNameVisibilityPacket(stand, true);
                         }
+                        moveForward();
                         unmovablePeriod(500);
                         this.isMoved = true;
                     }
                 } else if (this.isMoved && this.moveable) {
-                    moveBackward();
+
                     if (this.nameVisibleMode.equals("hover"))
-                        sendNameVisibilityPacket(this.owner, this.armorstand, false);
-                    for (EntityArmorStand stand : linkedStands.get(this)) {
-                        if (((String)linkedStandsSettings.get(stand)).equals("hover"))
-                            sendNameVisibilityPacket(this.owner, stand, false);
+                        sendNameVisibilityPacket(armorstand, false);
+                    for (ArmorStand stand : linkedStands.get(this)) {
+                        if ((linkedStandsSettings.get(stand)).equals("hover"))
+                            sendNameVisibilityPacket(stand, false);
                     }
+                    moveBackward();
                     unmovablePeriod(500);
                     this.isMoved = false;
                 }
@@ -281,29 +259,22 @@ public class Button implements TButton {
         }
     }
 
-    private EntityArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
-        WorldServer nmsWorld = ((CraftWorld)location.getWorld()).getHandle();
-        EntityArmorStand armorStand = new EntityArmorStand((World)nmsWorld, location.getX(), location.getY(), location.getZ());
-        armorStand.n(isNameEnable);
-        armorStand.b(IChatBaseComponent.a(Main.p(this.owner, ChatColor.translateAlternateColorCodes('&', name))));
-        armorStand.e(true);
-        armorStand.j(true);
-        armorStand.f(location.getYaw());
-        armorStand.e(location.getPitch());
+    private ArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
+        ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+        armorStand.setCustomNameVisible(isNameEnable);
+        armorStand.setCustomName(Main.p(this.owner, ChatColor.translateAlternateColorCodes('&', name)));
+        armorStand.setVisible(false);
+        armorStand.setGravity(false);
+        armorStand.setVisibleByDefault(false);
         return armorStand;
     }
 
-    private void sendSpawnPacket(Player player, EntityArmorStand armorStand) {
-        PacketPlayOutSpawnEntity packet = new PacketPlayOutSpawnEntity((Entity)armorStand);
-        (((CraftPlayer)player).getHandle()).b.a((Packet)packet);
-        armorStand.aj().b(EntityArmorStand.bB, Byte.valueOf((byte)32));
-        PacketPlayOutEntityMetadata packet1 = new PacketPlayOutEntityMetadata(armorStand.af(), armorStand.aj().c());
-        (((CraftPlayer)player).getHandle()).b.a((Packet)packet1);
+    private void sendSpawnPacket(Player player, ArmorStand armorStand) {
+        player.showEntity(Main.handler.plugin, armorStand);
     }
 
-    private void sendDespawnPacket(Player player, EntityArmorStand armorStand) {
-        PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(new int[] { armorStand.af() });
-        (((CraftPlayer)player).getHandle()).b.a((Packet)packet);
+    private void sendDespawnPacket(Player player, ArmorStand armorStand) {
+        player.hideEntity(Main.handler.plugin, armorStand);
     }
 
     private void unmovablePeriod(int time) {
@@ -317,23 +288,23 @@ public class Button implements TButton {
 
     public void equipIcon(ItemStack bukkiticon) {
         if (bukkiticon != null) {
-            net.minecraft.world.item.ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
-            EnumItemSlot slot = EnumItemSlot.f;
-            if (this.type == ButtonType.REWARD)
-                slot = EnumItemSlot.a;
-            PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(this.armorstand.af(), Collections.singletonList(new Pair(slot, icon)));
-            (((CraftPlayer)this.owner).getHandle()).b.a((Packet)packet);
+            EquipmentSlot slot = EquipmentSlot.HEAD;
+            if (this.type == ButtonType.REWARD) {
+                slot = EquipmentSlot.HAND;
+            }
+
+            armorstand.getEquipment().setItem(slot, bukkiticon);
         }
     }
 
-    private void equipIcon(EntityArmorStand armorStand, ItemStack bukkiticon) {
+    private void equipIcon(ArmorStand armorStand, ItemStack bukkiticon) {
         if (bukkiticon != null) {
-            net.minecraft.world.item.ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
-            EnumItemSlot slot = EnumItemSlot.f;
-            if (this.type == ButtonType.REWARD)
-                slot = EnumItemSlot.a;
-            PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(this.armorstand.af(), Collections.singletonList(new Pair(slot, icon)));
-            (((CraftPlayer)this.owner).getHandle()).b.a((Packet)packet);
+            EquipmentSlot slot = EquipmentSlot.HEAD;
+            if (this.type == ButtonType.REWARD) {
+                slot = EquipmentSlot.HAND;
+            }
+
+            armorStand.getEquipment().setItem(slot, bukkiticon);
         }
     }
 
@@ -341,12 +312,12 @@ public class Button implements TButton {
         this.isHiding = isHiding;
         if (isHiding) {
             sendDespawnPacket(this.owner, this.armorstand);
-            for (EntityArmorStand stand : linkedStands.get(this))
+            for (ArmorStand stand : linkedStands.get(this))
                 sendDespawnPacket(this.owner, stand);
         } else {
             sendSpawnPacket(this.owner, this.armorstand);
             equipIcon(this.armorstand, this.icon);
-            for (EntityArmorStand stand : linkedStands.get(this)) {
+            for (ArmorStand stand : linkedStands.get(this)) {
                 sendSpawnPacket(this.owner, stand);
                 if (linkedStandsIcon.get(stand) != null)
                     equipIcon(stand, linkedStandsIcon.get(stand));
@@ -358,9 +329,9 @@ public class Button implements TButton {
         if (this.armorstand != null) {
             this.removed = true;
             cancelTask();
-            sendDespawnPacket(this.owner, this.armorstand);
-            for (EntityArmorStand stand : linkedStands.get(this)) {
-                sendDespawnPacket(this.owner, stand);
+            armorstand.remove();
+            for (ArmorStand stand : linkedStands.get(this)) {
+                stand.remove();
                 linkedStandsIcon.remove(stand);
             }
             buttonIdMap.remove(Integer.valueOf(this.id));
@@ -375,22 +346,20 @@ public class Button implements TButton {
 
     public void moveForward() {
         this.clickable = true;
-        Animations.MoveForward(this.owner, this.armorstand, 0.5F);
-        for (EntityArmorStand stand : linkedStands.get(this))
-            Animations.MoveForward(this.owner, stand, 0.5F);
+        Animations.moveForward(this.owner, this.armorstand, 0.5F);
+        for (ArmorStand stand : linkedStands.get(this))
+            Animations.moveForward(this.owner, stand, 0.5F);
     }
 
     public void moveBackward() {
         this.clickable = false;
-        Animations.MoveBackward(this.owner, this.armorstand, 0.5F);
-        for (EntityArmorStand stand : linkedStands.get(this))
-            Animations.MoveBackward(this.owner, stand, 0.5F);
+        Animations.moveBackward(this.owner, this.armorstand, 0.5F);
+        for (ArmorStand stand : linkedStands.get(this))
+            Animations.moveBackward(this.owner, stand, 0.5F);
     }
 
-    public void sendNameVisibilityPacket(Player player, EntityArmorStand armorStand, boolean visible) {
-        armorStand.n(visible);
-        PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.af(), armorStand.aj().c());
-        (((CraftPlayer)player).getHandle()).b.a((Packet)packet);
+    public void sendNameVisibilityPacket(ArmorStand armorStand, boolean visible) {
+        armorStand.setCustomNameVisible(visible);
     }
 
     public int getCustomId() {
@@ -401,7 +370,7 @@ public class Button implements TButton {
         return this.owner;
     }
 
-    public EntityArmorStand getEntity() {
+    public ArmorStand getEntity() {
         return this.armorstand;
     }
 

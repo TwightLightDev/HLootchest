@@ -7,6 +7,9 @@ import com.mojang.authlib.properties.Property;
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -152,18 +155,20 @@ public class Main extends NMSHandler {
         itemMeta.addItemFlags(new ItemFlag[] { ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS });
         itemMeta.setCustomModelData(data);
         i.setItemMeta(itemMeta);
-        if (material.equals(XMaterial.PLAYER_HEAD.parseMaterial()) && headUrl != null) {
-            SkullMeta skullMeta = (SkullMeta)i.getItemMeta();
+        if (material.equals(XMaterial.PLAYER_HEAD.parseMaterial()) &&
+                headUrl != null) {
+            SkullMeta skullMeta = (SkullMeta) i.getItemMeta();
             GameProfile profile = new GameProfile(UUID.randomUUID(), null);
             profile.getProperties().put("textures", new Property("textures", headUrl));
             try {
                 Field field = skullMeta.getClass().getDeclaredField("profile");
                 field.setAccessible(true);
                 field.set(skullMeta, profile);
-            } catch (IllegalArgumentException|NoSuchFieldException|SecurityException|IllegalAccessException exception) {
+            } catch (IllegalArgumentException | NoSuchFieldException | SecurityException |
+                     IllegalAccessException exception) {
                 return null;
             }
-            i.setItemMeta((ItemMeta)skullMeta);
+            i.setItemMeta(skullMeta);
         }
         return i;
     }

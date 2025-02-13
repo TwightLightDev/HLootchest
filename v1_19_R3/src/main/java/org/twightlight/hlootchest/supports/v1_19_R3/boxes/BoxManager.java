@@ -3,27 +3,14 @@
 package org.twightlight.hlootchest.supports.v1_19_R3.boxes;
 
 import com.cryptomorin.xseries.XPotion;
-import com.mojang.datafixers.util.Pair;
-import net.minecraft.network.chat.IChatBaseComponent;
-import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
-import net.minecraft.server.level.WorldServer;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EnumItemSlot;
-import net.minecraft.world.entity.decoration.EntityArmorStand;
-import net.minecraft.world.level.World;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_19_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_19_R3.inventory.CraftItemStack;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.twightlight.hlootchest.api.enums.ButtonType;
@@ -33,14 +20,17 @@ import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_19_R3.Main;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 public class BoxManager
         implements TBox {
     private Player owner;
     int id;
-    private EntityArmorStand box;
+    private final ArmorStand box;
     private boolean clickable = true;
     private Location loc;
     private ItemStack icon;
@@ -62,17 +52,15 @@ public class BoxManager
         this.box = this.createArmorStand(location, "", false);
         this.clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
         this.instance = this;
-        this.id = this.box.af();
+        this.id = this.box.getEntityId();
         this.loc = location;
         this.icon = icon;
         this.config = config;
         this.boxid = boxid;
         Main.rotate(this.box, config, boxid + ".settings");
-        PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(this.box.af(), this.box.aj().c());
-        ((CraftPlayer)this.owner).getHandle().b.a(metadataPacket);
         boxlists.put(this.id, this);
         boxPlayerlists.put(this.owner, this);
-        this.sendSpawnPacket(this.owner, this.box);
+        sendSpawnPacket(this.owner, this.box);
         this.equipIcon(this.box, icon);
         if (config.getList(boxid + ".rewards-location") != null) {
             for (String string : config.getList(boxid + ".rewards-location")) {
@@ -94,45 +82,39 @@ public class BoxManager
             pig.setInvulnerable(true);
             pig.addPassenger(this.owner);
             vehicles.put(this.owner, pig);
+        } else {
+            vehicles.get(this.owner).addPassenger(owner);
         }
         LCSpawnEvent lCSpawnEvent = new LCSpawnEvent(this.owner, this);
         Bukkit.getPluginManager().callEvent(lCSpawnEvent);
     }
 
-    public EntityArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
-        WorldServer nmsWorld = ((CraftWorld)location.getWorld()).getHandle();
-        EntityArmorStand armorStand = new EntityArmorStand((World)nmsWorld, location.getX(), location.getY(), location.getZ());
-        armorStand.n(isNameEnable);
-        armorStand.b(IChatBaseComponent.a((String)Main.p(this.owner, ChatColor.translateAlternateColorCodes('&', name))));
-        armorStand.e(true);
-        armorStand.j(true);
-        armorStand.f(location.getYaw());
-        armorStand.e(location.getPitch());
+    public ArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
+
+        ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
+        armorStand.setVisible(false);
+        armorStand.setCustomName(ChatColor.translateAlternateColorCodes('&', name));
+        armorStand.setCustomNameVisible(isNameEnable);
+        armorStand.setGravity(false);
+        armorStand.setRotation(location.getYaw(), location.getPitch());
         return armorStand;
     }
 
-    public void sendSpawnPacket(Player player, EntityArmorStand armorStand) {
-        PacketPlayOutSpawnEntity packet = new PacketPlayOutSpawnEntity((Entity)armorStand);
-        ((CraftPlayer)player).getHandle().b.a((Packet)packet);
-        armorStand.aj().b(EntityArmorStand.bB, Byte.valueOf((byte)32));
-        PacketPlayOutEntityMetadata packet1 = new PacketPlayOutEntityMetadata(armorStand.af(), armorStand.aj().c());
-        ((CraftPlayer)player).getHandle().b.a((Packet)packet1);
+    public static void sendSpawnPacket(Player player, ArmorStand armorStand) {
+        player.showEntity(Main.handler.plugin, armorStand);
     }
 
     @Override
-    public void equipIcon(ItemStack bukkiticon) {
-        net.minecraft.world.item.ItemStack icon = CraftItemStack.asNMSCopy((ItemStack)bukkiticon);
-        PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(this.box.af(), Collections.singletonList(new Pair((Object)EnumItemSlot.f, (Object)icon)));
-        ((CraftPlayer)this.owner).getHandle().b.a((Packet)packet);
+    public void equipIcon(ItemStack bukkitIcon) {
+        if (box != null) {
+            box.getEquipment().setItem(EquipmentSlot.HAND, bukkitIcon);
+        }
     }
 
-    private void equipIcon(EntityArmorStand armorStand, ItemStack bukkiticon) {
-        net.minecraft.world.item.ItemStack icon = CraftItemStack.asNMSCopy((ItemStack)bukkiticon);
-        PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(armorStand.af(), Collections.singletonList(new Pair((Object)EnumItemSlot.f, (Object)icon)));
-        ((CraftPlayer)this.owner).getHandle().b.a((Packet)packet);
+    private void equipIcon(ArmorStand armorStand, ItemStack bukkitIcon) {
+        armorStand.getEquipment().setItem(EquipmentSlot.HEAD, bukkitIcon);
     }
 
-    @Override
     public boolean open() {
         Main.handler.removeButtonsFromPlayer(this.owner, ButtonType.REWARD);
         PlayerOpenLCEvent event = new PlayerOpenLCEvent(this.owner, this);
@@ -140,11 +122,9 @@ public class BoxManager
         return !event.isCancelled();
     }
 
-    @Override
     public void remove() {
         if (this.box != null) {
-            PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(new int[]{this.box.af()});
-            ((CraftPlayer)this.owner).getHandle().b.a((Packet)packet);
+            this.box.remove();
             boxlists.remove(this.id);
             boxPlayerlists.remove(this.owner);
         }
@@ -165,7 +145,7 @@ public class BoxManager
         return this.owner;
     }
 
-    public EntityArmorStand getBox() {
+    public ArmorStand getBox() {
         return this.box;
     }
 

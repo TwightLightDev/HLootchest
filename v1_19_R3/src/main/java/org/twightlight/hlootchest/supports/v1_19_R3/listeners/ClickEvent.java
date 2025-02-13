@@ -5,7 +5,6 @@ package org.twightlight.hlootchest.supports.v1_19_R3.listeners;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.game.PacketPlayInUseEntity;
-import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.network.PlayerConnection;
 import org.bukkit.Bukkit;
@@ -27,25 +26,25 @@ import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.util.List;
 
-public class ClickEvent
-        extends PlayerConnection {
+public class ClickEvent extends PlayerConnection {
     NMSHandler nms = Main.handler;
     EntityPlayer b = this.f();
 
     public ClickEvent(NetworkManager networkManager, EntityPlayer entityPlayer) {
-        super((MinecraftServer)((CraftServer)Bukkit.getServer()).getServer(), networkManager, entityPlayer);
+        super(((CraftServer)Bukkit.getServer()).getServer(), networkManager, entityPlayer);
     }
-
+    @Override
     public void a(PacketPlayInUseEntity packet) {
         TBox box;
         super.a(packet);
         int entityId = this.getEntityId(packet);
         TButton button = this.nms.getButtonFromId(entityId);
+
         String action = this.getAction(packet);
-        if (button != null && button.isClickable()) {
+        if (button != null && button.getOwner() == this.b.getBukkitEntity() && button.isClickable()) {
             this.handleButtonInteraction(action, button);
         }
-        if ((box = BoxManager.boxlists.get(entityId)) != null && box.isClickable() && box.isClickToOpen()) {
+        if ((box = BoxManager.boxlists.get(entityId)) != null && box.getOwner() == b.getBukkitEntity() && box.isClickable() && box.isClickToOpen()) {
             this.handleButtonInteraction(action, box);
         }
     }
@@ -77,7 +76,7 @@ public class ClickEvent
                     continue;
                 }
                 if (dataset[0].equals("[open]")) {
-                    Main.handler.getBoxFromPlayer((Player)this.b.getBukkitEntity()).open();
+                    Main.handler.getBoxFromPlayer(this.b.getBukkitEntity()).open();
                     continue;
                 }
                 if (!dataset[0].equals("[close]")) continue;

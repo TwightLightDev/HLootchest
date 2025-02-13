@@ -4,38 +4,22 @@ import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
-import java.util.concurrent.ConcurrentHashMap;
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.minecraft.core.Vector3f;
 import net.minecraft.network.NetworkManager;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.server.network.PlayerConnection;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.decoration.EntityArmorStand;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
+import org.bukkit.util.EulerAngle;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TButton;
@@ -45,6 +29,10 @@ import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_19_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_19_R3.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_19_R3.listeners.ClickEvent;
+
+import java.lang.reflect.Field;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class Main extends NMSHandler {
     public static NMSHandler handler;
@@ -64,7 +52,7 @@ public class Main extends NMSHandler {
 
     public void registerButtonClick(Player player) {
         EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
-        nmsPlayer.b = (PlayerConnection)new ClickEvent(getPlayerConnection(nmsPlayer), nmsPlayer);
+        nmsPlayer.b = new ClickEvent(getPlayerConnection(nmsPlayer), nmsPlayer);
     }
 
     public void spawnButton(Location location, ButtonType type, Player player, ItemStack icon, String path, TConfigManager config) {
@@ -85,10 +73,10 @@ public class Main extends NMSHandler {
             if (getGlobalButtons().get(player) == null)
                 return;
             List<TButton> needRemove = new ArrayList<>();
-            int times = ((List)getGlobalButtons().get(player)).size();
+            int times = (getGlobalButtons().get(player)).size();
             for (int i = 0; i < times; i++) {
-                if (((TButton)((List<TButton>)getGlobalButtons().get(player)).get(i)).getType() == type)
-                    needRemove.add(((List<TButton>)getGlobalButtons().get(player)).get(i));
+                if (((getGlobalButtons().get(player)).get(i)).getType() == type)
+                    needRemove.add((getGlobalButtons().get(player)).get(i));
             }
             for (TButton tButton : needRemove)
                 tButton.remove();
@@ -101,10 +89,10 @@ public class Main extends NMSHandler {
         try {
             if (getGlobalButtons().get(player) == null)
                 return;
-            int times = ((List)getGlobalButtons().get(player)).size();
+            int times = (getGlobalButtons().get(player)).size();
             for (int i = 0; i < times; i++) {
-                if (((TButton)((List<TButton>)getGlobalButtons().get(player)).get(i)).getType() == type)
-                    ((TButton)((List<TButton>)getGlobalButtons().get(player)).get(i)).hide(state);
+                if (((getGlobalButtons().get(player)).get(i)).getType() == type)
+                    ((getGlobalButtons().get(player)).get(i)).hide(state);
             }
         } catch (Exception e) {
             throw new RuntimeException(e.getMessage());
@@ -116,7 +104,7 @@ public class Main extends NMSHandler {
     }
 
     public TButton getButtonFromId(int id) {
-        return (TButton)Button.buttonIdMap.get(Integer.valueOf(id));
+        return Button.buttonIdMap.get(Integer.valueOf(id));
     }
 
     public TBox getBoxFromPlayer(Player player) {
@@ -152,18 +140,20 @@ public class Main extends NMSHandler {
         itemMeta.addItemFlags(new ItemFlag[] { ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS });
         itemMeta.setCustomModelData(data);
         i.setItemMeta(itemMeta);
-        if (material.equals(XMaterial.PLAYER_HEAD.parseMaterial()) && headUrl != null) {
-            SkullMeta skullMeta = (SkullMeta)i.getItemMeta();
+        if (material.equals(XMaterial.PLAYER_HEAD.parseMaterial()) &&
+                headUrl != null) {
+            SkullMeta skullMeta = (SkullMeta) i.getItemMeta();
             GameProfile profile = new GameProfile(UUID.randomUUID(), null);
             profile.getProperties().put("textures", new Property("textures", headUrl));
             try {
                 Field field = skullMeta.getClass().getDeclaredField("profile");
                 field.setAccessible(true);
                 field.set(skullMeta, profile);
-            } catch (IllegalArgumentException|NoSuchFieldException|SecurityException|IllegalAccessException exception) {
+            } catch (IllegalArgumentException | NoSuchFieldException | SecurityException |
+                     IllegalAccessException exception) {
                 return null;
             }
-            i.setItemMeta((ItemMeta)skullMeta);
+            i.setItemMeta(skullMeta);
         }
         return i;
     }
@@ -178,14 +168,14 @@ public class Main extends NMSHandler {
         return tboxdata;
     }
 
-    public static Vector3f stringToVector3f(String str) {
+    public static EulerAngle stringToVector3f(String str) {
         String[] parts = str.split(",");
         if (parts.length != 3)
             throw new IllegalArgumentException("Invalid vector string: " + str);
         float x = Float.parseFloat(parts[0]);
         float y = Float.parseFloat(parts[1]);
         float z = Float.parseFloat(parts[2]);
-        return new Vector3f(x, y, z);
+        return new EulerAngle(Math.toRadians(x), Math.toRadians(y), Math.toRadians(z));
     }
 
     public Location stringToLocation(String locString) {
@@ -203,26 +193,26 @@ public class Main extends NMSHandler {
         return new Location(world, x, y, z, yaw, pitch);
     }
 
-    public static void rotate(EntityArmorStand armorStand, TConfigManager config, String path) {
+    public static void rotate(ArmorStand armorStand, TConfigManager config, String path) {
         if (config.getYml().getConfigurationSection(path + ".rotations") != null) {
             Set<String> rotations = config.getYml().getConfigurationSection(path + ".rotations").getKeys(false);
             for (String s : rotations) {
                 String rotationString = config.getString(path + ".rotations." + s + ".value");
-                Vector3f rotation = stringToVector3f(rotationString);
+                EulerAngle rotation = stringToVector3f(rotationString);
                 String position = config.getString(path + ".rotations." + s + ".position");
                 switch (position) {
                     case "HEAD":
-                        armorStand.a(rotation);
+                        armorStand.setHeadPose(rotation);
                     case "BODY":
-                        armorStand.b(rotation);
+                        armorStand.setBodyPose(rotation);
                     case "RIGHT_ARM":
-                        armorStand.d(rotation);
+                        armorStand.setRightArmPose(rotation);
                     case "LEFT_ARM":
-                        armorStand.c(rotation);
+                        armorStand.setLeftLegPose(rotation);
                     case "RIGHT_LEG":
-                        armorStand.f(rotation);
+                        armorStand.setRightLegPose(rotation);
                     case "LEFT_LEG":
-                        armorStand.e(rotation);
+                        armorStand.setLeftLegPose(rotation);
                 }
             }
         }
@@ -230,7 +220,7 @@ public class Main extends NMSHandler {
 
     public static NetworkManager getPlayerConnection(EntityPlayer player) {
         try {
-            Field connectionField = PlayerConnection.class.getDeclaredField("connection");
+            Field connectionField = PlayerConnection.class.getDeclaredField("h");
             connectionField.setAccessible(true);
             return (NetworkManager)connectionField.get(player.b);
         } catch (NoSuchFieldException|IllegalAccessException e) {
@@ -256,6 +246,6 @@ public class Main extends NMSHandler {
                 break;
         }
         if (packet != null)
-            (((CraftPlayer)p).getHandle()).b.a((Packet)packet);
+            (((CraftPlayer)p).getHandle()).b.a(packet);
     }
 }

@@ -10,9 +10,8 @@ public class PlayerQuit implements Listener {
     @EventHandler
     public void onPlayerQuit(PlayerQuitEvent e) {
         Player p = e.getPlayer();
-        if (HLootchest.getNms().getBoxFromPlayer(p) != null) {
-            HLootchest.getNms().getBoxFromPlayer(p).removeVehicle(p);
-            HLootchest.getNms().getBoxFromPlayer(p).remove();
+        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
+            HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p).close();
         }
     }
 }

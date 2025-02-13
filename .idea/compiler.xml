@@ -15,5 +15,6 @@
         <module name="v1_8_R3" />
       </profile>
     </annotationProcessing>
+    <bytecodeTargetLevel target="21" />
   </component>
 </project>

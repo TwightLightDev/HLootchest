@@ -391,7 +391,7 @@ public class Button implements TButton {
     public void sendNameVisibilityPacket(Player player, EntityArmorStand armorStand, boolean visible) {
         armorStand.n(visible);
         PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.ae(), armorStand.ai(), true);
-        (((CraftPlayer)player).getHandle()).b.a((Packet)packet);
+        (((CraftPlayer)player).getHandle()).b.a(packet);
     }
 
     public int getCustomId() {
