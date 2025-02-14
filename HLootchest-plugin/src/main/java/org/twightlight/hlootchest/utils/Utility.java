@@ -19,10 +19,17 @@ public class Utility {
     }
 
 
-    public static String p(Player p, String value) {
+    public static String pC(Player p, String value) {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
             return c(value);
         return c(PlaceholderAPI.setPlaceholders(p, value));
+    }
+
+    public static String p(Player p, String value) {
+        if (HLootchest.hex_gradient) {
+            return HLootchest.colorUtils.colorize(pC(p, value));
+        }
+        return pC(p, value);
     }
 
     public static String getMsg(Player p, String path) {

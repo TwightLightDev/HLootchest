@@ -26,6 +26,7 @@ import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_17_R1.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_17_R1.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_17_R1.listeners.ClickEvent;
+import org.twightlight.hlootchest.utils.ColorUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -36,17 +37,19 @@ import static net.minecraft.network.protocol.game.PacketPlayOutGameStateChange.d
 public class Main extends NMSHandler {
 
     public static NMSHandler handler;
+    public static ColorUtils colorUtils;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
 
     public Main(Plugin pl, String name) {
         super(pl, name);
         handler = this;
+        colorUtils = new ColorUtils();
     }
 
     public static String p(Player p, String value) {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
-            return ChatColor.translateAlternateColorCodes('&', value);
-        return ChatColor.translateAlternateColorCodes('&', (PlaceholderAPI.setPlaceholders(p, value)));
+            return colorUtils.colorize(value);
+        return colorUtils.colorize(PlaceholderAPI.setPlaceholders(p, value));
     }
 
     public void registerButtonClick(Player player) {

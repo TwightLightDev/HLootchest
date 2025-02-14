@@ -73,6 +73,8 @@ public class BoxManager implements TBox {
 
     public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
 
+    private boolean isOpening;
+
     public BoxManager(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
         this.owner = player;
         this.initialLocation = initialLocation;
@@ -218,6 +220,14 @@ public class BoxManager implements TBox {
 
     public boolean isClickToOpen() {
         return this.clickToOpen;
+    }
+
+    public void setOpeningState(Boolean state) {
+        isOpening = state;
+    }
+
+    public boolean isOpening() {
+        return isOpening;
     }
 
     public Location getPlayerLocation() {

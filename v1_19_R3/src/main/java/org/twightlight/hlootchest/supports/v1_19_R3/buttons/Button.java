@@ -8,7 +8,6 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Sound;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftArmorStand;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -91,7 +90,7 @@ public class Button implements TButton {
             this.nameVisibleMode = mode;
         }
         final ArmorStand armorStand = createArmorStand(location, (config.getString(path + ".name.display-name") != null) ? config.getString(path + ".name.display-name") : "", enableName);
-        this.id = ((CraftArmorStand) armorStand).getEntityId();
+        this.id = (armorStand).getEntityId();
         this.armorstand = armorStand;
         Main.rotate(this.armorstand, config, path);
         buttonIdMap.put(Integer.valueOf(this.id), this);

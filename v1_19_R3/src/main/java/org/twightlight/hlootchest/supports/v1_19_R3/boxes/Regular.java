@@ -3,9 +3,8 @@ package org.twightlight.hlootchest.supports.v1_19_R3.boxes;
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import fr.mrmicky.fastparticles.ParticleType;
-import net.minecraft.server.level.EntityPlayer;
+import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
 import org.bukkit.*;
-import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
@@ -42,8 +41,8 @@ public class Regular extends BoxManager {
     }
 
     public boolean open() {
-        if (!super.open())
-            return false;
+        if (!super.open()) return false;
+        setOpeningState(true);
         setClickable(false);
         moveUp();
         FireworkEffect effect = FireworkEffect.builder().flicker(false).with(FireworkEffect.Type.BURST).withColor(new Color[] { Color.RED, Color.ORANGE, Color.YELLOW }).withFade(new Color[] { Color.GREEN, Color.BLUE }).withTrail().build();
@@ -54,9 +53,8 @@ public class Regular extends BoxManager {
             public void run() {
                 if (System.currentTimeMillis() - this.startTime > 3500L)
                     return;
-                EntityPlayer craftPlayer = ((CraftPlayer)Regular.this.getOwner()).getHandle();
-                if (craftPlayer.dw() != Regular.this.getPlayerLocation().getYaw() || craftPlayer.dy() != Regular.this.getPlayerLocation().getPitch()) {
-                    craftPlayer.getBukkitEntity().teleport(getPlayerLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                if (getOwner().getLocation().getYaw() != Regular.this.getPlayerLocation().getYaw() || getOwner().getLocation().getPitch() != Regular.this.getPlayerLocation().getPitch()) {
+                    getOwner().teleport(getPlayerLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
                 }
             }
         }).runTaskTimer(Main.handler.plugin, 0L, 2L);
@@ -70,6 +68,9 @@ public class Regular extends BoxManager {
                 Location loc = Regular.this.getLoc();
 
                 if (System.currentTimeMillis() - startTime > 3000L) {
+                    Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
+                        setOpeningState(false);
+                    }, 2L);
                     Main.handler.playSound(player, player.getLocation(), XSound.ENTITY_CAT_AMBIENT.name(), 20.0F, 5.0F);
                     PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(player, Regular.this.getInstance());
                     Bukkit.getPluginManager().callEvent(event);
@@ -92,7 +93,6 @@ public class Regular extends BoxManager {
                 Main.handler.playSound(player, player.getLocation(), XSound.ENTITY_CHICKEN_EGG.name(), 20.0F, 5.0F);
                 ParticleType.of("CLOUD").spawn(Regular.this.getOwner(), Regular.this.getLoc().clone().add(0.0D, -2.8D, 0.0D), 1, 0.0D, 0.0D, 0.0D, 0.0D);                time++;
 
-                // ArmorStand Rotation (Spigot API)
                 float x, z;
                 switch (time % 4) {
                     case 0: x = 6.0F; z = 6.0F; break;

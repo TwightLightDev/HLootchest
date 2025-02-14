@@ -60,24 +60,20 @@ public class ClickEvent extends PlayerConnection {
                 String[] dataset = stringAction.split(" ", 2);
                 if (dataset[0].equals("[player]")) {
                     this.b.getBukkitEntity().performCommand(dataset[1].replace("{player}", this.b.getBukkitEntity().getName()));
-                    continue;
-                }
-                if (dataset[0].equals("[console]")) {
+
+                } else if (dataset[0].equals("[console]")) {
                     ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
                     Bukkit.getServer().dispatchCommand((CommandSender)console, dataset[1].replace("{player}", this.b.getBukkitEntity().getName()));
-                    continue;
-                }
-                if (dataset[0].equals("[message]")) {
+
+                } else if  (dataset[0].equals("[message]")) {
                     this.b.getBukkitEntity().sendMessage(
                             ChatColor.translateAlternateColorCodes('&',
                                     PlaceholderAPI.setPlaceholders((Player)this.b.getBukkitEntity(), dataset[1])));
-                    continue;
-                }
-                if (dataset[0].equals("[open]")) {
+
+                } else if (dataset[0].equals("[open]")) {
                     Main.handler.getBoxFromPlayer((Player)this.b.getBukkitEntity()).open();
-                    continue;
-                }
-                if (dataset[0].equals("[close]")) {
+
+                } else if (dataset[0].equals("[close]")) {
                     TBox box = Main.handler.getBoxFromPlayer((Player)this.b.getBukkitEntity());
                     box.removeVehicle((Player)this.b.getBukkitEntity());
                     box.getOwner().teleport(box.getPlayerInitialLoc());
@@ -86,8 +82,8 @@ public class ClickEvent extends PlayerConnection {
                         if (!online.equals(this.b.getBukkitEntity()))
                             online.showPlayer(Main.handler.plugin, (Player)this.b.getBukkitEntity());
                     }
-                    Main.handler.removeButtonsFromPlayer((Player)this.b.getBukkitEntity(), ButtonType.FUNCTIONAL);
-                    Main.handler.removeButtonsFromPlayer((Player)this.b.getBukkitEntity(), ButtonType.REWARD);
+                    Main.handler.removeButtonsFromPlayer(this.b.getBukkitEntity(), ButtonType.FUNCTIONAL);
+                    Main.handler.removeButtonsFromPlayer(this.b.getBukkitEntity(), ButtonType.REWARD);
                     this.b.getBukkitEntity().setGameMode(GameMode.SPECTATOR);
                     this.b.getBukkitEntity().setGameMode(GameMode.SURVIVAL);
                 }

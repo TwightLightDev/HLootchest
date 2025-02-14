@@ -21,6 +21,8 @@ public class LootChestSessions implements TSessions {
 
     public static final Map<Player, TSessions> sessions = new HashMap<>();
 
+    private TBox box;
+
     public LootChestSessions(Player p, String identifier) {
         if (HLootchest.getNms().getBoxFromPlayer(p) == null) {
             player = p;
@@ -36,7 +38,7 @@ public class LootChestSessions implements TSessions {
             TConfigManager templateconfig = HLootchest.getAPI().getConfigUtil().getTemplateConfig();
             Location location = HLootchest.getNms().stringToLocation(templateconfig.getString(identifier + ".settings.location"));
 
-            HLootchest.getNms().spawnBox(location, identifier, p, icon, templateconfig, p.getLocation());
+            box = HLootchest.getNms().spawnBox(location, identifier, p, icon, templateconfig, p.getLocation());
 
             if (templateconfig.getYml().getConfigurationSection(identifier + ".buttons") != null) {
                 Set<String> buttons = templateconfig.getYml().getConfigurationSection(identifier + ".buttons").getKeys(false);
@@ -80,7 +82,7 @@ public class LootChestSessions implements TSessions {
                             ItemStack buttonIcon = HLootchest.getNms().createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false);
                             Location location = HLootchest.getNms().stringToLocation(locationString);
 
-                            HLootchest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, buttonIcon, path, templateconfig);;
+                            HLootchest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, buttonIcon, path, templateconfig);
                         }
 
                         currentTick++;
@@ -90,8 +92,8 @@ public class LootChestSessions implements TSessions {
         }
     }
 
+
     public void close() {
-        TBox box = HLootchest.getNms().getBoxFromPlayer(player);
         box.removeVehicle(player);
         box.getOwner().teleport(box.getPlayerInitialLoc());
         box.remove();
@@ -104,6 +106,10 @@ public class LootChestSessions implements TSessions {
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.REWARD);
         player.setGameMode(GameMode.SPECTATOR);
         player.setGameMode(GameMode.SURVIVAL);
+    }
+
+    public boolean isOpening() {
+        return box.isOpening();
     }
 
     private static class ButtonTask {

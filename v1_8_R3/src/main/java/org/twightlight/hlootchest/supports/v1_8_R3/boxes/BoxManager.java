@@ -46,6 +46,7 @@ public class BoxManager implements TBox {
     private static final Map<Player, Pig> vehicles = new HashMap<>();
     public static final ConcurrentHashMap<Integer, TBox> boxlists = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
+    private boolean isOpening;
 
     public BoxManager(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
         this.owner = player;
@@ -233,6 +234,14 @@ public class BoxManager implements TBox {
 
     public boolean isClickToOpen() {
         return clickToOpen;
+    }
+
+    public void setOpeningState(Boolean state) {
+        isOpening = state;
+    }
+
+    public boolean isOpening() {
+        return isOpening;
     }
 
     public Location getPlayerLocation() {

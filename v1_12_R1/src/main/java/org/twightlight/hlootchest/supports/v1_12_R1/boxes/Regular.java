@@ -60,7 +60,7 @@ public class Regular extends BoxManager {
         if (!super.open()) {
             return false;
         }
-
+        setOpeningState(true);
         setClickable(false);
         moveUp();
         FireworkEffect effect = FireworkEffect.builder()
@@ -106,7 +106,9 @@ public class Regular extends BoxManager {
             @Override
             public void run() {
                 if (System.currentTimeMillis() - startTime > 3000) {
-
+                    Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
+                        setOpeningState(false);
+                    }, 2L);
                     Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_CAT_AMBIENT.name(), 20, 5);
 
                     PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());

@@ -5,10 +5,7 @@ import com.cryptomorin.xseries.XSound;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
-import net.minecraft.server.level.EntityPlayer;
-import net.minecraft.server.network.PlayerConnection;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_19_R3.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
@@ -29,6 +26,7 @@ import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_19_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_19_R3.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_19_R3.listeners.ClickEvent;
+import org.twightlight.hlootchest.utils.ColorUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -36,23 +34,24 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class Main extends NMSHandler {
     public static NMSHandler handler;
-
+    public static ColorUtils colorUtils;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
 
     public Main(Plugin pl, String name) {
         super(pl, name);
         handler = this;
+        colorUtils = new ColorUtils();
+        Bukkit.getServer().getPluginManager().registerEvents(new ClickEvent(), pl);
+
     }
 
     public static String p(Player p, String value) {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
-            return ChatColor.translateAlternateColorCodes('&', value);
-        return ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(p, value));
+            return colorUtils.colorize(value);
+        return colorUtils.colorize(PlaceholderAPI.setPlaceholders(p, value));
     }
 
     public void registerButtonClick(Player player) {
-        EntityPlayer nmsPlayer = ((CraftPlayer)player).getHandle();
-        nmsPlayer.b = new ClickEvent(getPlayerConnection(nmsPlayer), nmsPlayer);
     }
 
     public void spawnButton(Location location, ButtonType type, Player player, ItemStack icon, String path, TConfigManager config) {
@@ -215,17 +214,6 @@ public class Main extends NMSHandler {
                         armorStand.setLeftLegPose(rotation);
                 }
             }
-        }
-    }
-
-    public static NetworkManager getPlayerConnection(EntityPlayer player) {
-        try {
-            Field connectionField = PlayerConnection.class.getDeclaredField("h");
-            connectionField.setAccessible(true);
-            return (NetworkManager)connectionField.get(player.b);
-        } catch (NoSuchFieldException|IllegalAccessException e) {
-            e.printStackTrace();
-            return null;
         }
     }
 

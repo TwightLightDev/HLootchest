@@ -17,6 +17,7 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.objects.TSessions;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.ArrayList;
@@ -71,16 +72,31 @@ public class LootChests implements Listener {
     public void onDismountEvent(VehicleExitEvent e) {
         Entity entity = e.getVehicle();
         Entity exited = e.getExited();
+        Player player = null;
 
-        if (entity instanceof Pig && exited instanceof Player && !exited.hasPermission("hlootchests.bypass")) {
+        if (exited instanceof Player) {
+            player = (Player) exited;
+        }
+
+        TSessions session = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(player);
+
+        if (session == null) {
+            return;
+        }
+
+        if (session.isOpening()) {
+            e.setCancelled(true);
+            return;
+        }
+
+        if (entity instanceof Pig && player != null && !exited.hasPermission("hlootchests.bypass")) {
             Pig vehicle = (Pig) entity;
-            Player player = (Player) exited;
-            if ("LootchestVehicle".equals(vehicle.getCustomName()) && HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(player) != null) {
+            if ("LootchestVehicle".equals(vehicle.getCustomName())) {
                 if (!HLootchest.getAPI().getConfigUtil().getMainConfig().getBoolean("lootchest.exit-vehicle-to-close")) {
                     e.setCancelled(true);
                     return;
                 }
-                HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(player).close();
+                session.close();
             }
         }
     }

@@ -1,5 +1,3 @@
-// Decompiled with: CFR 0.152
-// Class Version: 8
 package org.twightlight.hlootchest.supports.v1_19_R3.boxes;
 
 import com.cryptomorin.xseries.XPotion;
@@ -26,8 +24,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BoxManager
-        implements TBox {
+public class BoxManager implements TBox {
     private Player owner;
     int id;
     private final ArmorStand box;
@@ -41,12 +38,13 @@ public class BoxManager
     private Location playerLocation;
     private Location initialLocation;
     private List<Location> rewardsLocation = new ArrayList<Location>();
-    private static final Map<Player, Pig> vehicles = new HashMap<Player, Pig>();
-    public static final ConcurrentHashMap<Integer, TBox> boxlists = new ConcurrentHashMap();
-    public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap();
+    private boolean isOpening;
+
+    private static final Map<Player, Pig> vehicles = new HashMap<>();
+    public static final ConcurrentHashMap<Integer, TBox> boxlists = new ConcurrentHashMap<>();
+    public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
 
     public BoxManager(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
-        Location Plocation;
         this.owner = player;
         this.initialLocation = initialLocation;
         this.box = this.createArmorStand(location, "", false);
@@ -67,30 +65,38 @@ public class BoxManager
                 this.rewardsLocation.add(Main.handler.stringToLocation(string));
             }
         }
-        this.playerLocation = Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
-        if (vehicles.get(this.owner) == null) {
-            this.owner.teleport(Plocation);
-            for (Player player2 : Bukkit.getOnlinePlayers()) {
-                if (player2.equals(this.owner)) continue;
-                player2.hidePlayer(Main.handler.plugin, this.owner);
+        Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
+
+        playerLocation = Plocation;
+
+        if (vehicles.get(owner) == null) {
+            owner.sendMessage("HUH");
+            owner.teleport(Plocation);
+
+            for (Player online : Bukkit.getOnlinePlayers()) {
+                if (!online.equals(owner)) {
+                    online.hidePlayer(Main.handler.plugin, owner);
+                }
             }
-            Pig pig = (Pig)Plocation.getWorld().spawnEntity(Plocation.clone().add(0.0, -0.3, 0.0), EntityType.PIG);
-            pig.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));
-            pig.setCustomName("LootchestVehicle");
-            pig.setCustomNameVisible(false);
-            pig.setAI(false);
-            pig.setInvulnerable(true);
-            pig.addPassenger(this.owner);
-            vehicles.put(this.owner, pig);
-        } else {
-            vehicles.get(this.owner).addPassenger(owner);
+
+
+            Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
+            vehicle.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));
+
+            vehicle.setCustomName("LootchestVehicle");
+            vehicle.setCustomNameVisible(false);
+            vehicle.setAI(false);
+            vehicle.setInvulnerable(true);
+
+            vehicle.addPassenger(owner);
+            vehicles.put(owner, vehicle);
         }
+
         LCSpawnEvent lCSpawnEvent = new LCSpawnEvent(this.owner, this);
         Bukkit.getPluginManager().callEvent(lCSpawnEvent);
     }
 
     public ArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
-
         ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
         armorStand.setVisible(false);
         armorStand.setCustomName(ChatColor.translateAlternateColorCodes('&', name));
@@ -104,7 +110,6 @@ public class BoxManager
         player.showEntity(Main.handler.plugin, armorStand);
     }
 
-    @Override
     public void equipIcon(ItemStack bukkitIcon) {
         if (box != null) {
             box.getEquipment().setItem(EquipmentSlot.HAND, bukkitIcon);
@@ -130,17 +135,14 @@ public class BoxManager
         }
     }
 
-    @Override
     public boolean isClickable() {
         return this.clickable;
     }
 
-    @Override
     public void setClickable(boolean bool) {
         this.clickable = bool;
     }
 
-    @Override
     public Player getOwner() {
         return this.owner;
     }
@@ -149,37 +151,30 @@ public class BoxManager
         return this.box;
     }
 
-    @Override
     public Location getLoc() {
         return this.loc;
     }
 
-    @Override
     public ItemStack getIcon() {
         return this.icon;
     }
 
-    @Override
     public TConfigManager getConfig() {
         return this.config;
     }
 
-    @Override
     public String getBoxId() {
         return this.boxid;
     }
 
-    @Override
     public Location getPlayerInitialLoc() {
         return this.initialLocation;
     }
 
-    @Override
     public Map<Player, Pig> getVehiclesList() {
         return vehicles;
     }
 
-    @Override
     public void removeVehicle(Player p) {
         if (vehicles.get(p) != null) {
             vehicles.get(p).remove();
@@ -187,22 +182,27 @@ public class BoxManager
         }
     }
 
-    @Override
+
+    public void setOpeningState(Boolean state) {
+        isOpening = state;
+    }
+
+    public boolean isOpening() {
+        return isOpening;
+    }
+
     public TBox getInstance() {
         return this.instance;
     }
 
-    @Override
     public boolean isClickToOpen() {
         return this.clickToOpen;
     }
 
-    @Override
     public Location getPlayerLocation() {
         return this.playerLocation;
     }
 
-    @Override
     public List<Location> getRewardsLocation() {
         return new ArrayList<Location>(this.rewardsLocation);
     }

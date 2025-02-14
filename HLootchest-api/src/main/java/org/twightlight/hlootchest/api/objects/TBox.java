@@ -22,6 +22,8 @@ public interface TBox {
     void removeVehicle(Player p);
     TBox getInstance();
     boolean isClickToOpen();
+    void setOpeningState(Boolean state);
+    boolean isOpening();
     Location getPlayerLocation();
     String getBoxId();
     TConfigManager getConfig();

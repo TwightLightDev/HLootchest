@@ -16,6 +16,7 @@ import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
 import org.twightlight.hlootchest.supports.PlaceholdersAPI;
 import org.twightlight.hlootchest.supports.v1_8_R3.Main;
+import org.twightlight.hlootchest.utils.ColorUtils;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.io.File;
@@ -31,6 +32,8 @@ public final class HLootchest extends JavaPlugin {
     public static TConfigManager boxesConfig;
     public static TConfigManager messagesConfig;
     public static TDatabase db;
+    public static boolean hex_gradient = false;
+    public static ColorUtils colorUtils;
     private static final String version = Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1];
 
 
@@ -77,6 +80,11 @@ public final class HLootchest extends JavaPlugin {
             default:
                 Utility.info("Sorry, this version is unsupported! Hlootchest will be disable!");
                 Bukkit.getPluginManager().disablePlugin(this);
+        }
+
+        if (Integer.parseInt(version) >= 16) {
+            hex_gradient = true;
+            colorUtils = new ColorUtils();
         }
     }
     private void loadCommands() {
@@ -138,6 +146,7 @@ public final class HLootchest extends JavaPlugin {
         Utility.info("Plugin Version: " + getVersion());
         Utility.info("Author: " + getDescription().getAuthors().toString());
         Utility.info("PlaceholderAPI: " + isPlaceholderAPI());
+        Utility.info("Hex & Gradient: " + isHexGradient());
         Utility.info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
     }
 
@@ -167,6 +176,11 @@ public final class HLootchest extends JavaPlugin {
     public boolean isPlaceholderAPI() {
         return papi;
     }
+
+    public boolean isHexGradient() {
+        return hex_gradient;
+    }
+
 
     public static String getVersion() {
         return "1.0.0";

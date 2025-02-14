@@ -63,6 +63,7 @@ public class Regular extends BoxManager {
     public boolean open() {
         if (!super.open())
             return false;
+        setOpeningState(true);
         setClickable(false);
         moveUp();
         FireworkEffect effect = FireworkEffect.builder().flicker(false).with(FireworkEffect.Type.BURST).withColor(new Color[] { Color.RED, Color.ORANGE, Color.YELLOW }).withFade(new Color[] { Color.GREEN, Color.BLUE }).withTrail().build();
@@ -92,6 +93,9 @@ public class Regular extends BoxManager {
             public void run() {
                 float x, z;
                 if (System.currentTimeMillis() - this.startTime > 3000L) {
+                    Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
+                        setOpeningState(false);
+                    }, 2L);
                     Main.handler.playSound(Regular.this.getOwner(), Regular.this.getOwner().getLocation(), XSound.ENTITY_CAT_AMBIENT.name(), 20.0F, 5.0F);
                     PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(Regular.this.getOwner(), Regular.this.getInstance());
                     Bukkit.getPluginManager().callEvent((Event)event);
