@@ -89,6 +89,11 @@ public class LootChests implements Listener {
             return;
         }
 
+        if (Integer.parseInt(HLootchest.getAPIVersion()) >= 19) {
+            e.setCancelled(true);
+            return;
+        }
+
         if (entity instanceof Pig && player != null && !exited.hasPermission("hlootchests.bypass")) {
             Pig vehicle = (Pig) entity;
             if ("LootchestVehicle".equals(vehicle.getCustomName())) {

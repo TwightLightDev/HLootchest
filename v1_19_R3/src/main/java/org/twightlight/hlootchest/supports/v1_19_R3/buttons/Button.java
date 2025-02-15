@@ -59,6 +59,10 @@ public class Button implements TButton {
 
     private String pathToButton;
 
+    private boolean dynamicName;
+
+    private boolean dynamicIcon;
+
     private String nameVisibleMode = "always";
 
     private boolean removed = false;
@@ -67,7 +71,7 @@ public class Button implements TButton {
 
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
 
-    public static final Map<ArmorStand, String> linkedStandsSettings = new HashMap<>();
+    public static final Map<ArmorStand, List<String>> linkedStandsSettings = new HashMap<>();
 
     public static final Map<TButton, List<ArmorStand>> linkedStands = new HashMap<>();
 
@@ -89,7 +93,14 @@ public class Button implements TButton {
                 enableName = false;
             this.nameVisibleMode = mode;
         }
-        final ArmorStand armorStand = createArmorStand(location, (config.getString(path + ".name.display-name") != null) ? config.getString(path + ".name.display-name") : "", enableName);
+        dynamicName = (config.getYml().contains(path + ".name.dynamic")) ? config.getBoolean(path + ".name.dynamic") : false;
+        String name = "";
+        if (!dynamicName) {
+            name = (config.getString(path + ".name.display-name") != null) ? config.getString(path + ".name.display-name") : "";
+        } else {
+            name = (config.getList(path + ".name.display-name") != null) ? config.getList(path + ".name.display-name").get(0) : "";
+        }
+        final ArmorStand armorStand = createArmorStand(location, name, enableName);
         this.id = (armorStand).getEntityId();
         this.armorstand = armorStand;
         Main.rotate(this.armorstand, config, path);
@@ -100,13 +111,25 @@ public class Button implements TButton {
         sendSpawnPacket(player, armorStand);
         if (config.getYml().contains(path + ".name.refresh-interval")) {
             int interval = config.getInt(path + ".name.refresh-interval");
+            List<String> names = config.getList(path + ".name.display-name");
             (new BukkitRunnable() {
+                int i = 1;
                 public void run() {
                     if (!Button.this.owner.isOnline() || Button.this.removed) {
                         cancel();
                         return;
                     }
-                    armorstand.setCustomName(Main.p(Button.this.owner, ChatColor.translateAlternateColorCodes('&', config.getString(path + ".name.display-name"))));
+                    if (!dynamicName) {
+                        armorstand.setCustomName(Main.p(Button.this.owner, config.getString(path + ".name.display-name")));
+
+                    } else {
+                        if (i >= names.size()) {
+                            i = 0;
+                        }
+                        armorstand.setCustomName(Main.p(Button.this.owner, names.get(i)));
+                        i ++;
+
+                    }
                 }
             }).runTaskTimer(Main.handler.plugin, 0L, interval);
         }
@@ -166,7 +189,7 @@ public class Button implements TButton {
                     }
                     final ArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "", childEnableName);
                     Main.rotate(child, config, newpath);
-                    linkedStandsSettings.put(child, childNameVisibleMode);
+                    linkedStandsSettings.computeIfAbsent(child, k -> new ArrayList()).add(childNameVisibleMode);
                     linkedStands.get(this).add(child);
                     sendSpawnPacket(player, child);
                     if (config.getYml().contains(newpath + ".name.refresh-interval")) {
@@ -202,7 +225,7 @@ public class Button implements TButton {
                     cancelTask();
                     return;
                 }
-                if (linkedStands == null || !linkedStands.containsKey(this)) {
+                if (!linkedStands.containsKey(this)) {
                     cancelTask();
                     return;
                 }
@@ -211,7 +234,7 @@ public class Button implements TButton {
                         if (this.nameVisibleMode.equals("hover"))
                             sendNameVisibilityPacket(this.armorstand ,false);
                         for (ArmorStand stand : linkedStands.get(this)) {
-                            if ((linkedStandsSettings.get(stand)).equals("hover"))
+                            if ((linkedStandsSettings.get(stand)).get(0).equals("hover"))
                                 sendNameVisibilityPacket(stand, false);
                         }
                         moveBackward();
@@ -233,7 +256,7 @@ public class Button implements TButton {
                         if (this.nameVisibleMode.equals("hover"))
                             sendNameVisibilityPacket(this.armorstand, true);
                         for (ArmorStand stand : linkedStands.get(this)) {
-                            if ((linkedStandsSettings.get(stand)).equals("hover"))
+                            if ((linkedStandsSettings.get(stand)).get(0).equals("hover"))
                                 sendNameVisibilityPacket(stand, true);
                         }
                         moveForward();
@@ -245,7 +268,7 @@ public class Button implements TButton {
                     if (this.nameVisibleMode.equals("hover"))
                         sendNameVisibilityPacket(armorstand, false);
                     for (ArmorStand stand : linkedStands.get(this)) {
-                        if ((linkedStandsSettings.get(stand)).equals("hover"))
+                        if ((linkedStandsSettings.get(stand)).get(0).equals("hover"))
                             sendNameVisibilityPacket(stand, false);
                     }
                     moveBackward();

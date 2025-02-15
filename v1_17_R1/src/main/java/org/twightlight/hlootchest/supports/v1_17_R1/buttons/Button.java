@@ -22,6 +22,7 @@ import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -55,13 +56,16 @@ public class Button implements TButton {
     private ItemStack icon = null;
     private TConfigManager config;
     private String pathToButton;
+    private boolean dynamicName;
+    private boolean dynamicIcon;
+
     private String nameVisibleMode = "always";
     private boolean removed = false;
 
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
 
-    public static final Map<EntityArmorStand, String> linkedStandsSettings = new HashMap<>();
+    public static final Map<EntityArmorStand, List<String>> linkedStandsSettings = new HashMap<>();
     public static final Map<TButton, List<EntityArmorStand>> linkedStands = new HashMap<>();
     public static final Map<EntityArmorStand, ItemStack> linkedStandsIcon = new HashMap<>();
 
@@ -88,7 +92,14 @@ public class Button implements TButton {
         }
 
 
-        EntityArmorStand armorStand = createArmorStand(location, (config.getString(path+".name.display-name") != null) ? config.getString(path+".name.display-name"):"", enableName);
+        dynamicName = (config.getYml().contains(path + ".name.dynamic")) ? config.getBoolean(path + ".name.dynamic") : false;
+        String name = "";
+        if (!dynamicName) {
+            name = (config.getString(path + ".name.display-name") != null) ? config.getString(path + ".name.display-name") : "";
+        } else {
+            name = (config.getList(path + ".name.display-name") != null) ? config.getList(path + ".name.display-name").get(0) : "";
+        }
+        final EntityArmorStand armorStand = createArmorStand(location, name, enableName);
         this.id = armorStand.getId();
 
         this.armorstand = armorStand;
@@ -107,18 +118,29 @@ public class Button implements TButton {
 
         if (config.getYml().contains(path + ".name.refresh-interval")) {
             int interval = config.getInt(path + ".name.refresh-interval");
-            new BukkitRunnable() {
-                @Override
+            List<String> names = config.getList(path + ".name.display-name");
+            (new BukkitRunnable() {
+                int i = 1;
                 public void run() {
                     if (!owner.isOnline() || removed) {
-                        this.cancel();
+                        cancel();
                         return;
                     }
-                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
-                    armorstand.setCustomName(IChatBaseComponent.a(Main.p(owner, ChatColor.translateAlternateColorCodes('&', config.getString(path+".name.display-name")))));
-                    ((CraftPlayer) owner).getHandle().b.sendPacket(packet);
+                    if (!dynamicName) {
+                        PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
+                        armorstand.setCustomName(IChatBaseComponent.a(Main.p(owner, config.getString(path + ".name.display-name"))));
+                        (((CraftPlayer)owner).getHandle()).b.sendPacket(packet);
+                    } else {
+                        if (i >= names.size()) {
+                            i = 0;
+                        }
+                        PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
+                        armorstand.setCustomName(IChatBaseComponent.a(Main.p(owner, names.get(i))));
+                        (((CraftPlayer)owner).getHandle()).b.sendPacket(packet);
+                        i ++;
+                    }
                 }
-            }.runTaskTimer(Main.handler.plugin, 0L, interval);
+            }).runTaskTimer(Main.handler.plugin, 0L, interval);
         }
 
         boolean rotateOnSpawn = (config.getYml().contains(path+".rotate-on-spawn")) ? config.getBoolean(path+".rotate-on-spawn.enable") : false;
@@ -206,7 +228,7 @@ public class Button implements TButton {
                             new PacketPlayOutEntityMetadata(child.getId(), child.getDataWatcher(), true);
                     ((CraftPlayer) owner).getHandle().b.sendPacket(metadataPacket1);
 
-                    linkedStandsSettings.put(child, childNameVisibleMode);
+                    linkedStandsSettings.computeIfAbsent(child, k -> new ArrayList()).add(childNameVisibleMode);
                     linkedStands.get(this).add(child);
                     sendSpawnPacket(player, child);
 
@@ -259,7 +281,7 @@ public class Button implements TButton {
                             sendNameVisibilityPacket(owner, armorstand, false);
                         }
                         for (EntityArmorStand stand : linkedStands.get(this)) {
-                            if (linkedStandsSettings.get(stand).equals("hover")) {
+                            if (linkedStandsSettings.get(stand).get(0).equals("hover")) {
                                 sendNameVisibilityPacket(owner, stand, false);
                             }
                         }
@@ -289,7 +311,7 @@ public class Button implements TButton {
                             sendNameVisibilityPacket(owner, armorstand, true);
                         }
                         for (EntityArmorStand stand : linkedStands.get(this)) {
-                            if (linkedStandsSettings.get(stand).equals("hover")) {
+                            if (linkedStandsSettings.get(stand).get(0).equals("hover")) {
                                 sendNameVisibilityPacket(owner, stand, true);
                             }
                         }
@@ -303,7 +325,7 @@ public class Button implements TButton {
                             sendNameVisibilityPacket(owner, armorstand, false);
                         }
                         for (EntityArmorStand stand : linkedStands.get(this)) {
-                            if (linkedStandsSettings.get(stand).equals("hover")) {
+                            if (linkedStandsSettings.get(stand).get(0).equals("hover")) {
                                 sendNameVisibilityPacket(owner, stand, false);
                             }
                         }

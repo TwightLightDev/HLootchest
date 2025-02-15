@@ -7,6 +7,7 @@ import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
+import org.bukkit.event.Event;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
@@ -67,19 +68,27 @@ public class Regular extends BoxManager {
                 Player player = Regular.this.getOwner();
                 Location loc = Regular.this.getLoc();
 
-                if (System.currentTimeMillis() - startTime > 3000L) {
+                if (System.currentTimeMillis() - this.startTime > 3000L) {
                     Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
                         setOpeningState(false);
                     }, 2L);
-                    Main.handler.playSound(player, player.getLocation(), XSound.ENTITY_CAT_AMBIENT.name(), 20.0F, 5.0F);
-                    PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(player, Regular.this.getInstance());
+                    Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_CAT_AMBIENT.name(), 20, 5);
+
+                    PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
                     Bukkit.getPluginManager().callEvent(event);
-                    Regular.this.remove();
-                    Main.handler.setFakeGameMode(player, GameMode.SURVIVAL);
-                    Main.handler.hideButtonsFromPlayer(player, ButtonType.FUNCTIONAL, false);
-                    Regular.this.setClickable(true);
-                    ParticleType.of("EXPLOSION_HUGE").spawn(Regular.this.getOwner(), Regular.this.getLoc().clone().add(0.0D, -3.2D, 0.0D), 2, 0.5D, 0.5D, 0.5D, 0.0D);                    Main.handler.playSound(player, player.getLocation(), XSound.ENTITY_GENERIC_EXPLODE.name(), 20.0F, 5.0F);
-                    new Regular(loc, player, Regular.this.getIcon(), Regular.this.getConfig(), Regular.this.getBoxId(), Regular.this.getPlayerInitialLoc());
+
+                    remove();
+
+                    Main.handler.setFakeGameMode(getOwner(), GameMode.SURVIVAL);
+
+                    Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
+
+                    setClickable(true);
+                    ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -3.2, 0), 2, 0.5, 0.5, 0.5, 0);
+
+                    Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_GENERIC_EXPLODE.name(), 20, 5);
+
+                    new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
                     cancel();
                     return;
                 }

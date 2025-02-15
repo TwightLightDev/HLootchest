@@ -6,8 +6,10 @@ import org.twightlight.hlootchest.api.database.DatabaseType;
 import org.twightlight.hlootchest.api.database.TDatabase;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
-import org.twightlight.hlootchest.commands.AdminCommand;
-import org.twightlight.hlootchest.commands.MainCommands;
+import org.twightlight.hlootchest.commands.admin.AdminCommand;
+import org.twightlight.hlootchest.commands.admin.AdminTabCompleter;
+import org.twightlight.hlootchest.commands.main.MainCommands;
+import org.twightlight.hlootchest.commands.main.MainTabCompleter;
 import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.config.configs.MainConfig;
 import org.twightlight.hlootchest.database.SQLite;
@@ -88,8 +90,10 @@ public final class HLootchest extends JavaPlugin {
         }
     }
     private void loadCommands() {
-        this.getCommand("hlootchests").setExecutor(new MainCommands());
-        this.getCommand("hlootchestsadmin").setExecutor(new AdminCommand());
+        getCommand("hlootchests").setExecutor(new MainCommands());
+        getCommand("hlootchests").setTabCompleter(new MainTabCompleter());
+        getCommand("hlootchestsadmin").setExecutor(new AdminCommand());
+        getCommand("hlootchestsadmin").setTabCompleter(new AdminTabCompleter());
 
     }
     private void loadListeners() {
@@ -139,15 +143,15 @@ public final class HLootchest extends JavaPlugin {
     }
 
     private void loadCredit() {
-        Utility.info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-        Utility.info("HLootchest by TwightLight");
-        Utility.info("Github Link: https://github.com/TwightLightDev/HLootchest");
-        Utility.info("Minecraft Version: " + Bukkit.getBukkitVersion());
-        Utility.info("Plugin Version: " + getVersion());
-        Utility.info("Author: " + getDescription().getAuthors().toString());
-        Utility.info("PlaceholderAPI: " + isPlaceholderAPI());
-        Utility.info("Hex & Gradient: " + isHexGradient());
-        Utility.info("▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        Utility.info("            §eHLootchest by §bTwightLight");
+        Utility.info("  §7Github: §9https://github.com/TwightLightDev/HLootchest");
+        Utility.info("  §7Minecraft Version: §a" + Bukkit.getBukkitVersion());
+        Utility.info("  §7Plugin Version: §a" + getVersion());
+        Utility.info("  §7Author: §a" + String.join(", ", getDescription().getAuthors()));
+        Utility.info("  §7PlaceholderAPI: " + (isPlaceholderAPI() ? "§aEnabled" : "§cDisabled"));
+        Utility.info("  §7Hex & Gradient: " + (isHexGradient() ? "§aSupported" : "§cNot Supported"));
+        Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
     }
 
     private void loadPlaceholdersAPI() {
@@ -184,6 +188,10 @@ public final class HLootchest extends JavaPlugin {
 
     public static String getVersion() {
         return "1.0.0";
+    }
+
+    public static String getAPIVersion() {
+        return version;
     }
 
 }

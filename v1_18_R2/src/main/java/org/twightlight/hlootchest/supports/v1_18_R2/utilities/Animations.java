@@ -108,12 +108,12 @@ public class Animations {
         FireworkMeta fireworkMeta = (FireworkMeta)sF.getItemMeta();
         fireworkMeta.addEffect(effect);
         fireworkMeta.setPower(2);
-        sF.setItemMeta((ItemMeta)fireworkMeta);
+        sF.setItemMeta(fireworkMeta);
         EntityFireworks firework = new EntityFireworks(EntityTypes.D, (World)((CraftWorld)location.getWorld()).getHandle());
         firework.o(location.getX(), location.getY(), location.getZ());
-        (((CraftPlayer)player).getHandle()).b.a((Packet)new PacketPlayOutSpawnEntity((Entity)firework));
-        (((CraftPlayer)player).getHandle()).b.a((Packet)new PacketPlayOutEntityMetadata(firework.ae(), firework.ai(), true));
-        (((CraftPlayer)player).getHandle()).b.a((Packet)new PacketPlayOutEntityStatus((Entity)firework, (byte)17));
+        (((CraftPlayer)player).getHandle()).b.a(new PacketPlayOutSpawnEntity((Entity)firework));
+        (((CraftPlayer)player).getHandle()).b.a(new PacketPlayOutEntityMetadata(firework.ae(), firework.ai(), true));
+        (((CraftPlayer)player).getHandle()).b.a(new PacketPlayOutEntityStatus((Entity)firework, (byte)17));
         Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
             ((CraftPlayer) player).getHandle().b.a(new PacketPlayOutEntityDestroy(new int[]{firework.ae()}));
         }, 1L);
