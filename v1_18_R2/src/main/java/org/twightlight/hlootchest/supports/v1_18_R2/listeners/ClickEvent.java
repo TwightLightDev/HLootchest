@@ -1,8 +1,5 @@
 package org.twightlight.hlootchest.supports.v1_18_R2.listeners;
 
-import java.lang.reflect.Field;
-import java.lang.reflect.Method;
-import java.util.List;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.network.NetworkManager;
 import net.minecraft.network.protocol.game.PacketPlayInUseEntity;
@@ -25,6 +22,10 @@ import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_18_R2.Main;
 import org.twightlight.hlootchest.supports.v1_18_R2.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_18_R2.buttons.Button;
+
+import java.lang.reflect.Field;
+import java.lang.reflect.Method;
+import java.util.List;
 
 public class ClickEvent extends PlayerConnection {
     NMSHandler nms = Main.handler;

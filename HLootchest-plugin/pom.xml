@@ -89,6 +89,11 @@
       </dependency>
       <dependency>
           <groupId>org.twightlight</groupId>
+          <artifactId>v1_20_R3</artifactId>
+          <version>1.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.twightlight</groupId>
           <artifactId>HLootchest-api</artifactId>
           <version>1.0</version>
       </dependency>

@@ -45,13 +45,16 @@ public class Button implements TButton {
     private ItemStack icon = null;
     private TConfigManager config;
     private String pathToButton;
+    private boolean dynamicName;
+    private boolean dynamicIcon;
+
     private String nameVisibleMode = "always";
     private boolean removed = false;
 
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
 
-    public static final Map<EntityArmorStand, String> linkedStandsSettings = new HashMap<>();
+    public static final Map<EntityArmorStand, List<String>> linkedStandsSettings = new HashMap<>();
     public static final Map<TButton, List<EntityArmorStand>> linkedStands = new HashMap<>();
     public static final Map<EntityArmorStand, ItemStack> linkedStandsIcon = new HashMap<>();
 
@@ -78,7 +81,14 @@ public class Button implements TButton {
         }
 
 
-        EntityArmorStand armorStand = createArmorStand(location, (config.getString(path+".name.display-name") != null) ? config.getString(path+".name.display-name"):"", enableName);
+        dynamicName = (config.getYml().contains(path + ".name.dynamic")) ? config.getBoolean(path + ".name.dynamic") : false;
+        String name = "";
+        if (!dynamicName) {
+            name = (config.getString(path + ".name.display-name") != null) ? config.getString(path + ".name.display-name") : "";
+        } else {
+            name = (config.getList(path + ".name.display-name") != null) ? config.getList(path + ".name.display-name").get(0) : "";
+        }
+        final EntityArmorStand armorStand = createArmorStand(location, name, enableName);
         this.id = armorStand.getId();
 
         this.armorstand = armorStand;
@@ -94,18 +104,29 @@ public class Button implements TButton {
 
         if (config.getYml().contains(path + ".name.refresh-interval")) {
             int interval = config.getInt(path + ".name.refresh-interval");
-            new BukkitRunnable() {
-                @Override
+            List<String> names = config.getList(path + ".name.display-name");
+            (new BukkitRunnable() {
+                int i = 1;
                 public void run() {
                     if (!owner.isOnline() || removed) {
-                        this.cancel();
+                        cancel();
                         return;
                     }
-                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
-                    armorstand.setCustomName(Main.p(owner, ChatColor.translateAlternateColorCodes('&', config.getString(path+".name.display-name"))));
-                    ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
+                    if (!dynamicName) {
+                        PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
+                        armorstand.setCustomName(Main.p(owner, config.getString(path + ".name.display-name")));
+                        (((CraftPlayer)owner).getHandle()).playerConnection.sendPacket(packet);
+                    } else {
+                        if (i >= names.size()) {
+                            i = 0;
+                        }
+                        PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
+                        armorstand.setCustomName(Main.p(owner, names.get(i)));
+                        (((CraftPlayer)owner).getHandle()).playerConnection.sendPacket(packet);
+                        i ++;
+                    }
                 }
-            }.runTaskTimer(Main.handler.plugin, 0L, interval);
+            }).runTaskTimer(Main.handler.plugin, 0L, interval);
         }
 
         boolean rotateOnSpawn = (config.getYml().contains(path+".rotate-on-spawn")) ? config.getBoolean(path+".rotate-on-spawn.enable") : false;
@@ -138,8 +159,40 @@ public class Button implements TButton {
             equipIcon(armorStand, icon);
             this.icon = icon;
         }
+        dynamicIcon = (config.getYml().contains(path + ".icon.dynamic")) ? config.getBoolean(path + ".icon.dynamic") : false;
 
-        unmovablePeriod(150);
+        if (isHoldingIcon && dynamicIcon && config.getYml().contains(path + ".icon.refresh-interval")) {
+            int interval = config.getInt(path + ".icon.refresh-interval");
+            List<String> iconPaths = new ArrayList<>(config.getYml().getConfigurationSection(path + ".icon.dynamic-icons").getKeys(false));
+            List<ItemStack> icons = new ArrayList<>();
+            for (String iconPath : iconPaths) {
+                String thisIconPath = path + ".icon.dynamic-icons." + iconPath;
+                String iconMaterial = config.getString(thisIconPath + ".material");
+                String iconHeadValue = config.getString(thisIconPath + ".head_value");
+                int iconData = (config.getYml().contains(thisIconPath + ".data")) ? config.getInt(thisIconPath + ".data") : 0;
+                ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false);
+                icons.add(thisIcon);
+            }
+            (new BukkitRunnable() {
+                int i = 1;
+                public void run() {
+                    if (!Button.this.owner.isOnline() || Button.this.removed) {
+                        cancel();
+                        return;
+                    }
+                    if (i >= icons.size()) {
+                        i = 0;
+                    }
+                    if (!isHiding) {
+                        equipIcon(armorStand, icons.get(i));
+                        setIcon(icons.get(i));
+                    }
+                    i ++;
+
+                }
+            }).runTaskTimer(Main.handler.plugin, 0L, interval);
+        }
+        unmovablePeriod(250);
 
         if (config.getYml().getConfigurationSection(path + ".children") != null) {
 
@@ -153,27 +206,49 @@ public class Button implements TButton {
                     childlocation = Main.handler.stringToLocation(config.getString(newpath + ".location"));
                 } else if (config.getString(newpath + ".location-offset") != null) {
                     String[] offsetXYZ = config.getString(newpath + ".location-offset").split(",");
+                    double yaw = this.armorstand.getBukkitYaw();
+                    Vector vector = this.armorstand.getBukkitEntity().getLocation().getDirection().normalize();
+                    if (offsetXYZ.length == 3) {
+                        Expression exp = (new ExpressionBuilder(offsetXYZ[0]))
+                                .variables(new String[]{"yaw", "VectorX"})
+                                .build()
+                                .setVariable("yaw", Math.toRadians(yaw))
+                                .setVariable("VectorX", vector.getX());
+                        Expression exp1 = (new ExpressionBuilder(offsetXYZ[1]))
+                                .variables(new String[]{"yaw", "VectorY"})
+                                .build()
+                                .setVariable("yaw", Math.toRadians(yaw))
+                                .setVariable("VectorY", vector.getY());
+                        Expression exp2 = (new ExpressionBuilder(offsetXYZ[2]))
+                                .variables(new String[]{"yaw", "VectorZ"})
+                                .build()
+                                .setVariable("yaw", Math.toRadians(yaw))
+                                .setVariable("VectorZ", vector.getZ());
+                        childlocation = location.clone().add(exp.evaluate(), exp1.evaluate(), exp2.evaluate());
 
-                    double yaw = armorstand.yaw;
-                    Vector vector = armorstand.getBukkitEntity().getLocation().getDirection().normalize();
-
-                    Expression exp = new ExpressionBuilder(offsetXYZ[0])
-                            .variables("yaw", "VectorX")
-                            .build()
-                            .setVariable("yaw", Math.toRadians(yaw))
-                            .setVariable("VectorX", vector.getX());
-                    Expression exp1 = new ExpressionBuilder(offsetXYZ[1])
-                            .variables("yaw", "VectorY")
-                            .build()
-                            .setVariable("yaw", Math.toRadians(yaw))
-                            .setVariable("VectorY", vector.getY());
-                    Expression exp2 = new ExpressionBuilder(offsetXYZ[2])
-                            .variables("yaw", "VectorZ")
-                            .build()
-                            .setVariable("yaw", Math.toRadians(yaw))
-                            .setVariable("VectorZ", vector.getZ());
-
-                    childlocation = location.clone().add(exp.evaluate(), exp1.evaluate(), exp2.evaluate());
+                    } else if (offsetXYZ.length == 5) {
+                        Expression exp = (new ExpressionBuilder(offsetXYZ[0]))
+                                .variables(new String[]{"yaw", "VectorX"})
+                                .build()
+                                .setVariable("yaw", Math.toRadians(yaw))
+                                .setVariable("VectorX", vector.getX());
+                        Expression exp1 = (new ExpressionBuilder(offsetXYZ[1]))
+                                .variables(new String[]{"yaw", "VectorY"})
+                                .build()
+                                .setVariable("yaw", Math.toRadians(yaw))
+                                .setVariable("VectorY", vector.getY());
+                        Expression exp2 = (new ExpressionBuilder(offsetXYZ[2]))
+                                .variables(new String[]{"yaw", "VectorZ"})
+                                .build()
+                                .setVariable("yaw", Math.toRadians(yaw))
+                                .setVariable("VectorZ", vector.getZ());
+                        Expression exp3 = (new ExpressionBuilder(offsetXYZ[3])).build();
+                        Expression exp4 = (new ExpressionBuilder(offsetXYZ[4])).build();
+                        Location locClone = location.clone();
+                        locClone.setYaw(location.getYaw() + (float) exp3.evaluate());
+                        locClone.setPitch(location.getPitch() + (float) exp4.evaluate());
+                        childlocation = locClone.add(exp.evaluate(), exp1.evaluate(), exp2.evaluate());
+                    }
                 }
 
                 if (childlocation != null) {
@@ -188,7 +263,7 @@ public class Button implements TButton {
                     }
                     EntityArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "", childEnableName);
                     Main.rotate(child, config, newpath);
-                    linkedStandsSettings.put(child, childNameVisibleMode);
+                    linkedStandsSettings.computeIfAbsent(child, k -> new ArrayList()).add(childNameVisibleMode);
                     linkedStands.get(this).add(child);
                     sendSpawnPacket(player, child);
 
@@ -209,9 +284,54 @@ public class Button implements TButton {
                     }
 
                     if (config.getYml().contains(newpath + ".icon")) {
-                        ItemStack childicon = Main.handler.createItem(XMaterial.valueOf(config.getString(newpath + ".icon.material")).parseMaterial(), config.getString(newpath + ".icon.head_value"), config.getInt(newpath + ".icon.data"), "", new ArrayList<>(), false);
-                        equipIcon(child, childicon);
-                        linkedStandsIcon.put(child, childicon);
+
+                        boolean isChildDI = (config.getYml().contains(newpath + ".icon.dynamic")) ? config.getBoolean(newpath + ".icon.dynamic") : false;
+                        linkedStandsSettings.get(child).add(String.valueOf(isChildDI));
+                        if (!isChildDI) {
+                            ItemStack childicon = Main.handler.createItem(XMaterial.valueOf(config.getString(newpath + ".icon.material")).parseMaterial(), config.getString(newpath + ".icon.head_value"), config.getInt(newpath + ".icon.data"), "", new ArrayList(), false);
+                            equipIcon(child, childicon);
+                            linkedStandsIcon.put(child, childicon);
+
+                        } else {
+
+                            List<String> iconPaths = new ArrayList<>(config.getYml().getConfigurationSection(newpath + ".icon.dynamic-icons").getKeys(false));
+                            List<ItemStack> icons = new ArrayList<>();
+                            for (String iconPath : iconPaths) {
+                                String thisIconPath = newpath + ".icon.dynamic-icons." + iconPath;
+                                String iconMaterial = config.getString(thisIconPath + ".material");
+                                String iconHeadValue = config.getString(thisIconPath + ".head_value");
+                                int iconData = (config.getYml().contains(thisIconPath + ".data")) ? config.getInt(thisIconPath + ".data") : 0;
+                                ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false);
+                                icons.add(thisIcon);
+                            }
+
+                            equipIcon(child, icons.get(0));
+                            linkedStandsIcon.put(child, icons.get(0));
+
+                            if (config.getYml().contains(newpath + ".icon.refresh-interval")) {
+                                int interval = config.getInt(newpath + ".icon.refresh-interval");
+                                (new BukkitRunnable() {
+                                    int i = 1;
+
+                                    public void run() {
+                                        if (!Button.this.owner.isOnline() || Button.this.removed) {
+                                            cancel();
+                                            return;
+                                        }
+                                        if (i >= icons.size()) {
+                                            i = 0;
+                                        }
+                                        if (!isHiding) {
+                                            equipIcon(child, icons.get(i));
+                                            linkedStandsIcon.put(child, icons.get(i));
+                                        }
+                                        i++;
+
+                                    }
+                                }).runTaskTimer(Main.handler.plugin, 0L, interval);
+
+                            }
+                        }
                     }
                 }
             }
@@ -241,7 +361,7 @@ public class Button implements TButton {
                             sendNameVisibilityPacket(owner, armorstand, false);
                         }
                         for (EntityArmorStand stand : linkedStands.get(this)) {
-                            if (linkedStandsSettings.get(stand).equals("hover")) {
+                            if (linkedStandsSettings.get(stand).get(0).equals("hover")) {
                                 sendNameVisibilityPacket(owner, stand, false);
                             }
                         }
@@ -271,7 +391,7 @@ public class Button implements TButton {
                             sendNameVisibilityPacket(owner, armorstand, true);
                         }
                         for (EntityArmorStand stand : linkedStands.get(this)) {
-                            if (linkedStandsSettings.get(stand).equals("hover")) {
+                            if (linkedStandsSettings.get(stand).get(0).equals("hover")) {
                                 sendNameVisibilityPacket(owner, stand, true);
                             }
                         }
@@ -285,7 +405,7 @@ public class Button implements TButton {
                             sendNameVisibilityPacket(owner, armorstand, false);
                         }
                         for (EntityArmorStand stand : linkedStands.get(this)) {
-                            if (linkedStandsSettings.get(stand).equals("hover")) {
+                            if (linkedStandsSettings.get(stand).get(0).equals("hover")) {
                                 sendNameVisibilityPacket(owner, stand, false);
                             }
                         }
@@ -479,6 +599,10 @@ public class Button implements TButton {
 
     public boolean isHiding() {
         return isHiding;
+    }
+
+    public void setIcon(ItemStack icon) {
+        this.icon = icon;
     }
 
     public static class ButtonSound {

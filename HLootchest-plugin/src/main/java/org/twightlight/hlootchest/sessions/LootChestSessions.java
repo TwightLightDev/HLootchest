@@ -74,9 +74,21 @@ public class LootChestSessions implements TSessions {
                             ButtonTask task = taskQueue.poll();
                             String path = task.getPath();
 
-                            String iconMaterial = templateconfig.getString(path + ".icon.material");
-                            String iconHeadValue = templateconfig.getString(path + ".icon.head_value");
-                            int iconData = (templateconfig.getYml().contains(path + ".icon.data")) ? templateconfig.getInt(path + ".icon.data") : 0;
+                            boolean dynamicIcon = (templateconfig.getYml().contains(path + ".icon.dynamic")) ? templateconfig.getBoolean(path + ".icon.dynamic") : false;
+                            String iconMaterial;
+                            String iconHeadValue;
+                            int iconData;
+                            if (!dynamicIcon) {
+                                iconMaterial = templateconfig.getString(path + ".icon.material");
+                                iconHeadValue = templateconfig.getString(path + ".icon.head_value");
+                                iconData = (templateconfig.getYml().contains(path + ".icon.data")) ? templateconfig.getInt(path + ".icon.data") : 0;
+                            } else {
+                                List<String> iconPaths = new ArrayList<>(templateconfig.getYml().getConfigurationSection(path + ".icon.dynamic-icons").getKeys(false));
+                                String thisIconPath = path + ".icon.dynamic-icons." + iconPaths.get(0);
+                                iconMaterial = templateconfig.getString(thisIconPath + ".material");
+                                iconHeadValue = templateconfig.getString(thisIconPath + ".head_value");
+                                iconData = (templateconfig.getYml().contains(thisIconPath + ".data")) ? templateconfig.getInt(thisIconPath + ".data") : 0;
+                            }
                             String locationString = templateconfig.getString(path + ".location");
 
                             ItemStack buttonIcon = HLootchest.getNms().createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false);

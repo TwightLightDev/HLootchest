@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.commands;
+package org.twightlight.hlootchest.commands.main;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;

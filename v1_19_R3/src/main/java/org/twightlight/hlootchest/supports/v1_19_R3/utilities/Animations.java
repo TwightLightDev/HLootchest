@@ -6,7 +6,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.util.Vector;
 
 public class Animations {
-    public void drawCircle(Player player,ArmorStand packetArmorStand, Location center, double radius, double rotX, double rotY, double rotZ, int points) {
+    public void drawCircle(Player player, ArmorStand packetArmorStand, Location center, double radius, double rotX, double rotY, double rotZ, int points) {
         double radiansRotX = Math.toRadians(rotX);
         double radiansRotY = Math.toRadians(rotY);
         double radiansRotZ = Math.toRadians(rotZ);

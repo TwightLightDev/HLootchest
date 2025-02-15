@@ -2,12 +2,6 @@ package org.twightlight.hlootchest.supports.v1_18_R2.boxes;
 
 import com.cryptomorin.xseries.XPotion;
 import com.mojang.datafixers.util.Pair;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
@@ -39,6 +33,9 @@ import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_18_R2.Main;
+
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class BoxManager implements TBox {
     private Player owner;

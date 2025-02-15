@@ -4,9 +4,6 @@ import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.mojang.datafixers.util.Pair;
 import fr.mrmicky.fastparticles.ParticleType;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.concurrent.atomic.AtomicInteger;
 import net.minecraft.core.Vector3f;
 import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
@@ -20,11 +17,7 @@ import net.minecraft.server.level.EntityPlayer;
 import net.minecraft.world.entity.EnumItemSlot;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
 import net.minecraft.world.item.ItemStack;
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.FireworkEffect;
-import org.bukkit.GameMode;
-import org.bukkit.Location;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_18_R2.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
@@ -35,6 +28,10 @@ import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_18_R2.Main;
 import org.twightlight.hlootchest.supports.v1_18_R2.utilities.Animations;
+
+import java.util.Collections;
+import java.util.EnumSet;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class Regular extends BoxManager {
     private EntityArmorStand sword;

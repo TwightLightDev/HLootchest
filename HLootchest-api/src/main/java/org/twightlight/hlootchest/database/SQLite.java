@@ -26,15 +26,15 @@ public class SQLite implements TDatabase {
     }
 
     public void connect() {
-        System.out.println("[HLootchest] " + "Connecting to your database...");
+        System.out.println("Connecting to your database...");
         this.connection = getConnection();
-        System.out.println("[HLootchest] " + "Connected successfully to your database!");
-        System.out.println("[HLootchest] " + "Creating tables...");
+        System.out.println("Connected successfully to your database!");
+        System.out.println("Creating tables...");
         try {
             Statement statement = getConnection().createStatement();
             statement.executeUpdate(" CREATE TABLE IF NOT EXISTS hlootchest ( player TEXT PRIMARY KEY, lootchests TEXT DEFAULT '{}', opened TEXT DEFAULT '{}'); ");
             statement.close();
-            System.out.println("[HLootchest] " + "Tables created successfully!");
+            System.out.println("Tables created successfully!");
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }

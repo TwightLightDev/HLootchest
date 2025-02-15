@@ -70,7 +70,6 @@ public class BoxManager implements TBox {
         playerLocation = Plocation;
 
         if (vehicles.get(owner) == null) {
-            owner.sendMessage("HUH");
             owner.teleport(Plocation);
 
             for (Player online : Bukkit.getOnlinePlayers()) {
@@ -78,7 +77,6 @@ public class BoxManager implements TBox {
                     online.hidePlayer(Main.handler.plugin, owner);
                 }
             }
-
 
             Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
             vehicle.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));

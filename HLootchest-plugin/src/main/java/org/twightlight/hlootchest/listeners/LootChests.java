@@ -84,7 +84,7 @@ public class LootChests implements Listener {
             return;
         }
 
-        if (session.isOpening()) {
+        if (Integer.parseInt(HLootchest.getAPIVersion()) >= 19) {
             e.setCancelled(true);
             return;
         }

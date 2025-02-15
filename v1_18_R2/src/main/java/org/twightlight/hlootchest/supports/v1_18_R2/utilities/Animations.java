@@ -2,12 +2,7 @@ package org.twightlight.hlootchest.supports.v1_18_R2.utilities;
 
 import com.cryptomorin.xseries.XSound;
 import net.minecraft.network.protocol.Packet;
-import net.minecraft.network.protocol.game.PacketPlayOutEntity;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityStatus;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityTeleport;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.decoration.EntityArmorStand;
@@ -22,7 +17,6 @@ import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.inventory.meta.ItemMeta;
 import org.twightlight.hlootchest.supports.v1_18_R2.Main;
 
 public class Animations {
@@ -108,12 +102,12 @@ public class Animations {
         FireworkMeta fireworkMeta = (FireworkMeta)sF.getItemMeta();
         fireworkMeta.addEffect(effect);
         fireworkMeta.setPower(2);
-        sF.setItemMeta((ItemMeta)fireworkMeta);
+        sF.setItemMeta(fireworkMeta);
         EntityFireworks firework = new EntityFireworks(EntityTypes.D, (World)((CraftWorld)location.getWorld()).getHandle());
         firework.o(location.getX(), location.getY(), location.getZ());
-        (((CraftPlayer)player).getHandle()).b.a((Packet)new PacketPlayOutSpawnEntity((Entity)firework));
-        (((CraftPlayer)player).getHandle()).b.a((Packet)new PacketPlayOutEntityMetadata(firework.ae(), firework.ai(), true));
-        (((CraftPlayer)player).getHandle()).b.a((Packet)new PacketPlayOutEntityStatus((Entity)firework, (byte)17));
+        (((CraftPlayer)player).getHandle()).b.a(new PacketPlayOutSpawnEntity((Entity)firework));
+        (((CraftPlayer)player).getHandle()).b.a(new PacketPlayOutEntityMetadata(firework.ae(), firework.ai(), true));
+        (((CraftPlayer)player).getHandle()).b.a(new PacketPlayOutEntityStatus((Entity)firework, (byte)17));
         Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
             ((CraftPlayer) player).getHandle().b.a(new PacketPlayOutEntityDestroy(new int[]{firework.ae()}));
         }, 1L);

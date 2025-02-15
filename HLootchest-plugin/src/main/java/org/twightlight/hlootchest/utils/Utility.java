@@ -12,10 +12,10 @@ import java.util.*;
 
 public class Utility {
     public static void info(String message) {
-        System.out.println("[HLootchest] " + message);
+        System.out.println(message);
     }
     public static void error(String message) {
-        System.err.println("[HLootchest] " + message);
+        System.err.println(message);
     }
 
 

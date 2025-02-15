@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.commands;
+package org.twightlight.hlootchest.commands.admin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -100,7 +100,7 @@ public class AdminCommand implements CommandExecutor {
                         }
                     case "templateslist":
                         try {
-                            File[] files = new File((HLootchest.getFilePath() + "/v1_8_R3/templates")).listFiles();
+                            File[] files = new File((HLootchest.getFilePath() + "/templates")).listFiles();
                             p.sendMessage(ChatColor.GREEN + "Available templates:");
                             for (File file : files) {
                                 p.sendMessage("- " + file.getName().replace(".yml", ""));

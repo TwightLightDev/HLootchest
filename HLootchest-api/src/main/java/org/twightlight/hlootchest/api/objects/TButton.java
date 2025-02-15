@@ -19,5 +19,6 @@ public interface TButton {
     ButtonType getType();
     List<String> getActions();
     boolean isHiding();
+    void setIcon(ItemStack icon);
     void hide(boolean isHiding);
 }
