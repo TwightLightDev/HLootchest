@@ -73,4 +73,5 @@ public class Animations {
         loc.setYaw(val);
         armorStand.teleport(loc);
     }
+
 }
