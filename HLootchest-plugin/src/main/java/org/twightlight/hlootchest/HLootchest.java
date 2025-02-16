@@ -82,11 +82,13 @@ public final class HLootchest extends JavaPlugin {
             case "20":
                 String minor = Bukkit.getBukkitVersion().split("-")[0].split("\\.").length > 2 ? Bukkit.getBukkitVersion().split("-")[0].split("\\.")[2] : "0";
                 if (Integer.parseInt(minor) <= 4) {
-                    nms = new org.twightlight.hlootchest.supports.v1_20_R3.Main(this, version);
+                    nms = new org.twightlight.hlootchest.supports.v1_20_R4.Main(this, version);
                     nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                     break;
                 } else {
-
+                    nms = new org.twightlight.hlootchest.supports.v1_20_R4.Main(this, version);
+                    nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                    break;
                 }
             default:
                 Utility.info("Sorry, this version is unsupported! Hlootchest will be disable!");
