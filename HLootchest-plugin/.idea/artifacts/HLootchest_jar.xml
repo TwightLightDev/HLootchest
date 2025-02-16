@@ -1,9 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" build-on-make="true" name="HLootchest:jar">
-    <output-path>$PROJECT_DIR$/../../Main D Disk/New folder/PluginTester/plugins</output-path>
-    <root id="archive" name="HLootchest.jar">
-      <element id="module-output" name="HLootchest-plugin" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/fr/mrmicky/FastParticles/2.0.1/fastparticles-2.0.1.jar" path-in-jar="/" />
-    </root>
-  </artifact>
-</component>
