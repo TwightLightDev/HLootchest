@@ -1,0 +1,26 @@
+name: HLootchest
+version: 1.0.0
+api-version: "1.13"
+main: org.twightlight.hlootchest.HLootchest
+softdepend: [ ProtocolLibs ]
+author: TwightLight
+load: POSTWORLD
+commands:
+  hlootchests:
+    description: main command
+    usage: /hlootchests
+    aliases:
+      - hlootchest
+      - lootchests
+      - lootchest
+      - lc
+      - hlc
+  hlootchestsadmin:
+    description: admin command
+    usage: /hlootchestsadmin
+    aliases:
+      - hlootchestadmin
+      - lootchestsadmin
+      - lootchestadmin
+      - lca
+      - hlca
