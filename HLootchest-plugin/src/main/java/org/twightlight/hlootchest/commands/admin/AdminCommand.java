@@ -5,15 +5,20 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.utils.Utility;
 
+import java.io.Console;
 import java.io.File;
 
 public class AdminCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof ConsoleCommandSender) {
+            Utility.info("This command must be executed by a player!");
+        }
         if (sender instanceof Player) {
             Player p = (Player) sender;
             if (!p.hasPermission("hlc.admin")) {

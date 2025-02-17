@@ -36,7 +36,6 @@ public class ClickEvent extends PlayerConnection {
     @Override
     public void a(PacketPlayInUseEntity packet) {
         super.a(packet);
-
         int entityId = getEntityId(packet);
         TButton button = nms.getButtonFromId(entityId);
 

@@ -21,6 +21,7 @@ import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.ButtonSpawnEvent;
 import org.twightlight.hlootchest.api.objects.TButton;
+import org.twightlight.hlootchest.api.objects.TButtonSound;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_12_R1.Main;
 import org.twightlight.hlootchest.supports.v1_12_R1.utilities.Animations;
@@ -41,7 +42,7 @@ public class Button implements TButton {
     private boolean moveable = true;
     private ButtonType type;
     private List<String> actions;
-    private ButtonSound sound;
+    private TButtonSound sound;
     private boolean isHiding = false;
     private ItemStack icon = null;
     private TConfigManager config;
@@ -69,7 +70,7 @@ public class Button implements TButton {
 
         this.actions = (config.getList(path+".actions") != null) ? config.getList(path+".actions") : new ArrayList<>();
         if (config.getYml().contains(path+".click-sound")) {
-            this.sound = new ButtonSound(XSound.valueOf(config.getString(path + ".click-sound.sound")).parseSound(), (float) config.getDouble(path + ".click-sound.yaw"), (float) config.getDouble(path + ".click-sound.pitch"));
+            this.sound = new TButtonSound(XSound.valueOf(config.getString(path + ".click-sound.sound")).parseSound(), (float) config.getDouble(path + ".click-sound.yaw"), (float) config.getDouble(path + ".click-sound.pitch"));
         }
 
         boolean enableName = (config.getYml().contains(path+".name")) ? config.getBoolean(path+".name.enable") : false;
@@ -339,9 +340,9 @@ public class Button implements TButton {
         }
         boolean moveForward = (config.getYml().contains(path + ".move-forward")) ? config.getBoolean(path + ".move-forward") : true;
         if (moveForward) {
-            ButtonSound hoverSound;
+            TButtonSound hoverSound;
             if (config.getYml().contains(path+".hover-sound")) {
-                hoverSound = new ButtonSound(XSound.valueOf(config.getString(path + ".hover-sound.sound")).parseSound(), (float) config.getDouble(path + ".hover-sound.yaw"), (float) config.getDouble(path + ".hover-sound.pitch"));
+                hoverSound = new TButtonSound(XSound.valueOf(config.getString(path + ".hover-sound.sound")).parseSound(), (float) config.getDouble(path + ".hover-sound.yaw"), (float) config.getDouble(path + ".hover-sound.pitch"));
             } else {
                 hoverSound = null;
             }
@@ -594,7 +595,7 @@ public class Button implements TButton {
         return actions;
     }
 
-    public ButtonSound getSound() {
+    public TButtonSound getSound() {
         return sound;
     }
 
@@ -606,31 +607,65 @@ public class Button implements TButton {
         this.icon = icon;
     }
 
-    public static class ButtonSound {
-        Sound sound;
-        float yaw;
-        float pitch;
+    public TConfigManager getConfig() {
+        return config;
+    }
+    public BukkitTask getTask() {
+        return task;
+    }
 
-        public ButtonSound(Sound sound, float yaw, float pitch) {
-            this.sound = sound;
-            this.yaw = yaw;
-            this.pitch = pitch;
-        }
+    public boolean isMoveable() {
+        return moveable;
+    }
 
-        public Sound getSound() {
-            return this.sound;
-        }
+    public void setMoveable(boolean moveable) {
+        this.moveable = moveable;
+    }
 
-        public String getSoundString() {
-            return XSound.matchXSound(this.sound).name();
-        }
 
-        public float getYaw() {
-            return this.yaw;
-        }
+    public void setType(ButtonType type) {
+        this.type = type;
+    }
 
-        public float getPitch() {
-            return this.pitch;
-        }
+
+    public void setActions(List<String> actions) {
+        this.actions = actions;
+    }
+
+
+    public void setSound(TButtonSound sound) {
+        this.sound = sound;
+    }
+
+    public void setHidingState(boolean hiding) {
+        isHiding = hiding;
+    }
+
+    public ItemStack getIcon() {
+        return icon;
+    }
+
+    public void setConfig(TConfigManager config) {
+        this.config = config;
+    }
+
+    public String getPathToButton() {
+        return pathToButton;
+    }
+
+    public void setPathToButton(String pathToButton) {
+        this.pathToButton = pathToButton;
+    }
+
+    public boolean isDynamicName() {
+        return dynamicName;
+    }
+
+    public boolean isDynamicIcon() {
+        return dynamicIcon;
+    }
+
+    public String getNameVisibleMode() {
+        return nameVisibleMode;
     }
 }

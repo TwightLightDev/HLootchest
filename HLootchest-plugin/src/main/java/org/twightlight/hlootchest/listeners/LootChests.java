@@ -14,8 +14,11 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.events.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
+import org.twightlight.hlootchest.api.objects.TBox;
+import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.objects.TSessions;
 import org.twightlight.hlootchest.utils.Utility;
@@ -133,6 +136,20 @@ public class LootChests implements Listener {
             if ("LootchestVehicle".equals(vehicle.getCustomName())) {
                 e.setCancelled(true);
             }
+        }
+    }
+
+    @EventHandler
+    public void onButtonClick(PlayerButtonClickEvent e) {
+        TButton button = e.getButton();
+        Player p = e.getPlayer();
+        TConfigManager configManager = button.getConfig();
+        if (configManager.getYml().contains(button.getPathToButton() + ".permission")) {
+            return;
+        }
+        String permission = configManager.getString(button.getPathToButton() + ".permission");
+        if (!p.hasPermission(permission)) {
+            e.setCancelled(true);
         }
     }
 }

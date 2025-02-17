@@ -1,6 +1,7 @@
 package org.twightlight.hlootchest;
 
 import org.bukkit.Bukkit;
+import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.twightlight.hlootchest.api.database.DatabaseType;
 import org.twightlight.hlootchest.api.database.TDatabase;
@@ -42,6 +43,7 @@ public final class HLootchest extends JavaPlugin {
     @Override
     public void onEnable() {
         api = new API();
+        Bukkit.getServicesManager().register(org.twightlight.hlootchest.api.HLootchest.class, api, this, ServicePriority.Normal);
         loadNMS();
         loadCommands();
         loadListeners();
@@ -82,14 +84,18 @@ public final class HLootchest extends JavaPlugin {
             case "20":
                 String minor = Bukkit.getBukkitVersion().split("-")[0].split("\\.").length > 2 ? Bukkit.getBukkitVersion().split("-")[0].split("\\.")[2] : "0";
                 if (Integer.parseInt(minor) <= 4) {
-                    nms = new org.twightlight.hlootchest.supports.v1_20_R4.Main(this, version);
+                    nms = new org.twightlight.hlootchest.supports.v1_21_R3.Main(this, version);
                     nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                     break;
                 } else {
-                    nms = new org.twightlight.hlootchest.supports.v1_20_R4.Main(this, version);
+                    nms = new org.twightlight.hlootchest.supports.v1_21_R3.Main(this, version);
                     nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                     break;
                 }
+            case "21":
+                nms = new org.twightlight.hlootchest.supports.v1_21_R3.Main(this, version);
+                nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                break;
             default:
                 Utility.info("Sorry, this version is unsupported! Hlootchest will be disable!");
                 Bukkit.getPluginManager().disablePlugin(this);

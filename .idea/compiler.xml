@@ -12,6 +12,7 @@
         <module name="HLootchest-plugin" />
         <module name="HLootchest-api" />
         <module name="v1_12_R1" />
+        <module name="v1_21_R3" />
         <module name="v1_8_R3" />
         <module name="v1_20_R3" />
         <module name="v1_20_R4" />

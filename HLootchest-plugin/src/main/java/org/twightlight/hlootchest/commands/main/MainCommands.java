@@ -5,6 +5,7 @@ import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
@@ -16,6 +17,9 @@ import java.util.Set;
 
 public class MainCommands implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (sender instanceof ConsoleCommandSender) {
+            Utility.info("This command must be executed by a player!");
+        }
         if (sender instanceof Player) {
             Player p = (Player) sender;
             if (args.length < 1) {
