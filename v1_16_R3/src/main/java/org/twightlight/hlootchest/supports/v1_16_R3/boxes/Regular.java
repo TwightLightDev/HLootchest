@@ -34,6 +34,10 @@ public class Regular extends BoxManager {
 
         Main.rotate(sword, config, boxid+".settings.decoration");
 
+        PacketPlayOutEntityMetadata metadataPacket =
+                new PacketPlayOutEntityMetadata(sword.getId(), sword.getDataWatcher(), true);
+        ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(metadataPacket);
+
         sendSpawnPacket(getOwner(), sword);
         net.minecraft.server.v1_16_R3.ItemStack icon1 = CraftItemStack.asNMSCopy(new ItemStack(XMaterial.DIAMOND_SWORD.parseMaterial()));
         PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(
@@ -156,7 +160,7 @@ public class Regular extends BoxManager {
                     z = -6;
                 }
                 Vector3f pose = new Vector3f(x, (float) time*18, z);
-                dataWatcher.set(new DataWatcherObject<>(12, DataWatcherRegistry.k), pose);
+                dataWatcher.set(new DataWatcherObject<>(15, DataWatcherRegistry.k), pose);
                 PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(getBox().getId(), dataWatcher, true);
                 ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(packet);
             }
