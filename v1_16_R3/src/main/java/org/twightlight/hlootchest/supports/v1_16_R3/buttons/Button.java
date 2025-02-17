@@ -94,6 +94,9 @@ public class Button implements TButton {
 
         this.armorstand = armorStand;
         Main.rotate(armorstand, config, path);
+        PacketPlayOutEntityMetadata metadataPacket =
+                new PacketPlayOutEntityMetadata(armorstand.getId(), armorstand.getDataWatcher(), true);
+        ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(metadataPacket);
 
         buttonIdMap.put(this.id, this);
         playerButtonMap.computeIfAbsent(player, k -> new ArrayList<>()).add(this);
@@ -115,14 +118,14 @@ public class Button implements TButton {
                     }
                     if (!dynamicName) {
                         PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
-                        armorstand.setCustomName(IChatBaseComponent.ChatSerializer.jsonToComponent(Main.p(owner, config.getString(path + ".name.display-name"))));
+                        armorstand.setCustomName(Main.IChatBaseComponentfromString(Main.p(owner, config.getString(path + ".name.display-name"))));
                         (((CraftPlayer)owner).getHandle()).playerConnection.sendPacket(packet);
                     } else {
                         if (i >= names.size()) {
                             i = 0;
                         }
                         PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
-                        armorstand.setCustomName(IChatBaseComponent.ChatSerializer.jsonToComponent(Main.p(owner, names.get(i))));
+                        armorstand.setCustomName(Main.IChatBaseComponentfromString(Main.p(owner, names.get(i))));
                         (((CraftPlayer)owner).getHandle()).playerConnection.sendPacket(packet);
                         i ++;
                     }
@@ -264,6 +267,9 @@ public class Button implements TButton {
                     }
                     EntityArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "", childEnableName);
                     Main.rotate(child, config, newpath);
+                    PacketPlayOutEntityMetadata metadataPacket1 =
+                            new PacketPlayOutEntityMetadata(armorstand.getId(), armorstand.getDataWatcher(), true);
+                    ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(metadataPacket1);
                     linkedStandsSettings.computeIfAbsent(child, k -> new ArrayList()).add(childNameVisibleMode);
                     linkedStands.get(this).add(child);
                     sendSpawnPacket(player, child);
@@ -278,7 +284,7 @@ public class Button implements TButton {
                                     return;
                                 }
                                 PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(child.getId(), child.getDataWatcher(), true);
-                                child.setCustomName(IChatBaseComponent.ChatSerializer.jsonToComponent(Main.p(owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath+".name.display-name")))));
+                                child.setCustomName(Main.IChatBaseComponentfromString(Main.p(owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath+".name.display-name")))));
                                 ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(packet);
                             }
                         }.runTaskTimer(Main.handler.plugin, 0L, interval);
@@ -425,7 +431,7 @@ public class Button implements TButton {
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
         armorStand.setCustomNameVisible(isNameEnable);
-        armorStand.setCustomName(IChatBaseComponent.ChatSerializer.jsonToComponent(Main.p(owner, ChatColor.translateAlternateColorCodes('&', name))));
+        armorStand.setCustomName(Main.IChatBaseComponentfromString(Main.p(owner, ChatColor.translateAlternateColorCodes('&', name))));
         armorStand.setInvisible(true);
         armorStand.setNoGravity(true);
 
@@ -438,6 +444,10 @@ public class Button implements TButton {
     private void sendSpawnPacket(Player player, EntityArmorStand armorStand) {
         PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving(armorStand);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+
+        armorStand.getDataWatcher().set(new DataWatcherObject<>(0, DataWatcherRegistry.a), (byte) 0x20);
+        PacketPlayOutEntityMetadata packet1 = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet1);
     }
 
     private void sendDespawnPacket(Player player, EntityArmorStand armorStand) {

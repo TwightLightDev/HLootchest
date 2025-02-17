@@ -87,17 +87,7 @@ public class LootChests implements Listener {
             return;
         }
 
-        if (Integer.parseInt(HLootchest.getAPIVersion()) >= 19) {
-            e.setCancelled(true);
-            return;
-        }
-
-        if (Integer.parseInt(HLootchest.getAPIVersion()) >= 19) {
-            e.setCancelled(true);
-            return;
-        }
-
-        if (entity instanceof Pig && player != null && !exited.hasPermission("hlootchests.bypass")) {
+        if (entity instanceof Pig && player != null) {
             Pig vehicle = (Pig) entity;
             if ("LootchestVehicle".equals(vehicle.getCustomName())) {
                 if (!HLootchest.getAPI().getConfigUtil().getMainConfig().getBoolean("lootchest.exit-vehicle-to-close")) {
@@ -144,7 +134,7 @@ public class LootChests implements Listener {
         TButton button = e.getButton();
         Player p = e.getPlayer();
         TConfigManager configManager = button.getConfig();
-        if (configManager.getYml().contains(button.getPathToButton() + ".permission")) {
+        if (!configManager.getYml().contains(button.getPathToButton() + ".permission")) {
             return;
         }
         String permission = configManager.getString(button.getPathToButton() + ".permission");

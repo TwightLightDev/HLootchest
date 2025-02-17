@@ -5,11 +5,10 @@ import com.cryptomorin.xseries.XSound;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.clip.placeholderapi.PlaceholderAPI;
-import net.minecraft.server.v1_16_R3.EntityArmorStand;
-import net.minecraft.server.v1_16_R3.EntityPlayer;
-import net.minecraft.server.v1_16_R3.PacketPlayOutGameStateChange;
-import net.minecraft.server.v1_16_R3.Vector3f;
+import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -27,6 +26,7 @@ import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_16_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_16_R3.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_16_R3.listeners.ClickEvent;
+import org.twightlight.hlootchest.utils.ColorUtils;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -35,17 +35,19 @@ import java.util.concurrent.ConcurrentHashMap;
 public class Main extends NMSHandler {
 
     public static NMSHandler handler;
+    public static ColorUtils colorUtils;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
 
     public Main(Plugin pl, String name) {
         super(pl, name);
         handler = this;
+        colorUtils = new ColorUtils();
     }
 
     public static String p(Player p, String value) {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
-            return ChatColor.translateAlternateColorCodes('&', value);
-        return ChatColor.translateAlternateColorCodes('&', (PlaceholderAPI.setPlaceholders(p, value)));
+            return colorUtils.colorize(value);
+        return colorUtils.colorize(PlaceholderAPI.setPlaceholders(p, value));
     }
 
     public void registerButtonClick(Player player) {
@@ -258,7 +260,10 @@ public class Main extends NMSHandler {
                 break;
 
         }
+    }
 
+    public static IChatBaseComponent IChatBaseComponentfromString(String text) {
+        return IChatBaseComponent.ChatSerializer.jsonToComponent("{\"text\":\"" + text.replace("\"", "\\\"") + "\"}");
     }
 }
 

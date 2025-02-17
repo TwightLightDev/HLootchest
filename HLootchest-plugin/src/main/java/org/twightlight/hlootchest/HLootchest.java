@@ -57,6 +57,7 @@ public final class HLootchest extends JavaPlugin {
     public void onDisable() {
         Bukkit.getScheduler().cancelTasks(this);
         Utility.info("HLootchest has been disabled successfully!");
+        Utility.info("Current Version: " + version);
     }
 
     private void loadNMS() {

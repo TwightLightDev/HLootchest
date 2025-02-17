@@ -69,6 +69,10 @@ public class BoxManager implements TBox {
 
         Main.rotate(box, config, boxid + ".settings");
 
+        PacketPlayOutEntityMetadata metadataPacket =
+                new PacketPlayOutEntityMetadata(box.getId(), box.getDataWatcher(), true);
+        ((CraftPlayer) owner).getHandle().playerConnection.sendPacket(metadataPacket);
+
         boxlists.put(id, this);
         boxPlayerlists.put(owner, this);
         sendSpawnPacket(owner, box);
@@ -116,7 +120,7 @@ public class BoxManager implements TBox {
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
         armorStand.setCustomNameVisible(isNameEnable);
-        armorStand.setCustomName(IChatBaseComponent.ChatSerializer.jsonToComponent(Main.p(owner, ChatColor.translateAlternateColorCodes('&', name))));
+        armorStand.setCustomName(Main.IChatBaseComponentfromString(Main.p(owner, ChatColor.translateAlternateColorCodes('&', name))));
         armorStand.setInvisible(true);
         armorStand.setNoGravity(true);
 
@@ -129,6 +133,10 @@ public class BoxManager implements TBox {
     public void sendSpawnPacket(Player player, EntityArmorStand armorStand) {
         PacketPlayOutSpawnEntityLiving packet = new PacketPlayOutSpawnEntityLiving(armorStand);
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+
+        armorStand.getDataWatcher().set(new DataWatcherObject<>(0, DataWatcherRegistry.a), (byte) 0x20);
+        PacketPlayOutEntityMetadata packet1 = new PacketPlayOutEntityMetadata(armorStand.getId(), armorStand.getDataWatcher(), true);
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet1);
     }
 
     public void equipIcon(ItemStack bukkiticon) {
