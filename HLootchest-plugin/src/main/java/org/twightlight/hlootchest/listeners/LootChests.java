@@ -73,7 +73,6 @@ public class LootChests implements Listener {
 
     @EventHandler
     public void onDismountEvent(VehicleExitEvent e) {
-        Entity entity = e.getVehicle();
         Entity exited = e.getExited();
         Player player = null;
 
@@ -86,17 +85,7 @@ public class LootChests implements Listener {
         if (session == null) {
             return;
         }
-
-        if (entity instanceof Pig && player != null) {
-            Pig vehicle = (Pig) entity;
-            if ("LootchestVehicle".equals(vehicle.getCustomName())) {
-                if (!HLootchest.getAPI().getConfigUtil().getMainConfig().getBoolean("lootchest.exit-vehicle-to-close")) {
-                    e.setCancelled(true);
-                    return;
-                }
-                session.close();
-            }
-        }
+        e.setCancelled(true);
     }
 
     @EventHandler

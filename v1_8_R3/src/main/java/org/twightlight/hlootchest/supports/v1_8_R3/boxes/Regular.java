@@ -164,7 +164,6 @@ public class Regular extends BoxManager {
         super.remove();
         PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(sword.getId());
         ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(packet);
-        sword = null;
     }
 
     private void moveUp() {

@@ -16,6 +16,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
+import org.twightlight.hlootchest.api.HLootchest;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -25,8 +26,8 @@ import java.util.UUID;
 
 public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
 
-    public Main(Plugin pl, String name) {
-        super(pl, name);
+    public Main(Plugin pl, String name, HLootchest api) {
+        super(pl, name, api);
     }
 
     @Override

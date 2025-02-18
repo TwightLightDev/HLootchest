@@ -75,18 +75,7 @@ public class ClickEvent extends PlayerConnection {
                     Main.handler.getBoxFromPlayer((Player)this.b.getBukkitEntity()).open();
 
                 } else if (dataset[0].equals("[close]")) {
-                    TBox box = Main.handler.getBoxFromPlayer((Player)this.b.getBukkitEntity());
-                    box.removeVehicle((Player)this.b.getBukkitEntity());
-                    box.getOwner().teleport(box.getPlayerInitialLoc());
-                    box.remove();
-                    for (Player online : Bukkit.getOnlinePlayers()) {
-                        if (!online.equals(this.b.getBukkitEntity()))
-                            online.showPlayer(Main.handler.plugin, (Player)this.b.getBukkitEntity());
-                    }
-                    Main.handler.removeButtonsFromPlayer(this.b.getBukkitEntity(), ButtonType.FUNCTIONAL);
-                    Main.handler.removeButtonsFromPlayer(this.b.getBukkitEntity(), ButtonType.REWARD);
-                    this.b.getBukkitEntity().setGameMode(GameMode.SPECTATOR);
-                    this.b.getBukkitEntity().setGameMode(GameMode.SURVIVAL);
+                    Main.api.getSessionUtil().getSessionFromPlayer(player.getBukkitEntity()).close();
                 }
             }
         }

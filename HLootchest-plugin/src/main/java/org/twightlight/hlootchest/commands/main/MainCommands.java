@@ -28,6 +28,9 @@ public class MainCommands implements CommandExecutor {
             } else {
                 switch (args[0].toLowerCase()) {
                     case "leave":
+                        if (!p.hasPermission("hlc."+args[0])) {
+                            p.sendMessage(Utility.getMsg(p, "noPerms"));
+                        }
                         TBox box = HLootchest.getNms().getBoxFromPlayer(p);
                         if (HLootchest.getNms().getBoxFromPlayer(p) != null) {
                             box.removeVehicle(p);
@@ -52,9 +55,15 @@ public class MainCommands implements CommandExecutor {
                             p.sendMessage(Utility.getMsg(p, "lootchestNotFound"));
                             return true;
                         }
+                        if (!p.hasPermission("hlc." + args[0] + "." + args[1])) {
+                            p.sendMessage(Utility.getMsg(p, "noPerms"));
+                        }
                         new LootChestSessions(p, type);
                         return true;
                     case "list":
+                        if (!p.hasPermission("hlc."+args[0])) {
+                            p.sendMessage(Utility.getMsg(p, "noPerms"));
+                        }
                         Set<String> types = HLootchest.getNms().getRegistrationData().keySet();
                         p.sendMessage(ChatColor.GREEN + "Available lootchest types:");
                         for (String type1 : types) {

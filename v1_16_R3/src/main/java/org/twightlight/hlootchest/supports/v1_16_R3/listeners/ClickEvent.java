@@ -56,7 +56,7 @@ public class ClickEvent extends PlayerConnection {
         }
 
         if (action == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT) {
-            if (((Button) button).getSound() != null) {
+            if ((button).getSound() != null) {
                 Main.handler.playSound(player.getBukkitEntity(), player.getBukkitEntity().getLocation(), ((Button) button).getSound().getSoundString(), ((Button) button).getSound().getYaw(), ((Button) button).getSound().getPitch());
             }
             List<String> actions = button.getActions();
@@ -74,19 +74,7 @@ public class ClickEvent extends PlayerConnection {
                 } else if ((dataset[0].equals("[open]"))) {
                     Main.handler.getBoxFromPlayer(player.getBukkitEntity()).open();
                 } else if ((dataset[0].equals("[close]"))) {
-                    TBox box = Main.handler.getBoxFromPlayer(player.getBukkitEntity());
-                    box.removeVehicle(player.getBukkitEntity());
-                    box.getOwner().teleport(box.getPlayerInitialLoc());
-                    box.remove();
-                    for (Player online : Bukkit.getOnlinePlayers()) {
-                        if (!online.equals(player.getBukkitEntity())) {
-                            online.showPlayer(Main.handler.plugin, player.getBukkitEntity());
-                        }
-                    }
-                    Main.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.FUNCTIONAL);
-                    Main.handler.removeButtonsFromPlayer(player.getBukkitEntity(), ButtonType.REWARD);
-                    player.getBukkitEntity().setGameMode(GameMode.SPECTATOR);
-                    player.getBukkitEntity().setGameMode(GameMode.SURVIVAL);
+                    Main.api.getSessionUtil().getSessionFromPlayer(player.getBukkitEntity()).close();
                 }
             }
         }

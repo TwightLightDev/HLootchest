@@ -17,6 +17,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
+import org.twightlight.hlootchest.api.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TButton;
@@ -38,12 +39,14 @@ public class Main extends NMSHandler {
 
     public static NMSHandler handler;
     public static ColorUtils colorUtils;
+    public static HLootchest api;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
 
-    public Main(Plugin pl, String name) {
+    public Main(Plugin pl, String name, HLootchest api) {
         super(pl, name);
         handler = this;
         colorUtils = new ColorUtils();
+        this.api = api;
     }
 
     public static String p(Player p, String value) {

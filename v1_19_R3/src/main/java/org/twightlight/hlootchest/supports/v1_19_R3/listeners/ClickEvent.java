@@ -92,19 +92,7 @@ public class ClickEvent implements Listener {
             } else if (dataset[0].equals("[open]")) {
                 Main.handler.getBoxFromPlayer(player).open();
             } else if ((dataset[0].equals("[close]"))) {
-                TBox box = Main.handler.getBoxFromPlayer(player);
-                box.removeVehicle(player);
-                box.getOwner().teleport(box.getPlayerInitialLoc());
-                box.remove();
-                for (Player online : Bukkit.getOnlinePlayers()) {
-                    if (!online.equals(player)) {
-                        online.showPlayer(Main.handler.plugin, player);
-                    }
-                }
-                Main.handler.removeButtonsFromPlayer(player, ButtonType.FUNCTIONAL);
-                Main.handler.removeButtonsFromPlayer(player, ButtonType.REWARD);
-                player.setGameMode(GameMode.SPECTATOR);
-                player.setGameMode(GameMode.SURVIVAL);
+                Main.api.getSessionUtil().getSessionFromPlayer(player).close();
             }
         }
 

@@ -13,7 +13,6 @@ public class MainConfig extends ConfigManager {
 
         yml.addDefault("storage.source", "SQLite");
 
-
         yml.options().copyDefaults(true);
         save();
     }

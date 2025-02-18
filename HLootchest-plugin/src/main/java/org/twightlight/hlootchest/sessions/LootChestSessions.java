@@ -118,6 +118,7 @@ public class LootChestSessions implements TSessions {
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.REWARD);
         player.setGameMode(GameMode.SPECTATOR);
         player.setGameMode(GameMode.SURVIVAL);
+        sessions.remove(player);
     }
 
     public boolean isOpening() {
