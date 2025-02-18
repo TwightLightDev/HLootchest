@@ -45,6 +45,7 @@ public class BoxManager implements TBox {
     public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
 
     public BoxManager(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
+        Main.api.getSessionUtil().getSessionFromPlayer(player).setNewBox(this);
         this.owner = player;
         this.initialLocation = initialLocation;
         this.box = this.createArmorStand(location, "", false);

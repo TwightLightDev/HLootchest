@@ -73,6 +73,7 @@ public class BoxManager implements TBox {
     private boolean isOpening;
 
     public BoxManager(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
+        Main.api.getSessionUtil().getSessionFromPlayer(player).setNewBox(this);
         this.owner = player;
         this.initialLocation = initialLocation;
         this.box = createArmorStand(location, "", false);

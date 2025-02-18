@@ -2,7 +2,7 @@ regular:
   icon:
     material: PLAYER_HEAD
     data: 3
-    head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvM2VmODBhYWFlZWY2ZjliMjg3ODg1OTgyMmQ4MWFjNzBiZDhjNzk2YjFkMTdjYzQxYjc5N2NiMmJjNjU1MWZlYiJ9fX0====
+    head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWM5NmJlNzg4NmViN2RmNzU1MjVhMzYzZTVmNTQ5NjI2YzIxMzg4ZjBmZGE5ODhhNmU4YmY0ODdhNTMifX19
   reward-amount: 3
   rewards-list:
     '1':

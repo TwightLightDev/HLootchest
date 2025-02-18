@@ -65,7 +65,6 @@ public class Regular extends BoxManager {
             @Override
             public void run() {
                 Player player = Regular.this.getOwner();
-                Location loc = Regular.this.getLoc();
 
                 if (System.currentTimeMillis() - this.startTime > 3000L) {
                     Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
@@ -92,7 +91,7 @@ public class Regular extends BoxManager {
                     return;
                 }
 
-                ArmorStand box = Regular.this.getBox();
+                ArmorStand box = getBox();
                 if (box == null) {
                     cancel();
                     return;

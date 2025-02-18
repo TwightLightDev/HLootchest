@@ -125,6 +125,10 @@ public class LootChestSessions implements TSessions {
         return box.isOpening();
     }
 
+    public void setNewBox(TBox box) {
+        this.box = box;
+    }
+
     private static class ButtonTask {
         private final String path;
         private final int delay;

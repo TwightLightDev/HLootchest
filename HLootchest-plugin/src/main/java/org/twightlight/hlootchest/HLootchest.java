@@ -51,6 +51,9 @@ public final class HLootchest extends JavaPlugin {
         loadDatabase();
         loadPlaceholdersAPI();
         loadCredit();
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            api.getSessionUtil().closeAll();
+        }));
     }
 
     @Override

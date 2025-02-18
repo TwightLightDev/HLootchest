@@ -6,6 +6,8 @@ import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.objects.TSessions;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 
+import java.util.Map;
+
 public interface HLootchest {
 
     ConfigUtil getConfigUtil();
@@ -23,6 +25,8 @@ public interface HLootchest {
 
     interface SessionUtil {
         TSessions getSessionFromPlayer(Player p);
+        Map<Player, TSessions> getSessionsList();
+        void closeAll();
     }
 
     interface DatabaseUtil {

@@ -8,6 +8,8 @@ import org.twightlight.hlootchest.api.objects.TSessions;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.sessions.LootChestSessions;
 
+import java.util.Map;
+
 public class API implements HLootchest {
     private final HLootchest.ConfigUtil configUtil = new ConfigUtil();
     private final HLootchest.SessionUtil sessionUtil = new SessionUtil();
@@ -33,6 +35,14 @@ public class API implements HLootchest {
 
         public TSessions getSessionFromPlayer(Player p) {
             return LootChestSessions.sessions.get(p);
+        }
+        public Map<Player, TSessions> getSessionsList() {
+            return LootChestSessions.sessions;
+        }
+        public void closeAll() {
+            for (Player p : getSessionsList().keySet()) {
+                getSessionsList().get(p).close();
+            }
         }
     }
 
