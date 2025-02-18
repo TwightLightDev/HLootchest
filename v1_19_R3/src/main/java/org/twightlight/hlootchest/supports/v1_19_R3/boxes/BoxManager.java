@@ -80,12 +80,15 @@ public class BoxManager implements TBox {
             }
 
             Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
-            vehicle.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));
 
             vehicle.setCustomName("LootchestVehicle");
             vehicle.setCustomNameVisible(false);
             vehicle.setAI(false);
             vehicle.setInvulnerable(true);
+            vehicle.setVisibleByDefault(false);
+            player.showEntity(Main.handler.plugin, vehicle);
+            vehicle.setInvisible(true);
+
 
             vehicle.addPassenger(owner);
             vehicles.put(owner, vehicle);
@@ -102,6 +105,7 @@ public class BoxManager implements TBox {
         armorStand.setCustomNameVisible(isNameEnable);
         armorStand.setGravity(false);
         armorStand.setRotation(location.getYaw(), location.getPitch());
+        armorStand.setVisibleByDefault(false);
         return armorStand;
     }
 

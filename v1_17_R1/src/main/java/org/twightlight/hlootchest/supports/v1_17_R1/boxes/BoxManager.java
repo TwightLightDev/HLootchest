@@ -111,8 +111,7 @@ public class BoxManager implements TBox {
 
 
             Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
-            vehicle.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));
-
+            vehicle.setInvisible(true);
             vehicle.setCustomName("LootchestVehicle");
             vehicle.setCustomNameVisible(false);
             vehicle.setAI(false);
