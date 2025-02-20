@@ -8,10 +8,12 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.config.ConfigManager;
+import org.twightlight.hlootchest.sessions.SetupSessions;
+import org.twightlight.hlootchest.setup.menus.MainMenu;
 import org.twightlight.hlootchest.utils.Utility;
 
-import java.io.Console;
 import java.io.File;
 
 public class AdminCommand implements CommandExecutor {
@@ -33,6 +35,7 @@ public class AdminCommand implements CommandExecutor {
                         HLootchest.getAPI().getConfigUtil().getTemplateConfig().reload();
                         HLootchest.getAPI().getConfigUtil().getBoxesConfig().reload();
                         HLootchest.getAPI().getConfigUtil().getMessageConfig().reload();
+                        HLootchest.getAPI().getConfigUtil().getMainConfig().reload();
                         p.sendMessage(Utility.getMsg(p, "reload"));
                         return true;
                     case "template":
@@ -49,17 +52,49 @@ public class AdminCommand implements CommandExecutor {
                                 case "select":
                                     if (file.exists()) {
                                         HLootchest.getAPI().getConfigUtil().getMainConfig().set("template", name);
-                                        HLootchest.templateConfig = new ConfigManager(HLootchest.getInstance(), HLootchest.getAPI().getConfigUtil().getMainConfig().getString("template"), HLootchest.getFilePath() + "/v1_8_R3/templates");
+                                        HLootchest.templateConfig = new ConfigManager(HLootchest.getInstance(), HLootchest.getAPI().getConfigUtil().getMainConfig().getString("template"), HLootchest.getFilePath() + "/templates");
                                         p.sendMessage(Utility.getMsg(p, "templateSelected").replace("{template}", name));
                                         return true;
                                     } else {
                                         p.sendMessage(Utility.getMsg(p, "templateNotFound"));
                                         return true;
                                     }
+                                case "edit":
+                                    if (file.exists()) {
+                                        TConfigManager conf = new ConfigManager(HLootchest.getInstance(), name, HLootchest.getFilePath() + "/templates");
+                                        SetupSessions session = null;
+                                        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
+                                            session = new SetupSessions(p, conf);
+                                        } else {
+                                            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof SetupSessions) {
+                                                session = (SetupSessions) HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+                                            }
+                                        }
+                                        if (session != null && session.getConfigManager().getYml().getName().equals(conf.getYml().getName())) {
+                                            if (session.getInvConstructor() != null) {
+                                                session.getInvConstructor().createNew();
+                                            } else {
+                                                new MainMenu(p, conf);
+                                            }
+                                        }
+                                        return true;
+                                    } else {
+                                        p.sendMessage(Utility.getMsg(p, "templateNotFound"));
+                                        return true;
+                                    }
+                                case "create":
+                                    if (file.exists()) {
+                                        p.sendMessage(Utility.getMsg(p, "templateExist"));
+                                    } else {
+                                        new ConfigManager(HLootchest.getInstance(), name, HLootchest.getFilePath() + "/templates");
+                                        p.sendMessage(Utility.getMsg(p, "createTemplate").replace("{template}", name));
+                                    }
                                 default:
                                     p.sendMessage(ChatColor.GREEN + "Available actions:");
                                     p.sendMessage("- delete");
                                     p.sendMessage("- select");
+                                    p.sendMessage("- edit");
+
                             }
                         } else {
                             p.sendMessage(Utility.c("&cPlease enter template name!"));

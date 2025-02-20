@@ -9,6 +9,8 @@ public interface TConfigManager {
 
     void set(String path, Object value);
 
+    void setNotSave(String path, Object value);
+
     YamlConfiguration getYml();
 
     void save();
@@ -22,6 +24,14 @@ public interface TConfigManager {
     double getDouble(String path);
 
     String getString(String path);
+
+    boolean getBoolean(String path, Boolean fallback);
+
+    int getInt(String path, Integer fallback);
+
+    double getDouble(String path, Double fallback);
+
+    String getString(String path, String fallback);
 
     boolean isFirstTime(String path);
 

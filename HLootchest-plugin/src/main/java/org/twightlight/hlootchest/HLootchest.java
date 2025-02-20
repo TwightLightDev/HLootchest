@@ -18,6 +18,7 @@ import org.twightlight.hlootchest.database.SQLite;
 import org.twightlight.hlootchest.listeners.LootChests;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
+import org.twightlight.hlootchest.listeners.Setup;
 import org.twightlight.hlootchest.supports.PlaceholdersAPI;
 import org.twightlight.hlootchest.utils.ColorUtils;
 import org.twightlight.hlootchest.utils.Utility;
@@ -126,6 +127,7 @@ public final class HLootchest extends JavaPlugin {
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoin(), HLootchest.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuit(), HLootchest.getInstance());
         Bukkit.getServer().getPluginManager().registerEvents(new LootChests(), HLootchest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new Setup(), HLootchest.getInstance());
 
     }
 

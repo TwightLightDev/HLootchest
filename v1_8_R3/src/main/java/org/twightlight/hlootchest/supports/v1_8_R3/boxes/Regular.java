@@ -44,7 +44,7 @@ public class Regular extends BoxManager {
         new BukkitRunnable() {
             @Override
             public void run() {
-                if (getBox().locY < loc.clone().getY() - 5.4) {
+                if (getBox().locY < loc.clone().getY() - 5.2) {
                     cancel();
                 }
                 Animations.MoveUp(getOwner(), sword, (float) -0.2);

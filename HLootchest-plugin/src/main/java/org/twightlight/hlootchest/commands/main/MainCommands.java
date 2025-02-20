@@ -31,18 +31,8 @@ public class MainCommands implements CommandExecutor {
                         if (!p.hasPermission("hlc."+args[0])) {
                             p.sendMessage(Utility.getMsg(p, "noPerms"));
                         }
-                        TBox box = HLootchest.getNms().getBoxFromPlayer(p);
-                        if (HLootchest.getNms().getBoxFromPlayer(p) != null) {
-                            box.removeVehicle(p);
-                            box.getOwner().teleport(box.getPlayerInitialLoc());
-                            box.remove();
-                            for (Player online : Bukkit.getOnlinePlayers()) {
-                                if (!online.equals(p)) {
-                                    online.showPlayer(p);
-                                }
-                            }
-                            HLootchest.getNms().removeButtonsFromPlayer(p, ButtonType.FUNCTIONAL);
-                            HLootchest.getNms().removeButtonsFromPlayer(p, ButtonType.REWARD);
+                        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
+                            HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p).close();
                         }
                         return true;
                     case "open":

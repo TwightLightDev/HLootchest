@@ -7,6 +7,7 @@ import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.objects.TSessions;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.sessions.LootChestSessions;
+import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.Map;
 
@@ -67,7 +68,9 @@ public class API implements HLootchest {
                 session.close();
             }
         }
-
+        public boolean checkConditions(Player p, TConfigManager config, String path) {
+            return Utility.checkConditions(p, config, path);
+        }
     }
 
     public HLootchest.ConfigUtil getConfigUtil() {

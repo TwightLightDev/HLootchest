@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageEvent;
+import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.twightlight.hlootchest.HLootchest;
@@ -17,10 +18,10 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TButton;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.objects.TSessions;
+import org.twightlight.hlootchest.sessions.LootChestSessions;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.ArrayList;
@@ -123,12 +124,23 @@ public class LootChests implements Listener {
         TButton button = e.getButton();
         Player p = e.getPlayer();
         TConfigManager configManager = button.getConfig();
-        if (!configManager.getYml().contains(button.getPathToButton() + ".permission")) {
+        if (!configManager.getYml().contains(button.getPathToButton() + ".click-requirements")) {
             return;
         }
-        String permission = configManager.getString(button.getPathToButton() + ".permission");
-        if (!p.hasPermission(permission)) {
+        boolean isSatisfied = Utility.checkConditions(p, configManager, button.getPathToButton() + ".click-requirements");
+        if (!isSatisfied) {
             e.setCancelled(true);
+        }
+    }
+
+    @EventHandler
+    public void onCommand(PlayerCommandPreprocessEvent e) {
+        Player p = e.getPlayer();
+        String cmd = e.getMessage();
+        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
+            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSessions) {
+                e.setCancelled(true);
+            }
         }
     }
 }

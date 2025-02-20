@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.World;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.api.objects.TConfigManager;
 
 import java.util.*;
 
@@ -71,13 +72,22 @@ public class Utility {
         return new Location(world, x, y, z, yaw, pitch);
     }
     public static String locationToString(Location loc) {
-        return String.format("%s,%.2f,%.2f,%.2f,%.2f,%.2f",
+        return String.format("%s, %.2f, %.2f, %.2f, %.2f, %.2f",
                 loc.getWorld().getName(),
                 loc.getX(),
                 loc.getY(),
                 loc.getZ(),
                 loc.getYaw(),
                 loc.getPitch());
+    }
+
+    public static boolean isXYZFormat(String str) {
+        return str.matches("^(-?\\d+(\\.\\d+)?),\\s*(-?\\d+(\\.\\d+)?),\\s*(-?\\d+(\\.\\d+)?)$");
+    }
+
+    public static String getPrevPath(String path) {
+        String[] elements = path.split("\\.");
+        return String.join(".", Arrays.copyOf(elements, elements.length - 1));
     }
 
     public static <T> Set<T> getRandomElements(Set<T> set, List<Integer> chances, int n) {
@@ -117,6 +127,95 @@ public class Utility {
             }
         }
         return lo;
+    }
+
+    public static boolean checkConditions(Player p, TConfigManager config, String path) {
+        if (!config.getYml().contains(path)) {
+            return true;
+        }
+        Set<String> conditions = config.getYml().getConfigurationSection(path).getKeys(false);
+        for (String element : conditions) {
+            String absolutePath = path + "." + element;
+            String type = config.getString(absolutePath + ".type");
+            if (type.equals("has-permission")) {
+                if (!p.hasPermission(config.getString(absolutePath + ".value"))) {
+                    return false;
+                }
+            }
+            String val1 = config.getString(absolutePath + ".input");
+            String val2 = config.getString(absolutePath + ".output");
+            switch (type) {
+                case "string-equals":
+                    if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
+                        info("Missing PlaceholderAPI, this comparision will not work");
+
+                        return false;
+                    }
+                    if (!val1.equals(PlaceholderAPI.setPlaceholders(p, val2))) {
+                        return false;
+                    }
+                    break;
+                case ">=":
+                    if (isNumeric(val1) || isNumeric(val2)) {
+                        return false;
+                    }
+                    if (!(Double.parseDouble(val1) >= Double.parseDouble(val2))) {
+                        return false;
+                    }
+                    break;
+                case "<=":
+                    if (isNumeric(val1) || isNumeric(val2)) {
+                        return false;
+                    }
+                    if (!(Double.parseDouble(val1) <= Double.parseDouble(val2))) {
+                        return false;
+                    }
+                    break;
+                case ">":
+                    if (isNumeric(val1) || isNumeric(val2)) {
+                        return false;
+                    }
+                    if (!(Double.parseDouble(val1) > Double.parseDouble(val2))) {
+                        return false;
+                    }
+                    break;
+                case "<":
+                    if (isNumeric(val1) || isNumeric(val2)) {
+                        return false;
+                    }
+                    if (!(Double.parseDouble(val1) < Double.parseDouble(val2))) {
+                        return false;
+                    }
+                    break;
+                case "==":
+                    if (isNumeric(val1) || isNumeric(val2)) {
+                        return false;
+                    }
+                    if (!(Double.parseDouble(val1) == Double.parseDouble(val2))) {
+                        return false;
+                    }
+                    break;
+                case "!=":
+                    if (isNumeric(val1) || isNumeric(val2)) {
+                        return false;
+                    }
+                    if (!(Double.parseDouble(val1) != Double.parseDouble(val2))) {
+                        return false;
+                    }
+                    break;
+            }
+        }
+        return true;
+    }
+
+    public static boolean isNumeric(String str) {
+        if (str == null) return true;
+        try {
+            Double.parseDouble(str);
+            return false;
+        } catch (NumberFormatException e) {
+            return true;
+        }
     }
 }
 

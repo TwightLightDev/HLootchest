@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 
 public class AdminTabCompleter implements TabCompleter {
     private final List<String> SUBCOMMANDS = Arrays.asList("add", "help", "reload", "template", "templateslist");
-    private final List<String> TemplateActions = Arrays.asList("delete", "select");
+    private final List<String> TemplateActions = Arrays.asList("delete", "select", "edit");
     private final List<Integer> idealNums = Arrays.asList(1, 2, 3, 4, 5, 10, 20, 50, 100);
 
     @Override

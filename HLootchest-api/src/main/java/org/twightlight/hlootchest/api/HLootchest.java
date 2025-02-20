@@ -35,8 +35,12 @@ public interface HLootchest {
 
     interface PlayerUtil {
         void addLootChest(Player p, String lc, int amount);
-        void newLcSession(Player p, String lc);
-        void leaveLcSession(Player p);
-    }
 
+        void newLcSession(Player p, String lc);
+
+        void leaveLcSession(Player p);
+
+        boolean checkConditions(Player p, TConfigManager config, String path);
+
+    }
 }

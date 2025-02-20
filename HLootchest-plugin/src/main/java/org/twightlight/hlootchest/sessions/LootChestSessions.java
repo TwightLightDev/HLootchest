@@ -12,22 +12,22 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.api.objects.TSessions;
+import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;
 
-public class LootChestSessions implements TSessions {
+public class LootChestSessions extends SessionsManager implements TSessions {
 
     Player player;
-
-    public static final Map<Player, TSessions> sessions = new HashMap<>();
 
     private TBox box;
 
     public LootChestSessions(Player p, String identifier) {
         if (HLootchest.getNms().getBoxFromPlayer(p) == null) {
             player = p;
-            sessions.put(p, this);
+            SessionsManager.sessions.putIfAbsent(p, this);
             TConfigManager conf = HLootchest.getAPI().getConfigUtil().getBoxesConfig();
+
             ItemStack icon = HLootchest.getNms().createItem(
                     XMaterial.valueOf(conf.getString(identifier + ".icon.material")).parseMaterial(),
                     conf.getString(identifier + ".icon.head_value"),
@@ -49,11 +49,16 @@ public class LootChestSessions implements TSessions {
 
                 for (String button : buttons) {
                     String path = identifier + ".buttons." + button;
-                    int delay = templateconfig.getYml().contains(path + ".delay") ? templateconfig.getInt(path + ".delay") : 0;
-                    if (delay > highestdelay) {
-                        highestdelay = delay;
+
+                    boolean isSatisfied = Utility.checkConditions(p, conf, path + ".spawn-requirements");
+
+                    if (isSatisfied) {
+                        int delay = templateconfig.getYml().contains(path + ".delay") ? templateconfig.getInt(path + ".delay") : 0;
+                        if (delay > highestdelay) {
+                            highestdelay = delay;
+                        }
+                        taskQueue.add(new ButtonTask(path, delay));
                     }
-                    taskQueue.add(new ButtonTask(path, delay));
                 }
 
                 if (taskQueue.isEmpty()) {
@@ -118,7 +123,7 @@ public class LootChestSessions implements TSessions {
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.REWARD);
         player.setGameMode(GameMode.SPECTATOR);
         player.setGameMode(GameMode.SURVIVAL);
-        sessions.remove(player);
+        SessionsManager.sessions.remove(player);
     }
 
     public boolean isOpening() {
@@ -128,6 +133,7 @@ public class LootChestSessions implements TSessions {
     public void setNewBox(TBox box) {
         this.box = box;
     }
+
 
     private static class ButtonTask {
         private final String path;

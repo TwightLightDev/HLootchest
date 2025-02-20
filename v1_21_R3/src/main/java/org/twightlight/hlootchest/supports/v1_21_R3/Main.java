@@ -23,6 +23,7 @@ import java.net.URL;
 import java.util.Base64;
 import java.util.List;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
 
@@ -35,8 +36,13 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
         ItemStack i = handler.createItemStack(XMaterial.matchXMaterial(material).name(), 1, (short)data);
         ItemMeta itemMeta = i.getItemMeta();
         itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
-        if (!lore.isEmpty())
+        if (!lore.isEmpty()) {
+            lore = lore.stream()
+                    .map(line -> ChatColor.translateAlternateColorCodes('&', line))
+                    .collect(Collectors.toList());
             itemMeta.setLore(lore);
+
+        }
         if (enchanted)
             itemMeta.addEnchant(Enchantment.UNBREAKING, 1, true);
         itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);

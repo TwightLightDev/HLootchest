@@ -32,6 +32,7 @@ import org.twightlight.hlootchest.utils.ColorUtils;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 import static net.minecraft.network.protocol.game.PacketPlayOutGameStateChange.d;
 
@@ -146,8 +147,11 @@ public class Main extends NMSHandler {
     public ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted) {
         ItemStack i = handler.createItemStack(XMaterial.matchXMaterial(material).name(), 1, (short) data);
         ItemMeta itemMeta = i.getItemMeta();
-        itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
+        itemMeta.setDisplayName(colorUtils.colorize(displayName));
         if (!lore.isEmpty()) {
+            lore = lore.stream()
+                    .map(line -> ChatColor.translateAlternateColorCodes('&', line))
+                    .collect(Collectors.toList());
             itemMeta.setLore(lore);
         }
         if (enchanted) {

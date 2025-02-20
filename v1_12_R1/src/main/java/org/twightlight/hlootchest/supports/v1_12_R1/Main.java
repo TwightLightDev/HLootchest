@@ -31,6 +31,7 @@ import org.twightlight.hlootchest.supports.v1_12_R1.listeners.ClickEvent;
 import java.lang.reflect.Field;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.stream.Collectors;
 
 public class Main extends NMSHandler {
 
@@ -143,6 +144,9 @@ public class Main extends NMSHandler {
         ItemMeta itemMeta = i.getItemMeta();
         itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
         if (!lore.isEmpty()) {
+            lore = lore.stream()
+                    .map(line -> ChatColor.translateAlternateColorCodes('&', line))
+                    .collect(Collectors.toList());
             itemMeta.setLore(lore);
         }
         if (enchanted) {

@@ -32,7 +32,7 @@ public class Regular extends BoxManager {
         sword.getEquipment().setItem(EquipmentSlot.HAND, icon1);
         (new BukkitRunnable() {
             public void run() {
-                if (Regular.this.getBox().getLocation().getY() < loc.clone().getY() - 5.4D)
+                if (Regular.this.getBox().getLocation().getY() < loc.clone().getY() - 5.2D)
                     cancel();
                 Animations.moveUp(Regular.this.getOwner(), Regular.this.sword, -0.2F);
                 Animations.moveUp(Regular.this.getOwner(), Regular.this.getBox(), -0.2F);
@@ -45,7 +45,6 @@ public class Regular extends BoxManager {
         setOpeningState(true);
         setClickable(false);
         moveUp();
-        FireworkEffect effect = FireworkEffect.builder().flicker(false).with(FireworkEffect.Type.BURST).withColor(new Color[] { Color.RED, Color.ORANGE, Color.YELLOW }).withFade(new Color[] { Color.GREEN, Color.BLUE }).withTrail().build();
         Main.handler.setFakeGameMode(getOwner(), GameMode.SPECTATOR);
         Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, true);
         (new BukkitRunnable() {

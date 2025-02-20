@@ -57,6 +57,10 @@ import java.util.stream.Collectors;
             save();
         }
 
+        public void setNotSave(String path, Object value) {
+            this.yml.set(path, value);
+        }
+
         public YamlConfiguration getYml() {
             return this.yml;
         }
@@ -87,6 +91,22 @@ import java.util.stream.Collectors;
 
         public String getString(String path) {
             return this.yml.getString(path);
+        }
+
+        public boolean getBoolean(String path, Boolean fallBack) {
+            return this.yml.getBoolean(path, fallBack);
+        }
+
+        public int getInt(String path, Integer fallBack) {
+            return this.yml.getInt(path, fallBack);
+        }
+
+        public double getDouble(String path, Double fallBack) {
+            return this.yml.getDouble(path, fallBack);
+        }
+
+        public String getString(String path, String fallBack) {
+            return this.yml.getString(path, fallBack);
         }
 
         @Override

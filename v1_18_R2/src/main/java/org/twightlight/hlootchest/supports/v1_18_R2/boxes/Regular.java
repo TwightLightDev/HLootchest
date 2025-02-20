@@ -49,7 +49,7 @@ public class Regular extends BoxManager {
         (((CraftPlayer)getOwner()).getHandle()).b.a((Packet)packet);
         (new BukkitRunnable() {
             public void run() {
-                if (Regular.this.getBox().de() < loc.clone().getY() - 5.4D)
+                if (Regular.this.getBox().de() < loc.clone().getY() - 5.2D)
                     cancel();
                 Animations.MoveUp(Regular.this.getOwner(), Regular.this.sword, -0.2F);
                 Animations.MoveUp(Regular.this.getOwner(), Regular.this.getBox(), -0.2F);
