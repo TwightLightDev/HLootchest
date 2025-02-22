@@ -11,10 +11,7 @@ import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSessions;
 import org.twightlight.hlootchest.setup.functionals.MenuHandler;
 import org.twightlight.hlootchest.setup.menus.MenuManager;
-import org.twightlight.hlootchest.setup.menus.elements.ButtonsMenu;
-import org.twightlight.hlootchest.setup.menus.elements.ChildrenMenu;
-import org.twightlight.hlootchest.setup.menus.elements.RequirementsMenu;
-import org.twightlight.hlootchest.setup.menus.elements.RotationsMenu;
+import org.twightlight.hlootchest.setup.menus.elements.*;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.Arrays;
@@ -22,7 +19,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class Button {
+public class Reward {
 
     private final Player p;
     private final TConfigManager templateFile;
@@ -31,7 +28,7 @@ public class Button {
     private final SetupSessions session;
     private final boolean isChild;
 
-    public Button(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, boolean isChild) {
+    public Reward(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, boolean isChild) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -44,11 +41,11 @@ public class Button {
             inv = Bukkit.createInventory(null, 54, ChatColor.GRAY + "Editing child...");
 
         } else {
-            inv = Bukkit.createInventory(null, 54, ChatColor.GRAY + "Editing button...");
+            inv = Bukkit.createInventory(null, 54, ChatColor.GRAY + "Editing reward...");
         }
 
 
-        session.setInvConstructor((MenuHandler<Button>) () -> new Button(p, templateFile, name, path, session, isChild));
+        session.setInvConstructor((MenuHandler<Reward>) () -> new Reward(p, templateFile, name, path, session, isChild));
         setItems(inv);
     }
 
@@ -62,19 +59,44 @@ public class Button {
                     inv,
                     HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                     45,
-                    (e) -> new ButtonsMenu(p, templateFile, name, Utility.getPrevPath(path), session));
+                    (e) -> new RewardsMenu(p, templateFile, name, Utility.getPrevPath(path), session));
             MenuManager.setItem(p,
                     inv,
-                    HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
-                            "&bLocation",
-                            Arrays.asList(new String[]{"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".location", "null"),
-                                    "", "&eClick to set to your current location!"}),
+                    HLootchest.getNms().createItem(XMaterial.CHEST.parseMaterial(), "", 0,
+                            "&bChance",
+                            Arrays.asList(new String[] {"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".chance", "null"),
+                                    "", "&eClick to set a new value!"}),
                             false),
                     11,
                     (e) -> {
-                        templateFile.setNotSave(name + path + ".location", Utility.locationToString(p.getLocation()));
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + Utility.locationToString(p.getLocation())));
-                        setItems(inv);
+                        p.closeInventory();
+                        final SetupSessions session2 = session;
+                        ChatSessions sessions = new ChatSessions(p);
+                        sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
+                            if (input.equals("cancel")) {
+                                sessions.end();
+                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                        () -> {
+                                            setItems(inv);
+                                        });
+                                return;
+                            } else if (!Utility.isNumeric(input)) {
+                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Value! Cancel the action!"));
+                                sessions.end();
+                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                        () -> {
+                                            setItems(inv);
+                                        });
+                                return;
+                            }
+                            sessions.end();
+                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                    () -> {
+                                        templateFile.setNotSave(name + path + ".chance", Float.valueOf(input));
+                                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set value to: &e" + input));
+                                        setItems(inv);
+                                    });
+                        });
                     });
             MenuManager.setItem(p,
                     inv,
@@ -84,7 +106,7 @@ public class Button {
                             false),
                     12,
                     (e) -> {
-                        new Sound(p, templateFile, name, path + ".click-sound", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new Sound(p, templateFile, name, path + ".click-sound", session, (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
             MenuManager.setItem(p,
                     inv,
@@ -94,7 +116,7 @@ public class Button {
                             false),
                     13,
                     (e) -> {
-                        new Sound(p, templateFile, name, path + ".hover-sound", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new Sound(p, templateFile, name, path + ".hover-sound", session, (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
             MenuManager.setItem(p,
                     inv,
@@ -104,7 +126,7 @@ public class Button {
                             false),
                     14,
                     (e) -> {
-                        new RotationsMenu(p, templateFile, name, path + ".rotations", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new RotationsMenu(p, templateFile, name, path + ".rotations", session, (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
             MenuManager.setItem(p,
                     inv,
@@ -149,9 +171,9 @@ public class Button {
                             "&bSpawn Requirements",
                             Arrays.asList(new String[]{"&eClick to browse!"}),
                             false),
-                    21,
+                    22,
                     (e) -> {
-                        new RequirementsMenu(p, templateFile, name, path + ".spawn-requirements", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new RequirementsMenu(p, templateFile, name, path + ".spawn-requirements", session, (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
             MenuManager.setItem(p,
                     inv,
@@ -159,9 +181,9 @@ public class Button {
                             "&bClick Requirements",
                             Arrays.asList(new String[]{"&eClick to browse!"}),
                             false),
-                    22,
+                    23,
                     (e) -> {
-                        new RequirementsMenu(p, templateFile, name, path + ".click-requirements", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new RequirementsMenu(p, templateFile, name, path + ".click-requirements", session, (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
             MenuManager.setItem(p,
                     inv,
@@ -174,7 +196,7 @@ public class Button {
                                     "&eRight-click to change 'Reverse' option!",
                                     "&eShift-left-click to change 'Final yaw' option!"}),
                             false),
-                    23,
+                    24,
                     (e) -> {
                         if (e.isLeftClick() && e.isShiftClick()) {
                             p.closeInventory();
@@ -221,9 +243,9 @@ public class Button {
                             "&bDisplay Name Settings",
                             Arrays.asList(new String[]{"&eClick to browse!"}),
                             false),
-                    24,
+                    29,
                     (e) -> {
-                        new Name(p, templateFile, name, path + ".name", session, isChild, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new Name(p, templateFile, name, path + ".name", session, isChild,  (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
 
             MenuManager.setItem(p,
@@ -232,9 +254,9 @@ public class Button {
                             "&bIcons",
                             Arrays.asList(new String[]{"&eClick to browse!"}),
                             false),
-                    29,
+                    30,
                     (e) -> {
-                        new Icon(p, templateFile, name, path + ".icon", session, isChild, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new Icon(p, templateFile, name, path + ".icon", session, isChild,  (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
             MenuManager.setItem(p,
                     inv,
@@ -242,9 +264,9 @@ public class Button {
                             "&bChildren",
                             Arrays.asList(new String[]{"&eClick to browse!"}),
                             false),
-                    30,
+                    31,
                     (e) -> {
-                        new ChildrenMenu(p, templateFile, name, path + ".children", session, false);
+                        new ChildrenMenu(p, templateFile, name, path + ".children", session, true);
                     });
             List<String> actions = Collections.emptyList();
             if (templateFile.getYml().contains(name + path + ".actions")) {
@@ -300,12 +322,66 @@ public class Button {
                             setItems(inv);
                         }
                     });
+            List<String> rewards = Collections.emptyList();
+            if (templateFile.getYml().contains(name + path + ".rewards")) {
+                rewards = templateFile.getList(name + path + ".rewards");
+            }
+            rewards = rewards.stream()
+                    .map(line -> ChatColor.translateAlternateColorCodes('&', "&f" + "- " + line))
+                    .collect(Collectors.toList());
+            rewards.add("");
+            rewards.add(ChatColor.translateAlternateColorCodes('&', "&eLeft-click to add a reward."));
+            rewards.add(ChatColor.translateAlternateColorCodes('&', "&eRight-click to remove the last reward."));
+            MenuManager.setItem(p,
+                    inv,
+                    HLootchest.getNms().createItem(
+                            XMaterial.COMMAND_BLOCK.parseMaterial(),
+                            "",
+                            0,
+                            "&bRewards",
+                            rewards,
+                            false),
+                    21,
+                    (e) -> {
+                        List<String> rewards1 = Collections.emptyList();
+                        if (templateFile.getYml().contains(name + path + ".rewards")) {
+                            rewards1 = templateFile.getList(name + path + ".rewards");
+                        }
+                        if (e.isLeftClick()) {
+                            p.closeInventory();
+                            final List<String> rewards2 = rewards1;
+                            ChatSessions sessions = new ChatSessions(p);
+                            sessions.prompt(Arrays.asList(new String[]{"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
+                                if (input.equals("cancel")) {
+                                    sessions.end();
+                                    Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                            () -> {
+                                                setItems(inv);
+                                            });
+                                    return;
+                                }
+                                rewards2.add(input);
+                                sessions.end();
+                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                        () -> {
+                                            templateFile.setNotSave(name + path + ".rewards", rewards2);
+                                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully added a new reward: &e" + input));
+                                            setItems(inv);
+                                        });
+                            });
+                        } else if (e.isRightClick()) {
+                            rewards1.remove(rewards1.size() - 1);
+                            templateFile.setNotSave(name + path + ".rewards", rewards1);
+                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully removed this reward! "));
+                            setItems(inv);
+                        }
+                    });
         } else {
             MenuManager.setItem(p,
                     inv,
                     HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                     45,
-                    (e) -> new ChildrenMenu(p, templateFile, name, Utility.getPrevPath(path), session, false));
+                    (e) -> new ChildrenMenu(p, templateFile, name, Utility.getPrevPath(path), session, true));
             MenuManager.setItem(p,
                     inv,
                     HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
@@ -360,7 +436,7 @@ public class Button {
                             false),
                     13,
                     (e) -> {
-                        new RotationsMenu(p, templateFile, name, path + ".rotations", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new RotationsMenu(p, templateFile, name, path + ".rotations", session, (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
             MenuManager.setItem(p,
                     inv,
@@ -370,7 +446,7 @@ public class Button {
                             false),
                     14,
                     (e) -> {
-                        new Name(p, templateFile, name, path + ".name", session, isChild, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new Name(p, templateFile, name, path + ".name", session, isChild,  (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
 
             MenuManager.setItem(p,
@@ -381,7 +457,7 @@ public class Button {
                             false),
                     15,
                     (e) -> {
-                        new Icon(p, templateFile, name, path + ".icon", session, isChild, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                        new Icon(p, templateFile, name, path + ".icon", session, isChild,  (ev) -> new Reward(p, templateFile, name, path, session, isChild));
                     });
         }
         p.openInventory(inv);

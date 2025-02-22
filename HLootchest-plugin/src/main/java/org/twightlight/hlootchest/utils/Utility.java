@@ -212,9 +212,9 @@ public class Utility {
         if (str == null) return true;
         try {
             Double.parseDouble(str);
-            return false;
-        } catch (NumberFormatException e) {
             return true;
+        } catch (NumberFormatException e) {
+            return false;
         }
     }
 }

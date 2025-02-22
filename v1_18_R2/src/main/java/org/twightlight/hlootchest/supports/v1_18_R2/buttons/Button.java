@@ -278,24 +278,43 @@ public class Button implements TButton {
                                 childEnableName = false;
                             childNameVisibleMode = mode;
                         }
-                        final EntityArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "", childEnableName);
+                        boolean isChildNI = (config.getYml().contains(newpath + ".name.dynamic")) ? config.getBoolean(newpath + ".name.dynamic") : false;
+
+                        String name1 = "";
+                        if (!isChildNI) {
+                            name1 = (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "";
+                        } else {
+                            name1 = (config.getList(newpath + ".name.display-name") != null) ? config.getList(newpath + ".name.display-name").get(0) : "";
+                        }
+                        final EntityArmorStand child = createArmorStand(childlocation, name1, childEnableName);
                         Main.rotate(child, config, newpath);
-                        PacketPlayOutEntityMetadata metadataPacket1 = new PacketPlayOutEntityMetadata(child.ae(), child.ai(), true);
-                        (((CraftPlayer) this.owner).getHandle()).b.a(metadataPacket1);
                         linkedStandsSettings.computeIfAbsent(child, k -> new ArrayList()).add(childNameVisibleMode);
                         linkedStands.get(this).add(child);
                         sendSpawnPacket(player, child);
                         if (config.getYml().contains(newpath + ".name.refresh-interval")) {
                             int interval = config.getInt(newpath + ".name.refresh-interval");
+                            List<String> names1 = config.getList(newpath + ".name.display-name");
                             (new BukkitRunnable() {
+                                int i = 1;
                                 public void run() {
-                                    if (!Button.this.owner.isOnline() || Button.this.removed) {
+                                    if (!owner.isOnline() || removed) {
                                         cancel();
                                         return;
                                     }
-                                    PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(child.ae(), child.ai(), true);
-                                    child.a(IChatBaseComponent.a(Main.p(Button.this.owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath + ".name.display-name")))));
-                                    (((CraftPlayer) Button.this.owner).getHandle()).b.a((Packet) packet);
+                                    if (!isChildNI) {
+                                        PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(child.ae(), child.ai(), true);
+                                        child.a(IChatBaseComponent.a(Main.p(Button.this.owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath + ".name.display-name")))));
+                                        (((CraftPlayer) Button.this.owner).getHandle()).b.a((Packet) packet);
+                                    } else {
+                                        if (i >= names1.size()) {
+                                            i = 0;
+                                        }
+                                        PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(child.ae(), child.ai(), true);
+                                        child.a(IChatBaseComponent.a(Main.p(Button.this.owner, ChatColor.translateAlternateColorCodes('&', names1.get(i)))));
+                                        (((CraftPlayer) Button.this.owner).getHandle()).b.a((Packet) packet);
+                                        i ++;
+
+                                    }
                                 }
                             }).runTaskTimer(Main.handler.plugin, 0L, interval);
                         }

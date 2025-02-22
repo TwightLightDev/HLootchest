@@ -150,7 +150,7 @@ public class Main extends NMSHandler {
         itemMeta.setDisplayName(colorUtils.colorize(displayName));
         if (!lore.isEmpty()) {
             lore = lore.stream()
-                    .map(line -> ChatColor.translateAlternateColorCodes('&', line))
+                    .map(line -> colorUtils.colorize(line))
                     .collect(Collectors.toList());
             itemMeta.setLore(lore);
         }

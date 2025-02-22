@@ -13,29 +13,49 @@ import org.twightlight.hlootchest.setup.functionals.ClickableButtons;
 import org.twightlight.hlootchest.setup.functionals.MenuHandler;
 import org.twightlight.hlootchest.setup.menus.MenuManager;
 import org.twightlight.hlootchest.setup.menus.modules.Rotation;
-import org.twightlight.hlootchest.setup.menus.modules.Settings;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.Set;
 
 public class RotationsMenu {
-    public RotationsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, ClickableButtons backAction) {
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Editing " + name + "...");
 
+    private final Player p;
+    private final TConfigManager templateFile;
+    private final String name;
+    private final String path;
+    private final SetupSessions session;
+    private final ClickableButtons backAction;
+
+
+    public RotationsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, ClickableButtons backAction) {
+
+        this.p = p;
+        this.templateFile = templateFile;
+        this.name = name;
+        this.path = path;
+        this.session = session;
+        this.backAction = backAction;
+
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Rotations");
+
+        session.setInvConstructor((MenuHandler<RotationsMenu>) () -> new RotationsMenu(p, templateFile, name, path, session, backAction));
+        setItems(inv);
+    }
+
+    private void setItems(Inventory inv) {
         if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
             MenuManager.removeData(p);
         }
-
-        session.setInvConstructor((MenuHandler<RotationsMenu>) () -> new RotationsMenu(p, templateFile, name, path, session, backAction));
+        inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", new ArrayList<>(), false),
+                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
                 backAction);
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Rotation", new ArrayList<>(), false),
+                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Rotation", Collections.emptyList(), false),
                 26,
                 (e) -> {
                     p.closeInventory();
@@ -46,7 +66,7 @@ public class RotationsMenu {
                             sessions.end();
                             Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                     () -> {
-                                        session2.getInvConstructor().createNew();
+                                        setItems(inv);
                                     });
                             return;
                         }
@@ -57,7 +77,7 @@ public class RotationsMenu {
                                 sessions.end();
                                 Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                         () -> {
-                                            session2.getInvConstructor().createNew();
+                                            setItems(inv);
                                         });
                                 return;
                             }
@@ -95,7 +115,7 @@ public class RotationsMenu {
                             } else if (e.isRightClick()) {
                                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have successfully removed this rotation!"));
                                 templateFile.getYml().set(name + path + "." + rot, null);
-                                new RotationsMenu(p, templateFile, name, path, session, backAction);
+                                setItems(inv);
                             }
                         });
                 i ++;

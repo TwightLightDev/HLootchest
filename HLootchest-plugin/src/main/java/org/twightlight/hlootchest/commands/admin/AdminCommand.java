@@ -2,6 +2,7 @@ package org.twightlight.hlootchest.commands.admin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -11,10 +12,12 @@ import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.sessions.SetupSessions;
-import org.twightlight.hlootchest.setup.menus.MainMenu;
+import org.twightlight.hlootchest.setup.menus.LCSMainMenu;
+import org.twightlight.hlootchest.setup.menus.TSMainMenu;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.io.File;
+import java.util.ArrayList;
 
 public class AdminCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -74,7 +77,9 @@ public class AdminCommand implements CommandExecutor {
                                             if (session.getInvConstructor() != null) {
                                                 session.getInvConstructor().createNew();
                                             } else {
-                                                new MainMenu(p, conf);
+                                                new TSMainMenu(p, conf);
+                                                p.getInventory().addItem(HLootchest.getNms().createItem(Material.DIAMOND, "", 0, "&bSetup Item", new ArrayList<>(), false));
+
                                             }
                                         }
                                         return true;
@@ -85,20 +90,43 @@ public class AdminCommand implements CommandExecutor {
                                 case "create":
                                     if (file.exists()) {
                                         p.sendMessage(Utility.getMsg(p, "templateExist"));
+                                        return true;
                                     } else {
                                         new ConfigManager(HLootchest.getInstance(), name, HLootchest.getFilePath() + "/templates");
                                         p.sendMessage(Utility.getMsg(p, "createTemplate").replace("{template}", name));
+                                        return true;
                                     }
                                 default:
                                     p.sendMessage(ChatColor.GREEN + "Available actions:");
                                     p.sendMessage("- delete");
                                     p.sendMessage("- select");
                                     p.sendMessage("- edit");
+                                    return true;
 
                             }
                         } else {
                             p.sendMessage(Utility.c("&cPlease enter template name!"));
+                            return true;
                         }
+                    case "lootchestssetup":
+                        SetupSessions session = null;
+                        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
+                            session = new SetupSessions(p, HLootchest.getAPI().getConfigUtil().getBoxesConfig());
+                        } else {
+                            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof SetupSessions) {
+                                session = (SetupSessions) HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+                            }
+                        }
+                        if (session != null) {
+                            if (session.getInvConstructor() != null) {
+                                session.getInvConstructor().createNew();
+                            } else {
+                                new LCSMainMenu(p, HLootchest.getAPI().getConfigUtil().getBoxesConfig());
+                                p.getInventory().addItem(HLootchest.getNms().createItem(Material.DIAMOND, "", 0, "&bSetup Item", new ArrayList<>(), false));
+
+                            }
+                        }
+                        return true;
                     case "add":
                         if (args.length > 3) {
                             Player player = Bukkit.getPlayer(args[1]);
@@ -138,6 +166,7 @@ public class AdminCommand implements CommandExecutor {
                             p.sendMessage(Utility.getMsg(p, "invalidArguments"));
                             return true;
                         }
+
                     case "templateslist":
                         try {
                             File[] files = new File((HLootchest.getFilePath() + "/templates")).listFiles();

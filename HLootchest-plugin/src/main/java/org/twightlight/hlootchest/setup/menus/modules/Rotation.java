@@ -15,26 +15,42 @@ import org.twightlight.hlootchest.setup.menus.MenuManager;
 import org.twightlight.hlootchest.setup.menus.elements.RotationsMenu;
 import org.twightlight.hlootchest.utils.Utility;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 public class Rotation {
 
     private static final List<String> POSTITIONS = Arrays.asList("HEAD", "BODY", "RIGHT_ARM", "LEFT_ARM", "RIGHT_LEG", "LEFT_LEG");
-
+    private final Player p;
+    private final TConfigManager templateFile;
+    private final String name;
+    private final String path;
+    private final SetupSessions session;
+    private final ClickableButtons backAction;
 
     public Rotation(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, ClickableButtons backAction) {
+        this.p = p;
+        this.templateFile = templateFile;
+        this.name = name;
+        this.path = path;
+        this.session = session;
+        this.backAction = backAction;
+
         Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Editing rotation...");
 
+
+        session.setInvConstructor((MenuHandler<Rotation>) () -> new Rotation(p, templateFile, name, path, session, backAction));
+        setItems(inv);
+    }
+    private void setItems(Inventory inv) {
         if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
             MenuManager.removeData(p);
         }
-
-        session.setInvConstructor((MenuHandler<Rotation>) () -> new Rotation(p, templateFile, name, path, session, backAction));
+        inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", new ArrayList<>(), false),
+                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
                 (e) -> new RotationsMenu(p, templateFile, name, Utility.getPrevPath(path), session, backAction));
         MenuManager.setItem(p,
@@ -47,20 +63,20 @@ public class Rotation {
                         false),
                 11,
                 (e) -> {
-                        if (!POSTITIONS.contains(templateFile.getYml().getString(name + path + ".position", "null"))) {
-                            templateFile.setNotSave(name + path + ".position", POSTITIONS.get(0));
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new position to: &e" + POSTITIONS.get(0)));
-                            new Rotation(p, templateFile, name, path, session, backAction);
+                    if (!POSTITIONS.contains(templateFile.getYml().getString(name + path + ".position", "null"))) {
+                        templateFile.setNotSave(name + path + ".position", POSTITIONS.get(0));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new position to: &e" + POSTITIONS.get(0)));
+                        setItems(inv);
 
-                        } else {
-                            int i = POSTITIONS.indexOf(templateFile.getYml().getString(name + path + ".position", "null"));
-                            if (i >= POSTITIONS.size()-1) {
-                                i = -1;
-                            }
-                            templateFile.setNotSave(name + path + ".position", POSTITIONS.get(i+1));
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new position to: &e" + POSTITIONS.get(i+1)));
-                            new Rotation(p, templateFile, name, path, session, backAction);
+                    } else {
+                        int i = POSTITIONS.indexOf(templateFile.getYml().getString(name + path + ".position", "null"));
+                        if (i >= POSTITIONS.size()-1) {
+                            i = -1;
                         }
+                        templateFile.setNotSave(name + path + ".position", POSTITIONS.get(i+1));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new position to: &e" + POSTITIONS.get(i+1)));
+                        setItems(inv);
+                    }
                 });
         MenuManager.setItem(p,
                 inv,
@@ -80,7 +96,7 @@ public class Rotation {
                             sessions.end();
                             Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                     () -> {
-                                        session2.getInvConstructor().createNew();
+                                        setItems(inv);
                                     });
                             return;
                         } else if (!Utility.isXYZFormat(input)) {
@@ -88,7 +104,7 @@ public class Rotation {
                             sessions.end();
                             Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                     () -> {
-                                        session2.getInvConstructor().createNew();
+                                        setItems(inv);
                                     });
                             return;
                         }
@@ -97,11 +113,10 @@ public class Rotation {
                                 () -> {
                                     templateFile.setNotSave(name + path + ".value", input);
                                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + input));
-                                    session2.getInvConstructor().createNew();
+                                    setItems(inv);
                                 });
                     });
                 });
         p.openInventory(inv);
     }
-
 }

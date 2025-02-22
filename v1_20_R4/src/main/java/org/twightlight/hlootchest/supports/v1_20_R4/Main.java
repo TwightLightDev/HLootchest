@@ -56,21 +56,34 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
             URL urlObject;
             try {
                 urlObject = getUrlFromBase64(headUrl);
+                if (urlObject != null) {
+                    textures.setSkin(urlObject);
+                    profile.setTextures(textures);
+                    skullMeta.setOwnerProfile(profile);
+                    i.setItemMeta(skullMeta);
+                }
             } catch (MalformedURLException exception) {
                 throw new RuntimeException("Invalid URL", exception);
             }
-            textures.setSkin(urlObject);
-            profile.setTextures(textures);
-            skullMeta.setOwnerProfile(profile);
-
-            i.setItemMeta(skullMeta);
         }
         return i;
     }
 
     public static URL getUrlFromBase64(String base64) throws MalformedURLException {
+        if (base64 == null || base64.isEmpty()) {
+            return null;
+        }
+
         String decoded = new String(Base64.getDecoder().decode(base64));
-        return new URL(decoded.substring("{\"textures\":{\"SKIN\":{\"url\":\"".length(), decoded.length() - "\"}}}".length()));
+
+        String prefix = "{\"textures\":{\"SKIN\":{\"url\":\"";
+        String suffix = "\"}}}";
+
+        if (decoded.length() < prefix.length() + suffix.length()) {
+            return null;
+        }
+
+        return new URL(decoded.substring(prefix.length(), decoded.length() - suffix.length()));
     }
 
     @Override

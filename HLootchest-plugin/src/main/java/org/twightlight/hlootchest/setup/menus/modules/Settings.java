@@ -7,7 +7,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.api.objects.TSessions;
 import org.twightlight.hlootchest.sessions.SetupSessions;
 import org.twightlight.hlootchest.setup.functionals.MenuHandler;
 import org.twightlight.hlootchest.setup.menus.MenuManager;
@@ -15,21 +14,37 @@ import org.twightlight.hlootchest.setup.menus.TemplateMenu;
 import org.twightlight.hlootchest.setup.menus.elements.RotationsMenu;
 import org.twightlight.hlootchest.utils.Utility;
 
-import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class Settings {
+    private final Player p;
+    private final TConfigManager templateFile;
+    private final String name;
+    private final String path;
+    private final SetupSessions session;
+
     public Settings(Player p, TConfigManager templateFile, String name, String path, SetupSessions session) {
+        this.p = p;
+        this.templateFile = templateFile;
+        this.name = name;
+        this.path = path;
+        this.session = session;
+
         Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Settings");
 
+        session.setInvConstructor((MenuHandler<Settings>) () -> new Settings(p, templateFile, name, path, session));
+        setItems(inv);
+    }
+
+    private void setItems(Inventory inv) {
         if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
             MenuManager.removeData(p);
         }
-
-        session.setInvConstructor((MenuHandler<Settings>) () -> new Settings(p, templateFile, name, path, session));
+        inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", new ArrayList<>(), false),
+                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
                 (e) -> new TemplateMenu(p, templateFile, name, session));
         MenuManager.setItem(p,
@@ -43,7 +58,7 @@ public class Settings {
                 (e) -> {
                     templateFile.setNotSave(name + path + ".player-location", Utility.locationToString(p.getLocation()));
                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + Utility.locationToString(p.getLocation())));
-                    new Settings(p, templateFile, name, path, session);
+                    setItems(inv);
                 });
         MenuManager.setItem(p,
                 inv,
@@ -56,7 +71,7 @@ public class Settings {
                 (e) -> {
                     templateFile.setNotSave(name + path + ".location", Utility.locationToString(p.getLocation()));
                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + Utility.locationToString(p.getLocation())));
-                    new Settings(p, templateFile, name, path, session);
+                    setItems(inv);
                 });
         MenuManager.setItem(p,
                 inv,
@@ -69,7 +84,7 @@ public class Settings {
                 (e) -> {
                     templateFile.setNotSave(name + path + ".click-to-open", !templateFile.getBoolean(name + path + ".click-to-open", false));
                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".click-to-open")));
-                    new Settings(p, templateFile, name, path, session);
+                    setItems(inv);
                 });
         MenuManager.setItem(p,
                 inv,

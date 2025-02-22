@@ -263,20 +263,40 @@ public class Button implements TButton {
                                 childEnableName = false;
                             childNameVisibleMode = mode;
                         }
-                        final ArmorStand child = createArmorStand(childlocation, (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "", childEnableName);
+                        boolean isChildNI = (config.getYml().contains(newpath + ".name.dynamic")) ? config.getBoolean(newpath + ".name.dynamic") : false;
+
+                        String name1 = "";
+                        if (!isChildNI) {
+                            name1 = (config.getString(newpath + ".name.display-name") != null) ? config.getString(newpath + ".name.display-name") : "";
+                        } else {
+                            name1 = (config.getList(newpath + ".name.display-name") != null) ? config.getList(newpath + ".name.display-name").get(0) : "";
+                        }
+                        final ArmorStand child = createArmorStand(childlocation, name1, childEnableName);
                         Main.rotate(child, config, newpath);
                         linkedStandsSettings.computeIfAbsent(child, k -> new ArrayList()).add(childNameVisibleMode);
                         linkedStands.get(this).add(child);
                         sendSpawnPacket(player, child);
                         if (config.getYml().contains(newpath + ".name.refresh-interval")) {
                             int interval = config.getInt(newpath + ".name.refresh-interval");
+                            List<String> names1 = config.getList(newpath + ".name.display-name");
                             (new BukkitRunnable() {
+                                int i = 1;
                                 public void run() {
-                                    if (!Button.this.owner.isOnline() || Button.this.removed) {
+                                    if (!owner.isOnline() || removed) {
                                         cancel();
                                         return;
                                     }
-                                    child.setCustomName(Main.p(Button.this.owner, ChatColor.translateAlternateColorCodes('&', config.getString(newpath + ".name.display-name"))));
+                                    if (!isChildNI) {
+                                        child.setCustomName(Main.p(owner, config.getString(newpath + ".name.display-name")));
+
+                                    } else {
+                                        if (i >= names1.size()) {
+                                            i = 0;
+                                        }
+                                        child.setCustomName(Main.p(owner, names1.get(i)));
+                                        i ++;
+
+                                    }
                                 }
                             }).runTaskTimer(Main.handler.plugin, 0L, interval);
                         }

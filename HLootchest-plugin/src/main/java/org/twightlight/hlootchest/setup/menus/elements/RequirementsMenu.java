@@ -9,35 +9,37 @@ import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSessions;
+import org.twightlight.hlootchest.setup.functionals.ClickableButtons;
 import org.twightlight.hlootchest.setup.functionals.MenuHandler;
 import org.twightlight.hlootchest.setup.menus.MenuManager;
-import org.twightlight.hlootchest.setup.menus.TemplateMenu;
-import org.twightlight.hlootchest.setup.menus.modules.Button;
+import org.twightlight.hlootchest.setup.menus.modules.Requirement;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-public class ButtonsMenu {
+public class RequirementsMenu {
 
     private final Player p;
     private final TConfigManager templateFile;
     private final String name;
     private final String path;
     private final SetupSessions session;
+    private final ClickableButtons backAction;
+    public RequirementsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, ClickableButtons backAction) {
 
-    public ButtonsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSessions session) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
         this.path = path;
         this.session = session;
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Buttons list");
+        this.backAction = backAction;
 
-        session.setInvConstructor((MenuHandler<ButtonsMenu>) () -> new ButtonsMenu(p, templateFile, name, path, session));
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Requirements");
+
+        session.setInvConstructor((MenuHandler<RequirementsMenu>) () -> new RequirementsMenu(p, templateFile, name, path, session, backAction));
         setItems(inv);
     }
-
     private void setItems(Inventory inv) {
         if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
             MenuManager.removeData(p);
@@ -47,32 +49,32 @@ public class ButtonsMenu {
                 inv,
                 HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
-                (e) -> new TemplateMenu(p, templateFile, name, session));
+                backAction);
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Button", Collections.emptyList(), false),
+                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Requirement", Collections.emptyList(), false),
                 26,
                 (e) -> {
                     p.closeInventory();
                     final SetupSessions session2 = session;
                     ChatSessions sessions = new ChatSessions(p);
-                    sessions.prompt(Arrays.asList(new String[] {"&aType the name of the new button: ", "&aType 'cancel' to cancel!"}), (input) -> {
+                    sessions.prompt(Arrays.asList(new String[] {"&aType the name of new requirement: ", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {
                             sessions.end();
                             Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                     () -> {
-                                        setItems(inv);
+                                        session2.getInvConstructor().createNew();
                                     });
                             return;
                         }
                         if (templateFile.getYml().contains(name + path)) {
                             Set<String> buttonList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
                             if (buttonList.contains(input)) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis button name already exist! Cancel the action!"));
+                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis requirement name already exist! Cancel the action!"));
                                 sessions.end();
                                 Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                         () -> {
-                                            setItems(inv);
+                                            session2.getInvConstructor().createNew();
                                         });
                                 return;
                             }
@@ -81,7 +83,7 @@ public class ButtonsMenu {
                         Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                 () -> {
                                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou successfully created new button: &e"+ input));
-                                    new Button(p, templateFile, name, path + "." + input, session, false);
+                                    new Requirement(p, templateFile, name, path + "." + input, session, backAction);
                                 });
 
                     });
@@ -89,15 +91,16 @@ public class ButtonsMenu {
                 });
         int i = 0;
         if (templateFile.getYml().contains(name + path)) {
-            Set<String> buttonList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
-            for (String button : buttonList) {
+            Set<String> reqList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
+            for (String req : reqList) {
                 MenuManager.setItem(p,
                         inv,
-                        HLootchest.getNms().createItem(XMaterial.STONE_BUTTON.parseMaterial(),
+                        HLootchest.getNms().createItem(XMaterial.RED_WOOL.parseMaterial(),
                                 "",
                                 0,
-                                "&eName: " + ChatColor.AQUA + button,
+                                "&eName: " + ChatColor.AQUA + req,
                                 Arrays.asList(new String[] {
+                                        "&aType: " + templateFile.getYml().getString(name + path + "." + req + ".type" , "null"),
                                         "",
                                         "&eLeft-click to edit!",
                                         "&eRight-click to remove!"}),
@@ -105,11 +108,11 @@ public class ButtonsMenu {
                         i,
                         (e) -> {
                             if (e.isLeftClick()) {
-                                new Button(p, templateFile, name, path + "." + button, session, false);
+                                new Requirement(p, templateFile, name, path + "." + req, session, backAction);
                             } else if (e.isRightClick()) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have successfully removed this button!"));
-                                templateFile.getYml().set(name + path + "." + button, null);
-                                setItems(inv);
+                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have successfully removed this requirement!"));
+                                templateFile.getYml().set(name + path + "." + req, null);
+                                new RequirementsMenu(p, templateFile, name, path, session, backAction);
                             }
                         });
                 i ++;

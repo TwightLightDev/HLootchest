@@ -9,32 +9,38 @@ import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSessions;
+import org.twightlight.hlootchest.setup.functionals.ClickableButtons;
 import org.twightlight.hlootchest.setup.functionals.MenuHandler;
 import org.twightlight.hlootchest.setup.menus.MenuManager;
-import org.twightlight.hlootchest.setup.menus.TemplateMenu;
-import org.twightlight.hlootchest.setup.menus.modules.Button;
+import org.twightlight.hlootchest.setup.menus.modules.Icon;
+import org.twightlight.hlootchest.setup.menus.modules.IconSettings;
+import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-public class ButtonsMenu {
+public class IconsMenu {
 
     private final Player p;
     private final TConfigManager templateFile;
     private final String name;
     private final String path;
     private final SetupSessions session;
-
-    public ButtonsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSessions session) {
+    private boolean isChild;
+    private ClickableButtons backAction;
+    public IconsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, boolean isChild, ClickableButtons backAction) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
         this.path = path;
         this.session = session;
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Buttons list");
+        this.isChild = isChild;
+        this.backAction = backAction;
 
-        session.setInvConstructor((MenuHandler<ButtonsMenu>) () -> new ButtonsMenu(p, templateFile, name, path, session));
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Icons");
+
+        session.setInvConstructor((MenuHandler<IconsMenu>) () -> new IconsMenu(p, templateFile, name, path, session, isChild, backAction));
         setItems(inv);
     }
 
@@ -47,14 +53,13 @@ public class ButtonsMenu {
                 inv,
                 HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
-                (e) -> new TemplateMenu(p, templateFile, name, session));
+                backAction);
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Button", Collections.emptyList(), false),
+                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Icon", Collections.emptyList(), false),
                 26,
                 (e) -> {
                     p.closeInventory();
-                    final SetupSessions session2 = session;
                     ChatSessions sessions = new ChatSessions(p);
                     sessions.prompt(Arrays.asList(new String[] {"&aType the name of the new button: ", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {
@@ -68,7 +73,7 @@ public class ButtonsMenu {
                         if (templateFile.getYml().contains(name + path)) {
                             Set<String> buttonList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
                             if (buttonList.contains(input)) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis button name already exist! Cancel the action!"));
+                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis icon name already exist! Cancel the action!"));
                                 sessions.end();
                                 Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                         () -> {
@@ -80,8 +85,8 @@ public class ButtonsMenu {
                         sessions.end();
                         Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                 () -> {
-                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou successfully created new button: &e"+ input));
-                                    new Button(p, templateFile, name, path + "." + input, session, false);
+                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou successfully created new icon: &e"+ input));
+                                    new IconSettings(p, templateFile, name, path + "." + input, session, (ev) -> new IconsMenu(p, templateFile, name, path, session, isChild, backAction));
                                 });
 
                     });
@@ -89,14 +94,14 @@ public class ButtonsMenu {
                 });
         int i = 0;
         if (templateFile.getYml().contains(name + path)) {
-            Set<String> buttonList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
-            for (String button : buttonList) {
+            Set<String> iconsList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
+            for (String icon : iconsList) {
                 MenuManager.setItem(p,
                         inv,
-                        HLootchest.getNms().createItem(XMaterial.STONE_BUTTON.parseMaterial(),
-                                "",
-                                0,
-                                "&eName: " + ChatColor.AQUA + button,
+                        HLootchest.getNms().createItem(XMaterial.valueOf(templateFile.getString(name + path + "." + icon + ".material", "BEDROCK")).parseMaterial(),
+                                templateFile.getString(name + path + "." + icon + ".head_value", ""),
+                                templateFile.getInt(name + path + "." + icon + ".data", 0),
+                                "&eName: " + ChatColor.AQUA + icon,
                                 Arrays.asList(new String[] {
                                         "",
                                         "&eLeft-click to edit!",
@@ -105,10 +110,10 @@ public class ButtonsMenu {
                         i,
                         (e) -> {
                             if (e.isLeftClick()) {
-                                new Button(p, templateFile, name, path + "." + button, session, false);
+                                new IconSettings(p, templateFile, name + "." + icon, path, session, (ev) -> new IconsMenu(p, templateFile, name, path, session, isChild, backAction));
                             } else if (e.isRightClick()) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have successfully removed this button!"));
-                                templateFile.getYml().set(name + path + "." + button, null);
+                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have successfully removed this icon!"));
+                                templateFile.getYml().set(name + path + "." + icon, null);
                                 setItems(inv);
                             }
                         });
@@ -118,4 +123,5 @@ public class ButtonsMenu {
 
         p.openInventory(inv);
     }
+
 }

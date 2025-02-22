@@ -10,15 +10,15 @@ import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSessions;
 import org.twightlight.hlootchest.setup.functionals.MenuHandler;
+import org.twightlight.hlootchest.setup.menus.LCMenu;
 import org.twightlight.hlootchest.setup.menus.MenuManager;
-import org.twightlight.hlootchest.setup.menus.TemplateMenu;
-import org.twightlight.hlootchest.setup.menus.modules.Button;
+import org.twightlight.hlootchest.setup.menus.modules.Reward;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Set;
 
-public class ButtonsMenu {
+public class RewardsMenu {
 
     private final Player p;
     private final TConfigManager templateFile;
@@ -26,15 +26,15 @@ public class ButtonsMenu {
     private final String path;
     private final SetupSessions session;
 
-    public ButtonsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSessions session) {
+    public RewardsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSessions session) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
         this.path = path;
         this.session = session;
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Buttons list");
+        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Rewards list");
 
-        session.setInvConstructor((MenuHandler<ButtonsMenu>) () -> new ButtonsMenu(p, templateFile, name, path, session));
+        session.setInvConstructor((MenuHandler<RewardsMenu>) () -> new RewardsMenu(p, templateFile, name, path, session));
         setItems(inv);
     }
 
@@ -47,16 +47,16 @@ public class ButtonsMenu {
                 inv,
                 HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
-                (e) -> new TemplateMenu(p, templateFile, name, session));
+                (e) -> new LCMenu(p, templateFile, name, session));
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Button", Collections.emptyList(), false),
+                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Reward", Collections.emptyList(), false),
                 26,
                 (e) -> {
                     p.closeInventory();
                     final SetupSessions session2 = session;
                     ChatSessions sessions = new ChatSessions(p);
-                    sessions.prompt(Arrays.asList(new String[] {"&aType the name of the new button: ", "&aType 'cancel' to cancel!"}), (input) -> {
+                    sessions.prompt(Arrays.asList(new String[] {"&aType the name of the new reward: ", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {
                             sessions.end();
                             Bukkit.getScheduler().runTask(HLootchest.getInstance(),
@@ -66,9 +66,9 @@ public class ButtonsMenu {
                             return;
                         }
                         if (templateFile.getYml().contains(name + path)) {
-                            Set<String> buttonList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
-                            if (buttonList.contains(input)) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis button name already exist! Cancel the action!"));
+                            Set<String> rewardsList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
+                            if (rewardsList.contains(input)) {
+                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis reward name already exist! Cancel the action!"));
                                 sessions.end();
                                 Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                         () -> {
@@ -80,8 +80,8 @@ public class ButtonsMenu {
                         sessions.end();
                         Bukkit.getScheduler().runTask(HLootchest.getInstance(),
                                 () -> {
-                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou successfully created new button: &e"+ input));
-                                    new Button(p, templateFile, name, path + "." + input, session, false);
+                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou successfully created new reward: &e"+ input));
+                                    new Reward(p, templateFile, name, path + "." + input, session, false);
                                 });
 
                     });
@@ -89,14 +89,14 @@ public class ButtonsMenu {
                 });
         int i = 0;
         if (templateFile.getYml().contains(name + path)) {
-            Set<String> buttonList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
-            for (String button : buttonList) {
+            Set<String> rewardsList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
+            for (String reward : rewardsList) {
                 MenuManager.setItem(p,
                         inv,
-                        HLootchest.getNms().createItem(XMaterial.STONE_BUTTON.parseMaterial(),
+                        HLootchest.getNms().createItem(XMaterial.EMERALD.parseMaterial(),
                                 "",
                                 0,
-                                "&eName: " + ChatColor.AQUA + button,
+                                "&eName: " + ChatColor.AQUA + reward,
                                 Arrays.asList(new String[] {
                                         "",
                                         "&eLeft-click to edit!",
@@ -105,17 +105,16 @@ public class ButtonsMenu {
                         i,
                         (e) -> {
                             if (e.isLeftClick()) {
-                                new Button(p, templateFile, name, path + "." + button, session, false);
+                                new Reward(p, templateFile, name, path + "." + reward, session, false);
                             } else if (e.isRightClick()) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have successfully removed this button!"));
-                                templateFile.getYml().set(name + path + "." + button, null);
+                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have successfully removed this reward!"));
+                                templateFile.getYml().set(name + path + "." + reward, null);
                                 setItems(inv);
                             }
                         });
                 i ++;
             }
         }
-
         p.openInventory(inv);
     }
 }
