@@ -30,14 +30,34 @@ public class Regular extends BoxManager {
         sendSpawnPacket(getOwner(), this.sword);
         ItemStack icon1 = new ItemStack(XMaterial.DIAMOND_SWORD.parseMaterial());
         sword.getEquipment().setItem(EquipmentSlot.HAND, icon1);
-        (new BukkitRunnable() {
+        new BukkitRunnable() {
+            final double startY = getBox().getLocation().getY();
+            final double targetY = getBox().getLocation().getY() - 4.6;
+            final int totalTicks = (int) ((startY - targetY) / 0.2);
+            int currentTick = 0;
+            final double swordOffset = sword.getLocation().getY() - getBox().getLocation().getY();
+
+            @Override
             public void run() {
-                if (Regular.this.getBox().getLocation().getY() < loc.clone().getY() - 5.2D)
+                if (currentTick >= totalTicks) {
                     cancel();
-                Animations.moveUp(Regular.this.getOwner(), Regular.this.sword, -0.2F);
-                Animations.moveUp(Regular.this.getOwner(), Regular.this.getBox(), -0.2F);
+                    return;
+                }
+
+                double progress = (double) currentTick / totalTicks;
+                double newY_box = startY - ((startY - targetY) * progress);
+                double newY_sword = newY_box + swordOffset;
+
+                Location swnewLoc = sword.getLocation().clone();
+                swnewLoc.setY(newY_sword);
+                sword.teleport(swnewLoc);
+                Location boxnewLoc = getBox().getLocation().clone();
+                boxnewLoc.setY(newY_box);
+                getBox().teleport(boxnewLoc);
+
+                currentTick++;
             }
-        }).runTaskTimer(Main.handler.plugin, 0L, 1L);
+        }.runTaskTimer(Main.handler.plugin, 0L, 1L);
     }
 
     public boolean open() {

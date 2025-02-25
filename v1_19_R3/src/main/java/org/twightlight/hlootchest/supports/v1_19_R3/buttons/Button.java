@@ -14,6 +14,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
@@ -432,6 +433,7 @@ public class Button implements TButton {
         armorStand.setVisible(false);
         armorStand.setGravity(false);
         armorStand.setVisibleByDefault(false);
+        armorStand.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
         return armorStand;
     }
 

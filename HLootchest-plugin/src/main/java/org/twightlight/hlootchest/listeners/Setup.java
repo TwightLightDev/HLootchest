@@ -12,7 +12,7 @@ import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.objects.TSessions;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSessions;
-import org.twightlight.hlootchest.setup.functionals.ClickableButtons;
+import org.twightlight.hlootchest.setup.functionals.ClickableAction;
 import org.twightlight.hlootchest.setup.menus.MenuManager;
 
 public class Setup implements Listener {
@@ -23,7 +23,7 @@ public class Setup implements Listener {
             TSessions session = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(((Player) e.getWhoClicked()));
             if (session instanceof SetupSessions) {
                 Player p = (Player) e.getWhoClicked();
-                ClickableButtons action = MenuManager.getButtonsList().get(p.getUniqueId()).get(e.getCurrentItem());
+                ClickableAction action = MenuManager.getButtonsList().get(p.getUniqueId()).get(e.getCurrentItem());
                 if (action != null) {
                     action.execute(e);
                 }

@@ -1,10 +1,8 @@
 package org.twightlight.hlootchest.utils;
 
 import me.clip.placeholderapi.PlaceholderAPI;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.World;
+import org.bukkit.*;
+import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
@@ -156,7 +154,7 @@ public class Utility {
                     }
                     break;
                 case ">=":
-                    if (isNumeric(val1) || isNumeric(val2)) {
+                    if (!isNumeric(val1) || !isNumeric(val2)) {
                         return false;
                     }
                     if (!(Double.parseDouble(val1) >= Double.parseDouble(val2))) {
@@ -164,7 +162,7 @@ public class Utility {
                     }
                     break;
                 case "<=":
-                    if (isNumeric(val1) || isNumeric(val2)) {
+                    if (!isNumeric(val1) || !isNumeric(val2)) {
                         return false;
                     }
                     if (!(Double.parseDouble(val1) <= Double.parseDouble(val2))) {
@@ -172,7 +170,7 @@ public class Utility {
                     }
                     break;
                 case ">":
-                    if (isNumeric(val1) || isNumeric(val2)) {
+                    if (!isNumeric(val1) || !isNumeric(val2)) {
                         return false;
                     }
                     if (!(Double.parseDouble(val1) > Double.parseDouble(val2))) {
@@ -180,7 +178,7 @@ public class Utility {
                     }
                     break;
                 case "<":
-                    if (isNumeric(val1) || isNumeric(val2)) {
+                    if (!isNumeric(val1) || !isNumeric(val2)) {
                         return false;
                     }
                     if (!(Double.parseDouble(val1) < Double.parseDouble(val2))) {
@@ -188,7 +186,7 @@ public class Utility {
                     }
                     break;
                 case "==":
-                    if (isNumeric(val1) || isNumeric(val2)) {
+                    if (!isNumeric(val1) || !isNumeric(val2)) {
                         return false;
                     }
                     if (!(Double.parseDouble(val1) == Double.parseDouble(val2))) {
@@ -196,7 +194,7 @@ public class Utility {
                     }
                     break;
                 case "!=":
-                    if (isNumeric(val1) || isNumeric(val2)) {
+                    if (!isNumeric(val1) || !isNumeric(val2)) {
                         return false;
                     }
                     if (!(Double.parseDouble(val1) != Double.parseDouble(val2))) {
@@ -215,6 +213,21 @@ public class Utility {
             return true;
         } catch (NumberFormatException e) {
             return false;
+        }
+    }
+
+    public static void clean(Chunk chunk, String tag) {
+        boolean isLoaded = chunk.isLoaded();
+        if (!isLoaded) {
+            chunk.load();
+        }
+        for (Entity entity : chunk.getEntities()) {
+            if (entity.hasMetadata(tag)) {
+                entity.remove();
+            }
+        }
+        if (!isLoaded) {
+            chunk.unload();
         }
     }
 }

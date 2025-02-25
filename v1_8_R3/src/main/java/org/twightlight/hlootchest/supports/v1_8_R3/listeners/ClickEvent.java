@@ -31,6 +31,7 @@ public class ClickEvent extends PlayerConnection {
         super.a(packet);
 
         int entityId = getEntityId(packet);
+
         TButton button = nms.getButtonFromId(entityId);
 
         PacketPlayInUseEntity.EnumEntityUseAction action = packet.a();

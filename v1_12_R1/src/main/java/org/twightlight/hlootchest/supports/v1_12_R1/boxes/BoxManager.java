@@ -4,6 +4,7 @@ import com.cryptomorin.xseries.XPotion;
 import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPig;
@@ -13,6 +14,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.LCSpawnEvent;
@@ -93,6 +95,11 @@ public class BoxManager implements TBox {
 
             owner.teleport(Plocation);
 
+            Chunk chunk = Plocation.getChunk();
+            if (!chunk.isLoaded()) {
+                chunk.load();
+            }
+
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!online.equals(owner)) {
                     online.hidePlayer(Main.handler.plugin, owner);
@@ -105,6 +112,11 @@ public class BoxManager implements TBox {
 
             vehicle.setCustomName("LootchestVehicle");
             vehicle.setCustomNameVisible(false);
+            vehicle.setSilent(true);
+            vehicle.setCollidable(false);
+            vehicle.setGravity(false);
+            vehicle.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
+
 
             EntityPig entityPig = ((CraftPig) vehicle).getHandle();
             NBTTagCompound tag = new NBTTagCompound();

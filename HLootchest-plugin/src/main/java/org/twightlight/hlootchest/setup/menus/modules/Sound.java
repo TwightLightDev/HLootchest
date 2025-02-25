@@ -10,7 +10,7 @@ import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSessions;
-import org.twightlight.hlootchest.setup.functionals.ClickableButtons;
+import org.twightlight.hlootchest.setup.functionals.ClickableAction;
 import org.twightlight.hlootchest.setup.functionals.MenuHandler;
 import org.twightlight.hlootchest.setup.menus.MenuManager;
 import org.twightlight.hlootchest.utils.Utility;
@@ -28,9 +28,9 @@ public class Sound {
     private static final int SOUND_SLOT = 11;
     private static final int YAW_SLOT = 12;
     private static final int PITCH_SLOT = 13;
-    private final ClickableButtons backAction;
+    private final ClickableAction backAction;
 
-    public Sound(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, ClickableButtons backAction) {
+    public Sound(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, ClickableAction backAction) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -59,7 +59,7 @@ public class Sound {
         p.openInventory(inv);
     }
 
-    private void addItem(int slot, XMaterial material, String displayName, String value,ClickableButtons action) {
+    private void addItem(int slot, XMaterial material, String displayName, String value, ClickableAction action) {
         MenuManager.setItem(
                 p,
                 inv,

@@ -9,7 +9,7 @@ import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.objects.TConfigManager;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSessions;
-import org.twightlight.hlootchest.setup.functionals.ClickableButtons;
+import org.twightlight.hlootchest.setup.functionals.ClickableAction;
 import org.twightlight.hlootchest.setup.functionals.MenuHandler;
 import org.twightlight.hlootchest.setup.menus.MenuManager;
 import org.twightlight.hlootchest.setup.menus.elements.RequirementsMenu;
@@ -26,10 +26,10 @@ public class Requirement {
     private final String name;
     private final String path;
     private final SetupSessions session;
-    private final ClickableButtons backAction;
+    private final ClickableAction backAction;
 
 
-    public Requirement(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, ClickableButtons backAction) {
+    public Requirement(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, ClickableAction backAction) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;

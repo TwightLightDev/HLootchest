@@ -98,14 +98,15 @@ public class AdminCommand implements CommandExecutor {
                                     }
                                 default:
                                     p.sendMessage(ChatColor.GREEN + "Available actions:");
+                                    p.sendMessage("- create");
                                     p.sendMessage("- delete");
-                                    p.sendMessage("- select");
                                     p.sendMessage("- edit");
+                                    p.sendMessage("- select");
                                     return true;
 
                             }
                         } else {
-                            p.sendMessage(Utility.c("&cPlease enter template name!"));
+                            p.sendMessage(Utility.getMsg(p, "invalidArguments"));
                             return true;
                         }
                     case "lootchestssetup":

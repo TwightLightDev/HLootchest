@@ -106,6 +106,8 @@ public class LootChestSessions extends SessionsManager implements TSessions {
                     }
                 }.runTaskTimer(HLootchest.getInstance(), 0L, 1L);
             }
+            String initialLoc = Utility.locationToString(box.getPlayerInitialLoc());
+            HLootchest.getAPI().getDatabaseUtil().getDb().pullData(p, initialLoc, "fallback_loc");
         }
     }
 
@@ -113,6 +115,7 @@ public class LootChestSessions extends SessionsManager implements TSessions {
     public void close() {
         box.removeVehicle(player);
         box.getOwner().teleport(box.getPlayerInitialLoc());
+        HLootchest.getAPI().getDatabaseUtil().getDb().pullData(box.getOwner(), "", "fallback_loc");
         box.remove();
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (!online.equals(player)) {

@@ -3,13 +3,12 @@ package org.twightlight.hlootchest.supports.v1_19_R3.boxes;
 import com.cryptomorin.xseries.XPotion;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Pig;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.LCSpawnEvent;
@@ -73,6 +72,11 @@ public class BoxManager implements TBox {
         if (vehicles.get(owner) == null) {
             owner.teleport(Plocation);
 
+            Chunk chunk = Plocation.getChunk();
+            if (!chunk.isLoaded()) {
+                chunk.load();
+            }
+
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!online.equals(owner)) {
                     online.hidePlayer(Main.handler.plugin, owner);
@@ -84,10 +88,14 @@ public class BoxManager implements TBox {
             vehicle.setCustomName("LootchestVehicle");
             vehicle.setCustomNameVisible(false);
             vehicle.setAI(false);
+            vehicle.setSilent(true);
+            vehicle.setCollidable(false);
             vehicle.setInvulnerable(true);
+            vehicle.setGravity(false);
             vehicle.setVisibleByDefault(false);
             player.showEntity(Main.handler.plugin, vehicle);
             vehicle.setInvisible(true);
+            vehicle.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
 
 
             vehicle.addPassenger(owner);
@@ -106,6 +114,8 @@ public class BoxManager implements TBox {
         armorStand.setGravity(false);
         armorStand.setRotation(location.getYaw(), location.getPitch());
         armorStand.setVisibleByDefault(false);
+        armorStand.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
+
         return armorStand;
     }
 

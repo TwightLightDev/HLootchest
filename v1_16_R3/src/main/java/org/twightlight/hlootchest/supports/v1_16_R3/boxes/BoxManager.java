@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPig;
@@ -14,6 +15,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.LCSpawnEvent;
@@ -95,6 +97,11 @@ public class BoxManager implements TBox {
 
             owner.teleport(Plocation);
 
+            Chunk chunk = Plocation.getChunk();
+            if (!chunk.isLoaded()) {
+                chunk.load();
+            }
+
             for (Player online : Bukkit.getOnlinePlayers()) {
                 if (!online.equals(owner)) {
                     online.hidePlayer(Main.handler.plugin, owner);
@@ -103,12 +110,17 @@ public class BoxManager implements TBox {
 
 
             Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
-            vehicle.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));
 
             vehicle.setCustomName("LootchestVehicle");
             vehicle.setCustomNameVisible(false);
-
+            vehicle.setSilent(true);
             vehicle.setAI(false);
+            vehicle.setInvisible(true);
+            vehicle.setInvulnerable(true);
+            vehicle.setCollidable(false);
+            vehicle.setGravity(false);
+
+            vehicle.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
 
             vehicle.addPassenger(owner);
             vehicles.put(owner, vehicle);

@@ -18,6 +18,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
@@ -26,6 +27,7 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
+import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.LCSpawnEvent;
@@ -74,44 +76,53 @@ public class BoxManager implements TBox {
 
     public BoxManager(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
         Main.api.getSessionUtil().getSessionFromPlayer(player).setNewBox(this);
-        this.owner = player;
-        this.initialLocation = initialLocation;
-        this.box = createArmorStand(location, "", false);
-        this.clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
-        this.instance = this;
-        this.id = this.box.ae();
-        this.loc = location;
-        this.icon = icon;
-        this.config = config;
-        this.boxid = boxid;
-        Main.rotate(this.box, config, boxid + ".settings");
-        PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(this.box.ae(), this.box.ai(), true);
-        (((CraftPlayer)this.owner).getHandle()).b.a(metadataPacket);
-        boxlists.put(Integer.valueOf(this.id), this);
-        boxPlayerlists.put(this.owner, this);
-        sendSpawnPacket(this.owner, this.box);
-        equipIcon(this.box, icon);
+        owner = player;
+        initialLocation = initialLocation;
+        box = createArmorStand(location, "", false);
+        clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
+        instance = this;
+        id = box.ae();
+        loc = location;
+        icon = icon;
+        config = config;
+        boxid = boxid;
+        Main.rotate(box, config, boxid + ".settings");
+        PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(box.ae(), box.ai(), true);
+        (((CraftPlayer)owner).getHandle()).b.a(metadataPacket);
+        boxlists.put(Integer.valueOf(id), this);
+        boxPlayerlists.put(owner, this);
+        sendSpawnPacket(owner, box);
+        equipIcon(box, icon);
         if (config.getList(boxid + ".rewards-location") != null)
             for (String reward : config.getList(boxid + ".rewards-location"))
-                this.rewardsLocation.add(Main.handler.stringToLocation(reward));
+                rewardsLocation.add(Main.handler.stringToLocation(reward));
         Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
-        this.playerLocation = Plocation;
-        if (vehicles.get(this.owner) == null) {
-            this.owner.teleport(Plocation);
+        playerLocation = Plocation;
+        if (vehicles.get(owner) == null) {
+            owner.teleport(Plocation);
+            Chunk chunk = Plocation.getChunk();
+            if (!chunk.isLoaded()) {
+                chunk.load();
+            }
             for (Player online : Bukkit.getOnlinePlayers()) {
-                if (!online.equals(this.owner))
-                    online.hidePlayer(Main.handler.plugin, this.owner);
+                if (!online.equals(owner))
+                    online.hidePlayer(Main.handler.plugin, owner);
             }
             Pig vehicle = (Pig)Plocation.getWorld().spawnEntity(Plocation.clone().add(0.0D, -0.3D, 0.0D), EntityType.PIG);
             vehicle.setInvisible(true);
             vehicle.setCustomName("LootchestVehicle");
             vehicle.setCustomNameVisible(false);
+            vehicle.setSilent(true);
+            vehicle.setCollidable(false);
+            vehicle.setGravity(false);
             vehicle.setAI(false);
             vehicle.setInvulnerable(true);
-            vehicle.addPassenger(this.owner);
-            vehicles.put(this.owner, vehicle);
+            vehicle.addPassenger(owner);
+            vehicles.put(owner, vehicle);
+            vehicle.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
+
         }
-        LCSpawnEvent event = new LCSpawnEvent(this.owner, this);
+        LCSpawnEvent event = new LCSpawnEvent(owner, this);
         Bukkit.getPluginManager().callEvent((Event)event);
     }
 
@@ -119,7 +130,7 @@ public class BoxManager implements TBox {
         WorldServer nmsWorld = ((CraftWorld)location.getWorld()).getHandle();
         EntityArmorStand armorStand = new EntityArmorStand((World)nmsWorld, location.getX(), location.getY(), location.getZ());
         armorStand.n(isNameEnable);
-        armorStand.a(IChatBaseComponent.a(Main.p(this.owner, ChatColor.translateAlternateColorCodes('&', name))));
+        armorStand.a(IChatBaseComponent.a(Main.p(owner, ChatColor.translateAlternateColorCodes('&', name))));
         armorStand.j(true);
         armorStand.e(true);
         armorStand.o(location.getYaw());
@@ -137,19 +148,19 @@ public class BoxManager implements TBox {
 
     public void equipIcon(org.bukkit.inventory.ItemStack bukkiticon) {
         ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
-        PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(this.box.ae(), Collections.singletonList(new Pair(EnumItemSlot.f, icon)));
-        (((CraftPlayer)this.owner).getHandle()).b.a((Packet)packet);
+        PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(box.ae(), Collections.singletonList(new Pair(EnumItemSlot.f, icon)));
+        (((CraftPlayer)owner).getHandle()).b.a((Packet)packet);
     }
 
     private void equipIcon(EntityArmorStand armorStand, org.bukkit.inventory.ItemStack bukkiticon) {
         ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
         PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(armorStand.ae(), Collections.singletonList(new Pair(EnumItemSlot.f, icon)));
-        (((CraftPlayer)this.owner).getHandle()).b.a((Packet)packet);
+        (((CraftPlayer)owner).getHandle()).b.a((Packet)packet);
     }
 
     public boolean open() {
-        Main.handler.removeButtonsFromPlayer(this.owner, ButtonType.REWARD);
-        PlayerOpenLCEvent event = new PlayerOpenLCEvent(this.owner, this);
+        Main.handler.removeButtonsFromPlayer(owner, ButtonType.REWARD);
+        PlayerOpenLCEvent event = new PlayerOpenLCEvent(owner, this);
         Bukkit.getPluginManager().callEvent((Event)event);
         if (event.isCancelled())
             return false;
@@ -157,48 +168,48 @@ public class BoxManager implements TBox {
     }
 
     public void remove() {
-        if (this.box != null) {
-            PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(new int[] { this.box.ae() });
-            (((CraftPlayer)this.owner).getHandle()).b.a(packet);
-            boxlists.remove(Integer.valueOf(this.id));
-            boxPlayerlists.remove(this.owner);
+        if (box != null) {
+            PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(new int[] { box.ae() });
+            (((CraftPlayer)owner).getHandle()).b.a(packet);
+            boxlists.remove(Integer.valueOf(id));
+            boxPlayerlists.remove(owner);
         }
     }
 
     public boolean isClickable() {
-        return this.clickable;
+        return clickable;
     }
 
     public void setClickable(boolean bool) {
-        this.clickable = bool;
+        clickable = bool;
     }
 
     public Player getOwner() {
-        return this.owner;
+        return owner;
     }
 
     public EntityArmorStand getBox() {
-        return this.box;
+        return box;
     }
 
     public Location getLoc() {
-        return this.loc;
+        return loc;
     }
 
     public org.bukkit.inventory.ItemStack getIcon() {
-        return this.icon;
+        return icon;
     }
 
     public TConfigManager getConfig() {
-        return this.config;
+        return config;
     }
 
     public String getBoxId() {
-        return this.boxid;
+        return boxid;
     }
 
     public Location getPlayerInitialLoc() {
-        return this.initialLocation;
+        return initialLocation;
     }
 
     public Map<Player, Pig> getVehiclesList() {
@@ -213,11 +224,11 @@ public class BoxManager implements TBox {
     }
 
     public TBox getInstance() {
-        return this.instance;
+        return instance;
     }
 
     public boolean isClickToOpen() {
-        return this.clickToOpen;
+        return clickToOpen;
     }
 
     public void setOpeningState(Boolean state) {
@@ -229,10 +240,10 @@ public class BoxManager implements TBox {
     }
 
     public Location getPlayerLocation() {
-        return this.playerLocation;
+        return playerLocation;
     }
 
     public List<Location> getRewardsLocation() {
-        return new ArrayList<>(this.rewardsLocation);
+        return new ArrayList<>(rewardsLocation);
     }
 }

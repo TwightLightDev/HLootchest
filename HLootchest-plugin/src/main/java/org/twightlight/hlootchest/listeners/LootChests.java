@@ -139,6 +139,20 @@ public class LootChests implements Listener {
         String cmd = e.getMessage();
         if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
             if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSessions) {
+                List<String> allowed_commands = HLootchest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.opening");
+                for (String command : allowed_commands) {
+                    if (e.getMessage().contains(command)) {
+                        return;
+                    }
+                }
+                e.setCancelled(true);
+            } else {
+                List<String> allowed_commands = HLootchest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.setup");
+                for (String command : allowed_commands) {
+                    if (e.getMessage().contains(command)) {
+                        return;
+                    }
+                }
                 e.setCancelled(true);
             }
         }

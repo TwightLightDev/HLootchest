@@ -32,7 +32,7 @@ public class SQLite implements TDatabase {
         System.out.println("Creating tables...");
         try {
             Statement statement = getConnection().createStatement();
-            statement.executeUpdate(" CREATE TABLE IF NOT EXISTS hlootchest ( player TEXT PRIMARY KEY, lootchests TEXT DEFAULT '{}', opened TEXT DEFAULT '{}'); ");
+            statement.executeUpdate(" CREATE TABLE IF NOT EXISTS hlootchest ( player TEXT PRIMARY KEY, lootchests TEXT DEFAULT '{}', opened TEXT DEFAULT '{}', fallback_loc TEXT DEFAULT ''); ");
             statement.close();
             System.out.println("Tables created successfully!");
         } catch (SQLException e) {
@@ -72,10 +72,11 @@ public class SQLite implements TDatabase {
             if (player != null)
                 return;
             connection = getConnection();
-            ps = connection.prepareStatement("INSERT INTO hlootchest (player, lootchests, opened) VALUES (?, ?, ?)");
+            ps = connection.prepareStatement("INSERT INTO hlootchest (player, lootchests, opened, fallback_loc) VALUES (?, ?, ?, ?)");
             ps.setString(1, p.getUniqueId().toString());
             ps.setString(2, "{}");
             ps.setString(3, "{}");
+            ps.setString(4, "\"\"");
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -94,6 +95,31 @@ public class SQLite implements TDatabase {
     public DatabaseType getDatabaseType() {
         return this.type;
     }
+
+
+    public <T> T getLootChestData(OfflinePlayer player, String column, TypeToken<T> typeToken) {
+        Connection conn = null;
+        PreparedStatement ps = null;
+        try {
+            conn = getConnection();
+
+            ps = conn.prepareStatement("SELECT " + column + " FROM hlootchest WHERE player = ?");
+
+            ps.setString(1, player.getUniqueId().toString());
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                String dataString = rs.getString(column);
+                return new Gson().fromJson(dataString, typeToken.getType());
+            }
+
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
+
+        return null;
+    }
+
 
     public Map<String, Integer> getLootChestData(OfflinePlayer player, String column) {
         Connection conn = null;
@@ -128,7 +154,7 @@ public class SQLite implements TDatabase {
         return new HashMap<>();
     }
 
-    public boolean pullData(OfflinePlayer player, Map<String, Integer> data, String column) {
+    public <T> boolean pullData(OfflinePlayer player, T data, String column) {
         try {
             Connection c = getConnection();
             PreparedStatement ps = c.prepareStatement("UPDATE hlootchest SET " + column + "=? WHERE player=?");

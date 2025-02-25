@@ -1,7 +1,7 @@
 package org.twightlight.hlootchest;
 
-import org.bstats.bukkit.Metrics;
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.twightlight.hlootchest.api.database.DatabaseType;
@@ -22,8 +22,10 @@ import org.twightlight.hlootchest.listeners.Setup;
 import org.twightlight.hlootchest.supports.PlaceholdersAPI;
 import org.twightlight.hlootchest.utils.ColorUtils;
 import org.twightlight.hlootchest.utils.Utility;
+import org.twightlight.hlootchest.utils.VersionChecker;
 
 import java.io.File;
+import java.util.Set;
 
 public final class HLootchest extends JavaPlugin {
 
@@ -40,7 +42,6 @@ public final class HLootchest extends JavaPlugin {
     public static ColorUtils colorUtils;
     private static final String version = Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1];
 
-
     @Override
     public void onEnable() {
         api = new API();
@@ -52,13 +53,14 @@ public final class HLootchest extends JavaPlugin {
         loadDatabase();
         loadPlaceholdersAPI();
         loadCredit();
-        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-            api.getSessionUtil().closeAll();
-        }));
+        new VersionChecker(this, "122671").checkForUpdates();
+        Cleaner();
+
     }
 
     @Override
     public void onDisable() {
+        api.getSessionUtil().closeAll();
         Bukkit.getScheduler().cancelTasks(this);
         Utility.info("HLootchest has been disabled successfully!");
         Utility.info("Current Version: " + version);
@@ -188,6 +190,18 @@ public final class HLootchest extends JavaPlugin {
         }
     }
 
+    private void Cleaner() {
+        Set<String> boxlist = nms.getRegistrationData().keySet();
+
+        for (String box : boxlist) {
+            Location loc = nms.stringToLocation(templateConfig.getString(box + ".settings.player-location"));
+            Utility.clean(loc.getChunk(), "removeOnRestart");
+
+        }
+
+    }
+
+
     public static NMSHandler getNms() {
         return nms;
     }
@@ -214,7 +228,7 @@ public final class HLootchest extends JavaPlugin {
 
 
     public static String getVersion() {
-        return "1.0.0";
+        return "1.0.2";
     }
 
     public static String getAPIVersion() {
