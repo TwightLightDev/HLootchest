@@ -39,11 +39,9 @@ public class Reward {
         Inventory inv;
         if (isChild) {
             inv = Bukkit.createInventory(null, 54, ChatColor.GRAY + "Editing child...");
-
         } else {
             inv = Bukkit.createInventory(null, 54, ChatColor.GRAY + "Editing reward...");
         }
-
 
         session.setInvConstructor((MenuHandler<Reward>) () -> new Reward(p, templateFile, name, path, session, isChild));
         setItems(inv);
@@ -70,7 +68,6 @@ public class Reward {
                     11,
                     (e) -> {
                         p.closeInventory();
-                        final SetupSessions session2 = session;
                         ChatSessions sessions = new ChatSessions(p);
                         sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
                             if (input.equals("cancel")) {
@@ -260,13 +257,26 @@ public class Reward {
                     });
             MenuManager.setItem(p,
                     inv,
-                    HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 3,
+                    HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
                             "&bChildren",
                             Arrays.asList(new String[]{"&eClick to browse!"}),
                             false),
                     31,
                     (e) -> {
                         new ChildrenMenu(p, templateFile, name, path + ".children", session, true);
+                    });
+            MenuManager.setItem(p,
+                    inv,
+                    HLootchest.getNms().createItem(XMaterial.SHEARS.parseMaterial(), "", 0,
+                            "&bHolding Icon",
+                            Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".holding-icon", true)),
+                                    "", "&eClick to change!"}),
+                            false),
+                    32,
+                    (e) -> {
+                        templateFile.setNotSave(name + path + ".holding-icon", !templateFile.getBoolean(name + path + ".holding-icon", true));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".holding-icon")));
+                        setItems(inv);
                     });
             List<String> actions = Collections.emptyList();
             if (templateFile.getYml().contains(name + path + ".actions")) {

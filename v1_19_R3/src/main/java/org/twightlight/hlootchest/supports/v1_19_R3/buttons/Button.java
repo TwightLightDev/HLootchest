@@ -177,7 +177,8 @@ public class Button implements TButton {
                 String iconMaterial = config.getString(thisIconPath + ".material");
                 String iconHeadValue = config.getString(thisIconPath + ".head_value");
                 int iconData = (config.getYml().contains(thisIconPath + ".data")) ? config.getInt(thisIconPath + ".data") : 0;
-                ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false);
+                boolean isGlowing = config.getBoolean(thisIconPath + ".glowing", false);
+                ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), isGlowing);
                 icons.add(thisIcon);
             }
             (new BukkitRunnable() {
@@ -320,7 +321,8 @@ public class Button implements TButton {
                                     String iconMaterial = config.getString(thisIconPath + ".material");
                                     String iconHeadValue = config.getString(thisIconPath + ".head_value");
                                     int iconData = (config.getYml().contains(thisIconPath + ".data")) ? config.getInt(thisIconPath + ".data") : 0;
-                                    ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false);
+                                    boolean isGlowing = config.getBoolean(thisIconPath + ".glowing", false);
+                                    ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), isGlowing);
                                     icons.add(thisIcon);
                                 }
 

@@ -54,7 +54,6 @@ public final class HLootchest extends JavaPlugin {
         loadPlaceholdersAPI();
         loadCredit();
         new VersionChecker(this, "122671").checkForUpdates();
-        Cleaner();
 
     }
 
@@ -190,17 +189,6 @@ public final class HLootchest extends JavaPlugin {
         }
     }
 
-    private void Cleaner() {
-        Set<String> boxlist = nms.getRegistrationData().keySet();
-
-        for (String box : boxlist) {
-            Location loc = nms.stringToLocation(templateConfig.getString(box + ".settings.player-location"));
-            Utility.clean(loc.getChunk(), "removeOnRestart");
-
-        }
-
-    }
-
 
     public static NMSHandler getNms() {
         return nms;
@@ -228,7 +216,7 @@ public final class HLootchest extends JavaPlugin {
 
 
     public static String getVersion() {
-        return "1.0.2";
+        return "1.0.3";
     }
 
     public static String getAPIVersion() {

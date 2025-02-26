@@ -7,6 +7,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
+import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.objects.TBox;
@@ -115,18 +116,19 @@ public class LootChestSessions extends SessionsManager implements TSessions {
     public void close() {
         box.removeVehicle(player);
         box.getOwner().teleport(box.getPlayerInitialLoc());
+        box.getOwner().setVelocity(new Vector(0, 0, 0));
         HLootchest.getAPI().getDatabaseUtil().getDb().pullData(box.getOwner(), "", "fallback_loc");
         box.remove();
-        for (Player online : Bukkit.getOnlinePlayers()) {
-            if (!online.equals(player)) {
-                online.showPlayer(player);
-            }
-        }
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.FUNCTIONAL);
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.REWARD);
         player.setGameMode(GameMode.SPECTATOR);
         player.setGameMode(GameMode.SURVIVAL);
         SessionsManager.sessions.remove(player);
+        for (Player online : Bukkit.getOnlinePlayers()) {
+            if (!online.equals(player)) {
+                online.showPlayer(player);
+            }
+        }
     }
 
     public boolean isOpening() {

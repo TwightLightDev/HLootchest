@@ -216,16 +216,17 @@ public class Utility {
         }
     }
 
-    public static void clean(Chunk chunk, String tag) {
+    public static void clean(Chunk chunk, String name) {
         boolean isLoaded = chunk.isLoaded();
         if (!isLoaded) {
             chunk.load();
         }
         for (Entity entity : chunk.getEntities()) {
-            if (entity.hasMetadata(tag)) {
+            if (entity.getCustomName() != null && entity.getCustomName().contains(name) && !(entity instanceof Player)) {
                 entity.remove();
             }
         }
+
         if (!isLoaded) {
             chunk.unload();
         }

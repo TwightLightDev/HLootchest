@@ -2,6 +2,8 @@ package org.twightlight.hlootchest.database;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.google.gson.JsonSyntaxException;
+import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.database.DatabaseType;
@@ -97,61 +99,34 @@ public class SQLite implements TDatabase {
     }
 
 
-    public <T> T getLootChestData(OfflinePlayer player, String column, TypeToken<T> typeToken) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        try {
-            conn = getConnection();
-
-            ps = conn.prepareStatement("SELECT " + column + " FROM hlootchest WHERE player = ?");
+    public <T> T getLootChestData(OfflinePlayer player, String column, TypeToken<T> typeToken, T fallback) {
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM hlootchest WHERE player = ?")) {
 
             ps.setString(1, player.getUniqueId().toString());
             ResultSet rs = ps.executeQuery();
 
             if (rs.next()) {
                 String dataString = rs.getString(column);
-                return new Gson().fromJson(dataString, typeToken.getType());
-            }
 
+                if (dataString != null) {
+                    try {
+                        return new Gson().fromJson(dataString, typeToken.getType());
+                    } catch (JsonSyntaxException e) {
+                        Bukkit.getLogger().warning("Invalid JSON in database for " + column + ": " + dataString);
+                    }
+                }
+            }
         } catch (SQLException e) {
             throw new RuntimeException(e);
         }
 
-        return null;
+        return fallback;
     }
 
 
     public Map<String, Integer> getLootChestData(OfflinePlayer player, String column) {
-        Connection conn = null;
-        PreparedStatement ps = null;
-        try {
-            conn = getConnection();
-            ps = conn.prepareStatement("SELECT " + column + " FROM hlootchest WHERE player = ?");
-            ps.setString(1, player.getUniqueId().toString());
-            ResultSet rs = ps.executeQuery();
-            Map<String, Integer> lootchests = null;
-            Gson gson = new Gson();
-            if (rs.next()) {
-                String lootchestsString = rs.getString(column);
-                Type type = new TypeToken<Map<String, Integer>>() {
-                }.getType();
-                lootchests = gson.fromJson(lootchestsString, type);
-            }
-            if (lootchests != null)
-                return lootchests;
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } finally {
-            try {
-                if (ps != null)
-                    ps.close();
-                if (conn != null)
-                    conn.close();
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-        }
-        return new HashMap<>();
+        return getLootChestData(player, column, new TypeToken<Map<String, Integer>>() {}, new HashMap<>());
     }
 
     public <T> boolean pullData(OfflinePlayer player, T data, String column) {

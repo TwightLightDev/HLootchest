@@ -1,11 +1,13 @@
 package org.twightlight.hlootchest.listeners;
 
 import com.google.common.reflect.TypeToken;
+import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
+import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.utils.Utility;
 
@@ -34,10 +36,15 @@ public class PlayerJoin implements Listener{
         HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, lchsData, "lootchests");
         HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, lchsData1, "opened");
 
-        String locS = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "fallback_loc", TypeToken.of(String.class));
+        String locS = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "fallback_loc", TypeToken.of(String.class), null);
         try {
             Location loc = Utility.stringToLocation(locS);
+
+            Chunk chunk = loc.getChunk();
+            Utility.clean(chunk, "LootchestVehicle");
+
             player.teleport(loc);
+            player.setVelocity(new Vector(0, 0, 0));
             HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, "", "fallback_loc");
         } catch (Exception ignored) {}
     }

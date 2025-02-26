@@ -238,13 +238,26 @@ public class Button {
                     });
             MenuManager.setItem(p,
                     inv,
-                    HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 3,
+                    HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
                             "&bChildren",
                             Arrays.asList(new String[]{"&eClick to browse!"}),
                             false),
                     30,
                     (e) -> {
                         new ChildrenMenu(p, templateFile, name, path + ".children", session, false);
+                    });
+            MenuManager.setItem(p,
+                    inv,
+                    HLootchest.getNms().createItem(XMaterial.SHEARS.parseMaterial(), "", 0,
+                            "&bHolding Icon",
+                            Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".holding-icon", true)),
+                                    "", "&eClick to change!"}),
+                            false),
+                    31,
+                    (e) -> {
+                        templateFile.setNotSave(name + path + ".holding-icon", !templateFile.getBoolean(name + path + ".holding-icon", true));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".holding-icon")));
+                        setItems(inv);
                     });
             List<String> actions = Collections.emptyList();
             if (templateFile.getYml().contains(name + path + ".actions")) {

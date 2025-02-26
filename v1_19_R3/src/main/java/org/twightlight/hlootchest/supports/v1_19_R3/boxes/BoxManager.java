@@ -10,6 +10,7 @@ import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
@@ -71,6 +72,7 @@ public class BoxManager implements TBox {
 
         if (vehicles.get(owner) == null) {
             owner.teleport(Plocation);
+            owner.setVelocity(new Vector(0, 0, 0));
 
             Chunk chunk = Plocation.getChunk();
             if (!chunk.isLoaded()) {
@@ -95,7 +97,6 @@ public class BoxManager implements TBox {
             vehicle.setVisibleByDefault(false);
             player.showEntity(Main.handler.plugin, vehicle);
             vehicle.setInvisible(true);
-            vehicle.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
 
 
             vehicle.addPassenger(owner);

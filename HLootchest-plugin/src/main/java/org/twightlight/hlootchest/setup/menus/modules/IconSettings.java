@@ -131,6 +131,19 @@ public class IconSettings {
                                 });
                     });
                 });
+        MenuManager.setItem(p,
+                inv,
+                HLootchest.getNms().createItem(XMaterial.GLOWSTONE_DUST.parseMaterial(), "", 0,
+                        "&bGlowing",
+                        Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".glowing", false)),
+                                "", "&eClick to change!"}),
+                        templateFile.getBoolean(name + path + ".glowing", false)),
+                13,
+                (e) -> {
+                    templateFile.setNotSave(name + path + ".glowing", !templateFile.getBoolean(name + path + ".glowing", false));
+                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".glowing")));
+                    setItems(inv);
+                });
         if (XMaterial.PLAYER_HEAD == XMaterial.valueOf(templateFile.getString(name + path+ ".material", "BEDROCK"))) {
             MenuManager.setItem(p,
                     inv,
@@ -141,7 +154,7 @@ public class IconSettings {
                             Arrays.asList(new String[] {"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".head_value", "null"),
                                     "", "&eClick to set new value!"}),
                             false),
-                    13,
+                    14,
                     (e) -> {
                         p.closeInventory();
                         ChatSessions sessions = new ChatSessions(p);

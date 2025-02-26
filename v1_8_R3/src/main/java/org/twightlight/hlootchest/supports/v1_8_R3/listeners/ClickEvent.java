@@ -54,7 +54,7 @@ public class ClickEvent extends PlayerConnection {
         }
 
         if (action == PacketPlayInUseEntity.EnumEntityUseAction.ATTACK || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT || action == PacketPlayInUseEntity.EnumEntityUseAction.INTERACT_AT) {
-            if (((Button) button).getSound() != null) {
+            if ((button).getSound() != null) {
                 Main.handler.playSound(player.getBukkitEntity(), player.getBukkitEntity().getLocation(), ((Button) button).getSound().getSoundString(), ((Button) button).getSound().getYaw(), ((Button) button).getSound().getPitch());
             }
             List<String> actions = button.getActions();

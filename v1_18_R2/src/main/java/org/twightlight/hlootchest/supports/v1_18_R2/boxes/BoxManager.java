@@ -29,6 +29,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
+import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
@@ -77,15 +78,15 @@ public class BoxManager implements TBox {
     public BoxManager(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
         Main.api.getSessionUtil().getSessionFromPlayer(player).setNewBox(this);
         owner = player;
-        initialLocation = initialLocation;
-        box = createArmorStand(location, "", false);
-        clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
-        instance = this;
-        id = box.ae();
-        loc = location;
-        icon = icon;
-        config = config;
-        boxid = boxid;
+        this.initialLocation = initialLocation;
+        this.box = createArmorStand(location, "", false);
+        this.clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
+        this.instance = this;
+        this.id = box.ae();
+        this.loc = location;
+        this.icon = icon;
+        this.config = config;
+        this.boxid = boxid;
         Main.rotate(box, config, boxid + ".settings");
         PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(box.ae(), box.ai(), true);
         (((CraftPlayer)owner).getHandle()).b.a(metadataPacket);
@@ -100,6 +101,7 @@ public class BoxManager implements TBox {
         playerLocation = Plocation;
         if (vehicles.get(owner) == null) {
             owner.teleport(Plocation);
+            owner.setVelocity(new Vector(0, 0, 0));
             Chunk chunk = Plocation.getChunk();
             if (!chunk.isLoaded()) {
                 chunk.load();
@@ -119,7 +121,6 @@ public class BoxManager implements TBox {
             vehicle.setInvulnerable(true);
             vehicle.addPassenger(owner);
             vehicles.put(owner, vehicle);
-            vehicle.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
 
         }
         LCSpawnEvent event = new LCSpawnEvent(owner, this);
