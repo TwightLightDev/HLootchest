@@ -1,6 +1,5 @@
 package org.twightlight.hlootchest.supports.v1_18_R2.boxes;
 
-import com.cryptomorin.xseries.XPotion;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.chat.IChatBaseComponent;
 import net.minecraft.network.protocol.Packet;
@@ -18,7 +17,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.World;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_18_R2.CraftWorld;
 import org.bukkit.craftbukkit.v1_18_R2.entity.CraftPlayer;
@@ -27,14 +25,11 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.events.LCSpawnEvent;
-import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
-import org.twightlight.hlootchest.api.objects.TBox;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
+import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
+import org.twightlight.hlootchest.api.interfaces.TBox;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_18_R2.Main;
 
 import java.util.*;
@@ -78,6 +73,21 @@ public class BoxManager implements TBox {
     public BoxManager(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
         Main.api.getSessionUtil().getSessionFromPlayer(player).setNewBox(this);
         owner = player;
+        Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
+        playerLocation = Plocation;
+        if (vehicles.get(owner) == null) {
+            Pig vehicle = (Pig)Plocation.getWorld().spawnEntity(Plocation.clone().add(0.0D, -0.3D, 0.0D), EntityType.PIG);
+            vehicle.setInvisible(true);
+            vehicle.setCustomName("LootchestVehicle");
+            vehicle.setCustomNameVisible(false);
+            vehicle.setSilent(true);
+            vehicle.setCollidable(false);
+            vehicle.setGravity(false);
+            vehicle.setAI(false);
+            vehicle.setInvulnerable(true);
+            vehicle.addPassenger(owner);
+            vehicles.put(owner, vehicle);
+        }
         this.initialLocation = initialLocation;
         this.box = createArmorStand(location, "", false);
         this.clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
@@ -97,32 +107,6 @@ public class BoxManager implements TBox {
         if (config.getList(boxid + ".rewards-location") != null)
             for (String reward : config.getList(boxid + ".rewards-location"))
                 rewardsLocation.add(Main.handler.stringToLocation(reward));
-        Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
-        playerLocation = Plocation;
-        if (vehicles.get(owner) == null) {
-            owner.teleport(Plocation);
-            owner.setVelocity(new Vector(0, 0, 0));
-            Chunk chunk = Plocation.getChunk();
-            if (!chunk.isLoaded()) {
-                chunk.load();
-            }
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                if (!online.equals(owner))
-                    online.hidePlayer(Main.handler.plugin, owner);
-            }
-            Pig vehicle = (Pig)Plocation.getWorld().spawnEntity(Plocation.clone().add(0.0D, -0.3D, 0.0D), EntityType.PIG);
-            vehicle.setInvisible(true);
-            vehicle.setCustomName("LootchestVehicle");
-            vehicle.setCustomNameVisible(false);
-            vehicle.setSilent(true);
-            vehicle.setCollidable(false);
-            vehicle.setGravity(false);
-            vehicle.setAI(false);
-            vehicle.setInvulnerable(true);
-            vehicle.addPassenger(owner);
-            vehicles.put(owner, vehicle);
-
-        }
         LCSpawnEvent event = new LCSpawnEvent(owner, this);
         Bukkit.getPluginManager().callEvent((Event)event);
     }

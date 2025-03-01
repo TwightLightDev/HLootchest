@@ -7,9 +7,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.objects.TBox;
-import org.twightlight.hlootchest.api.objects.TButton;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.NMSService;
+import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
+import org.twightlight.hlootchest.api.interfaces.TBox;
+import org.twightlight.hlootchest.api.interfaces.TButton;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 
 import java.util.List;
 import java.util.Map;
@@ -25,6 +27,7 @@ public abstract class NMSHandler {
         this.plugin = plugin;
     }
 
+    public abstract NMSService getNMSService();
     public abstract void registerButtonClick(Player player);
     public abstract void spawnButton(Location location, ButtonType typePlayer, Player player, ItemStack icon, String path, TConfigManager config);
     public abstract TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config, Location initialLocation);

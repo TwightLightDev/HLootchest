@@ -6,9 +6,9 @@ import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_16_R3.*;
-import org.bukkit.*;
 import org.bukkit.Material;
 import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
@@ -19,14 +19,16 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.objects.TBox;
-import org.twightlight.hlootchest.api.objects.TButton;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.api.supports.LootChestFactory;
+import org.twightlight.hlootchest.api.interfaces.NMSService;
+import org.twightlight.hlootchest.api.interfaces.TBox;
+import org.twightlight.hlootchest.api.interfaces.TButton;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_16_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_16_R3.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_16_R3.listeners.ClickEvent;
+import org.twightlight.hlootchest.supports.v1_16_R3.utilities.NMSUtil;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -38,14 +40,20 @@ public class Main extends NMSHandler {
 
     public static NMSHandler handler;
     public static HLootchest api;
+    public static NMSUtil nmsUtil;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
 
     public Main(Plugin pl, String name, HLootchest api) {
         super(pl, name);
         handler = this;
         this.api = api;
+        nmsUtil = new NMSUtil();
     }
 
+    @Override
+    public NMSService getNMSService() {
+        return nmsUtil;
+    }
     public static String p(Player p, String value) {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
             return ChatColor.translateAlternateColorCodes('&', value);

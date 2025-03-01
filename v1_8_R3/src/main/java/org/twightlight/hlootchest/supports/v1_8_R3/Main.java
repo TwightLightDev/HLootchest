@@ -20,14 +20,16 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.objects.TBox;
-import org.twightlight.hlootchest.api.objects.TButton;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.api.supports.LootChestFactory;
+import org.twightlight.hlootchest.api.interfaces.NMSService;
+import org.twightlight.hlootchest.api.interfaces.TBox;
+import org.twightlight.hlootchest.api.interfaces.TButton;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_8_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_8_R3.listeners.ClickEvent;
+import org.twightlight.hlootchest.supports.v1_8_R3.utilities.NMSUtil;
 
 import java.lang.reflect.Field;
 import java.util.*;
@@ -40,11 +42,18 @@ public class Main extends NMSHandler {
     public static NMSHandler handler;
     public static HLootchest api;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
+    public static NMSUtil nmsUtil;
 
     public Main(Plugin pl, String name, HLootchest api) {
         super(pl, name);
         handler = this;
         this.api = api;
+        nmsUtil = new NMSUtil();
+    }
+
+    @Override
+    public NMSService getNMSService() {
+        return nmsUtil;
     }
 
     public static String p(Player p, String value) {
@@ -202,7 +211,6 @@ public class Main extends NMSHandler {
     public Map<String, LootChestFactory> getRegistrationData() {
         return tboxdata;
     }
-
 
     public static Vector3f stringToVector3f(String str) {
         String[] parts = str.split(",");

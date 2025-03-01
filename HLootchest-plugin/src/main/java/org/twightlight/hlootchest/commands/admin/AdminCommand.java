@@ -2,7 +2,6 @@ package org.twightlight.hlootchest.commands.admin;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -10,11 +9,11 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.sessions.SetupSessions;
-import org.twightlight.hlootchest.setup.menus.LCSMainMenu;
-import org.twightlight.hlootchest.setup.menus.TSMainMenu;
+import org.twightlight.hlootchest.setup.LCSMainMenu;
+import org.twightlight.hlootchest.setup.TSMainMenu;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.io.File;
@@ -180,6 +179,14 @@ public class AdminCommand implements CommandExecutor {
                         } catch (NullPointerException ex) {
                             throw new NullPointerException(ex.getMessage());
                         }
+                    case "clean-debug":
+                        if (Utility.isDebug()) {
+                            Utility.clean(p.getLocation().getChunk(), "LootchestVehicle");
+                            Utility.clean(p.getLocation().getChunk(), "removeOnRestart");
+                        } else {
+                            p.sendMessage(ChatColor.RED + "Not in debug mode!");
+                        }
+                        return true;
                     default:
                         Utility.sendHelp(p, "admin");
                         return true;

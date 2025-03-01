@@ -9,11 +9,11 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.objects.TSessions;
+import org.twightlight.hlootchest.api.interfaces.TSessions;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSessions;
-import org.twightlight.hlootchest.setup.functionals.ClickableAction;
-import org.twightlight.hlootchest.setup.menus.MenuManager;
+import org.twightlight.hlootchest.api.interfaces.functional.Executable;
+import org.twightlight.hlootchest.setup.MenuManager;
 
 public class Setup implements Listener {
     @EventHandler
@@ -23,7 +23,7 @@ public class Setup implements Listener {
             TSessions session = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(((Player) e.getWhoClicked()));
             if (session instanceof SetupSessions) {
                 Player p = (Player) e.getWhoClicked();
-                ClickableAction action = MenuManager.getButtonsList().get(p.getUniqueId()).get(e.getCurrentItem());
+                Executable action = MenuManager.getButtonsList().get(p.getUniqueId()).get(e.getCurrentItem());
                 if (action != null) {
                     action.execute(e);
                 }

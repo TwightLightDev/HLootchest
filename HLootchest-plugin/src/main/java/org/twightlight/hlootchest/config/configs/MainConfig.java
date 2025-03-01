@@ -16,7 +16,7 @@ public class MainConfig extends ConfigManager {
         yml.addDefault("storage.source", "SQLite");
 
         yml.addDefault("allowed-commands.opening", Arrays.asList("lc leave"));
-        yml.addDefault("allowed-commands.setup", Arrays.asList("lc edit"));
+        yml.addDefault("allowed-commands.setup", Arrays.asList("lc edit", "lc leave"));
 
 
         yml.options().copyDefaults(true);

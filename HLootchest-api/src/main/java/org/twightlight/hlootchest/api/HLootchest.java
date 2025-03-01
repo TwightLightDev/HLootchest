@@ -1,9 +1,9 @@
 package org.twightlight.hlootchest.api;
 
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.api.database.TDatabase;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.api.objects.TSessions;
+import org.twightlight.hlootchest.api.interfaces.TDatabase;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.TSessions;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 
 import java.util.Map;
@@ -41,6 +41,5 @@ public interface HLootchest {
         void leaveLcSession(Player p);
 
         boolean checkConditions(Player p, TConfigManager config, String path);
-
     }
 }

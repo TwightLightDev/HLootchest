@@ -6,8 +6,8 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.enchantments.Enchantment;
 import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
@@ -27,9 +27,11 @@ import java.util.stream.Collectors;
 
 public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
 
+
     public Main(Plugin pl, String name, HLootchest api) {
         super(pl, name, api);
     }
+
 
     @Override
     public ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted) {

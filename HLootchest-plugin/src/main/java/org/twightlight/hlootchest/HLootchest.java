@@ -1,12 +1,11 @@
 package org.twightlight.hlootchest;
 
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.twightlight.hlootchest.api.database.DatabaseType;
-import org.twightlight.hlootchest.api.database.TDatabase;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.enums.DatabaseType;
+import org.twightlight.hlootchest.api.interfaces.TDatabase;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.commands.admin.AdminCommand;
 import org.twightlight.hlootchest.commands.admin.AdminTabCompleter;
@@ -25,7 +24,6 @@ import org.twightlight.hlootchest.utils.Utility;
 import org.twightlight.hlootchest.utils.VersionChecker;
 
 import java.io.File;
-import java.util.Set;
 
 public final class HLootchest extends JavaPlugin {
 
@@ -107,7 +105,7 @@ public final class HLootchest extends JavaPlugin {
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                 break;
             default:
-                Utility.info("Sorry, this version is unsupported! Hlootchest will be disable!");
+                Utility.info("Sorry, this version is unsupported! HLootChest will be disable!");
                 Bukkit.getPluginManager().disablePlugin(this);
         }
 
@@ -216,7 +214,7 @@ public final class HLootchest extends JavaPlugin {
 
 
     public static String getVersion() {
-        return "1.0.3";
+        return "1.0.4";
     }
 
     public static String getAPIVersion() {

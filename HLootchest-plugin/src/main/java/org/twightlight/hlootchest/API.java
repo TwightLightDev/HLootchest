@@ -2,9 +2,9 @@ package org.twightlight.hlootchest;
 
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.HLootchest;
-import org.twightlight.hlootchest.api.database.TDatabase;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.api.objects.TSessions;
+import org.twightlight.hlootchest.api.interfaces.TDatabase;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.TSessions;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.sessions.LootChestSessions;
 import org.twightlight.hlootchest.utils.Utility;
@@ -49,7 +49,6 @@ public class API implements HLootchest {
 
     private static class DatabaseUtil implements HLootchest.DatabaseUtil {
 
-
         public TDatabase getDb() {
             return org.twightlight.hlootchest.HLootchest.db;
         }
@@ -85,7 +84,6 @@ public class API implements HLootchest {
     public HLootchest.PlayerUtil getPlayerUtil() {
         return playerUtil;
     }
-    public NMSHandler getNMS() {return org.twightlight.hlootchest.HLootchest.getNms();
-    }
+    public NMSHandler getNMS() {return org.twightlight.hlootchest.HLootchest.getNms(); }
 
 }

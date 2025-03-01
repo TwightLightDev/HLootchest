@@ -15,12 +15,12 @@ import org.bukkit.event.vehicle.VehicleExitEvent;
 import org.bukkit.inventory.ItemStack;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.events.PlayerButtonClickEvent;
-import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
-import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.objects.TButton;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.api.objects.TSessions;
+import org.twightlight.hlootchest.api.events.player.PlayerButtonClickEvent;
+import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
+import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
+import org.twightlight.hlootchest.api.interfaces.TButton;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.TSessions;
 import org.twightlight.hlootchest.sessions.LootChestSessions;
 import org.twightlight.hlootchest.utils.Utility;
 
@@ -146,6 +146,7 @@ public class LootChests implements Listener {
                     }
                 }
                 e.setCancelled(true);
+                p.sendMessage(Utility.getMsg(p, "noCommand"));
             } else {
                 List<String> allowed_commands = HLootchest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.setup");
                 for (String command : allowed_commands) {
@@ -154,6 +155,7 @@ public class LootChests implements Listener {
                     }
                 }
                 e.setCancelled(true);
+                p.sendMessage(Utility.getMsg(p, "noCommand"));
             }
         }
     }

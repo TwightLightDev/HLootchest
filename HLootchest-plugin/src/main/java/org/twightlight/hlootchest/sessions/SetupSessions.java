@@ -1,10 +1,13 @@
 package org.twightlight.hlootchest.sessions;
 
+import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.api.objects.TBox;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.api.objects.TSessions;
-import org.twightlight.hlootchest.setup.functionals.MenuHandler;
+import org.twightlight.hlootchest.api.events.session.SessionCloseEvent;
+import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
+import org.twightlight.hlootchest.api.interfaces.TBox;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.TSessions;
+import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 
 
 public class SetupSessions extends SessionsManager implements TSessions {
@@ -19,12 +22,16 @@ public class SetupSessions extends SessionsManager implements TSessions {
         player = p;
         SessionsManager.sessions.putIfAbsent(p, this);
         conf = configManager;
+        SessionStartEvent event = new SessionStartEvent(player, this);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
 
     public void close() {
         SessionsManager.sessions.remove(player);
         player.closeInventory();
+        SessionCloseEvent event = new SessionCloseEvent(player, this);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     public boolean isOpening() {

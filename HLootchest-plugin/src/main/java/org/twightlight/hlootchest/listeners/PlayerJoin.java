@@ -11,7 +11,6 @@ import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.utils.Utility;
 
-import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
 
@@ -40,8 +39,10 @@ public class PlayerJoin implements Listener{
         try {
             Location loc = Utility.stringToLocation(locS);
 
-            Chunk chunk = loc.getChunk();
+
+            Chunk chunk = player.getLocation().getChunk();
             Utility.clean(chunk, "LootchestVehicle");
+            Utility.clean(chunk, "removeOnRestart");
 
             player.teleport(loc);
             player.setVelocity(new Vector(0, 0, 0));

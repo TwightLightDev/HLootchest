@@ -4,7 +4,6 @@ import com.cryptomorin.xseries.XPotion;
 import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPig;
@@ -14,14 +13,12 @@ import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.events.LCSpawnEvent;
-import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
-import org.twightlight.hlootchest.api.objects.TBox;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
+import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
+import org.twightlight.hlootchest.api.interfaces.TBox;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_12_R1.Main;
 
 import java.util.ArrayList;
@@ -56,6 +53,36 @@ public class BoxManager implements TBox {
 
         this.owner = player;
 
+
+        Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
+
+        playerLocation = Plocation;
+
+        if (vehicles.get(owner) == null) {
+
+            Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
+            vehicle.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));
+
+            vehicle.setCustomName("LootchestVehicle");
+            vehicle.setCustomNameVisible(false);
+            vehicle.setSilent(true);
+            vehicle.setCollidable(false);
+            vehicle.setGravity(false);
+
+
+            EntityPig entityPig = ((CraftPig) vehicle).getHandle();
+            NBTTagCompound tag = new NBTTagCompound();
+
+            entityPig.c(tag);
+
+            tag.setInt("NoAI", 1);
+
+            entityPig.f(tag);
+
+            vehicle.addPassenger(owner);
+            vehicles.put(owner, vehicle);
+        }
+
         this.initialLocation = initialLocation;
 
         this.box = createArmorStand(location, "", false);
@@ -88,49 +115,6 @@ public class BoxManager implements TBox {
             }
         }
 
-        Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
-
-        playerLocation = Plocation;
-
-        if (vehicles.get(owner) == null) {
-
-            owner.teleport(Plocation);
-            owner.setVelocity(new Vector(0, 0, 0));
-
-            Chunk chunk = Plocation.getChunk();
-            if (!chunk.isLoaded()) {
-                chunk.load();
-            }
-
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                if (!online.equals(owner)) {
-                    online.hidePlayer(Main.handler.plugin, owner);
-                }
-            }
-
-
-            Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
-            vehicle.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));
-
-            vehicle.setCustomName("LootchestVehicle");
-            vehicle.setCustomNameVisible(false);
-            vehicle.setSilent(true);
-            vehicle.setCollidable(false);
-            vehicle.setGravity(false);
-
-
-            EntityPig entityPig = ((CraftPig) vehicle).getHandle();
-            NBTTagCompound tag = new NBTTagCompound();
-
-            entityPig.c(tag);
-
-            tag.setInt("NoAI", 1);
-
-            entityPig.f(tag);
-
-            vehicle.addPassenger(owner);
-            vehicles.put(owner, vehicle);
-        }
         LCSpawnEvent event = new LCSpawnEvent(owner, this);
         Bukkit.getPluginManager().callEvent(event);
     }

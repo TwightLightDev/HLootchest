@@ -1,21 +1,19 @@
 package org.twightlight.hlootchest.supports.v1_19_R3.boxes;
 
-import com.cryptomorin.xseries.XPotion;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.Chunk;
 import org.bukkit.Location;
-import org.bukkit.entity.*;
+import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.EntityType;
+import org.bukkit.entity.Pig;
+import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.metadata.FixedMetadataValue;
-import org.bukkit.potion.PotionEffect;
-import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.events.LCSpawnEvent;
-import org.twightlight.hlootchest.api.events.PlayerOpenLCEvent;
-import org.twightlight.hlootchest.api.objects.TBox;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
+import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
+import org.twightlight.hlootchest.api.interfaces.TBox;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_19_R3.Main;
 
 import java.util.ArrayList;
@@ -47,6 +45,29 @@ public class BoxManager implements TBox {
     public BoxManager(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
         Main.api.getSessionUtil().getSessionFromPlayer(player).setNewBox(this);
         this.owner = player;
+        Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
+
+        playerLocation = Plocation;
+
+        if (vehicles.get(owner) == null) {
+
+            Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
+
+            vehicle.setCustomName("LootchestVehicle");
+            vehicle.setCustomNameVisible(false);
+            vehicle.setAI(false);
+            vehicle.setSilent(true);
+            vehicle.setCollidable(false);
+            vehicle.setInvulnerable(true);
+            vehicle.setGravity(false);
+            vehicle.setVisibleByDefault(false);
+            player.showEntity(Main.handler.plugin, vehicle);
+            vehicle.setInvisible(true);
+
+
+            vehicle.addPassenger(owner);
+            vehicles.put(owner, vehicle);
+        }
         this.initialLocation = initialLocation;
         this.box = this.createArmorStand(location, "", false);
         this.clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
@@ -66,42 +87,6 @@ public class BoxManager implements TBox {
                 this.rewardsLocation.add(Main.handler.stringToLocation(string));
             }
         }
-        Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
-
-        playerLocation = Plocation;
-
-        if (vehicles.get(owner) == null) {
-            owner.teleport(Plocation);
-            owner.setVelocity(new Vector(0, 0, 0));
-
-            Chunk chunk = Plocation.getChunk();
-            if (!chunk.isLoaded()) {
-                chunk.load();
-            }
-
-            for (Player online : Bukkit.getOnlinePlayers()) {
-                if (!online.equals(owner)) {
-                    online.hidePlayer(Main.handler.plugin, owner);
-                }
-            }
-
-            Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
-
-            vehicle.setCustomName("LootchestVehicle");
-            vehicle.setCustomNameVisible(false);
-            vehicle.setAI(false);
-            vehicle.setSilent(true);
-            vehicle.setCollidable(false);
-            vehicle.setInvulnerable(true);
-            vehicle.setGravity(false);
-            vehicle.setVisibleByDefault(false);
-            player.showEntity(Main.handler.plugin, vehicle);
-            vehicle.setInvisible(true);
-
-
-            vehicle.addPassenger(owner);
-            vehicles.put(owner, vehicle);
-        }
 
         LCSpawnEvent lCSpawnEvent = new LCSpawnEvent(this.owner, this);
         Bukkit.getPluginManager().callEvent(lCSpawnEvent);
@@ -115,7 +100,6 @@ public class BoxManager implements TBox {
         armorStand.setGravity(false);
         armorStand.setRotation(location.getYaw(), location.getPitch());
         armorStand.setVisibleByDefault(false);
-        armorStand.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
 
         return armorStand;
     }

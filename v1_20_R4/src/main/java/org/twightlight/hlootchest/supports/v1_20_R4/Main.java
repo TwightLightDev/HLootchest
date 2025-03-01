@@ -30,6 +30,8 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
     public Main(Plugin pl, String name, HLootchest api) {
         super(pl, name, api);
     }
+
+
     @Override
     public ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted) {
         ItemStack i = handler.createItemStack(XMaterial.matchXMaterial(material).name(), 1, (short)data);

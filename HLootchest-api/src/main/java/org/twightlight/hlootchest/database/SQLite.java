@@ -6,12 +6,11 @@ import com.google.gson.JsonSyntaxException;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
-import org.twightlight.hlootchest.api.database.DatabaseType;
-import org.twightlight.hlootchest.api.database.TDatabase;
+import org.twightlight.hlootchest.api.enums.DatabaseType;
+import org.twightlight.hlootchest.api.interfaces.TDatabase;
 
 import java.io.File;
 import java.io.IOException;
-import java.lang.reflect.Type;
 import java.sql.*;
 import java.util.HashMap;
 import java.util.Map;

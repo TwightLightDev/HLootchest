@@ -4,7 +4,6 @@ import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.chat.IChatBaseComponent;
-import net.minecraft.network.protocol.Packet;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
 import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
@@ -19,21 +18,19 @@ import net.objecthunter.exp4j.ExpressionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.Sound;
 import org.bukkit.craftbukkit.v1_17_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
-import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.events.ButtonSpawnEvent;
-import org.twightlight.hlootchest.api.objects.TButton;
-import org.twightlight.hlootchest.api.objects.TButtonSound;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.events.lootchest.ButtonSpawnEvent;
+import org.twightlight.hlootchest.api.interfaces.TButton;
+import org.twightlight.hlootchest.utils.ButtonSound;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_17_R1.Main;
 import org.twightlight.hlootchest.supports.v1_17_R1.utilities.Animations;
 
@@ -53,7 +50,7 @@ public class Button implements TButton {
     private boolean moveable = true;
     private ButtonType type;
     private List<String> actions;
-    private TButtonSound sound;
+    private ButtonSound sound;
     private boolean isHiding = false;
     private ItemStack icon = null;
     private TConfigManager config;
@@ -81,7 +78,7 @@ public class Button implements TButton {
 
         this.actions = (config.getList(path+".actions") != null) ? config.getList(path+".actions") : new ArrayList<>();
         if (config.getYml().contains(path+".click-sound")) {
-            this.sound = new TButtonSound(XSound.valueOf(config.getString(path + ".click-sound.sound")).parseSound(), (float) config.getDouble(path + ".click-sound.yaw"), (float) config.getDouble(path + ".click-sound.pitch"));
+            this.sound = new ButtonSound(XSound.valueOf(config.getString(path + ".click-sound.sound")).parseSound(), (float) config.getDouble(path + ".click-sound.yaw"), (float) config.getDouble(path + ".click-sound.pitch"));
         }
 
         boolean enableName = (config.getYml().contains(path+".name")) ? config.getBoolean(path+".name.enable") : false;
@@ -380,9 +377,9 @@ public class Button implements TButton {
         }
         boolean moveForward = (config.getYml().contains(path + ".move-forward")) ? config.getBoolean(path + ".move-forward") : true;
         if (moveForward) {
-            TButtonSound hoverSound;
+            ButtonSound hoverSound;
             if (config.getYml().contains(path+".hover-sound")) {
-                hoverSound = new TButtonSound(XSound.valueOf(config.getString(path + ".hover-sound.sound")).parseSound(), (float) config.getDouble(path + ".hover-sound.yaw"), (float) config.getDouble(path + ".hover-sound.pitch"));
+                hoverSound = new ButtonSound(XSound.valueOf(config.getString(path + ".hover-sound.sound")).parseSound(), (float) config.getDouble(path + ".hover-sound.yaw"), (float) config.getDouble(path + ".hover-sound.pitch"));
             } else {
                 hoverSound = null;
             }
@@ -639,7 +636,7 @@ public class Button implements TButton {
         return actions;
     }
 
-    public TButtonSound getSound() {
+    public ButtonSound getSound() {
         return sound;
     }
 
@@ -677,7 +674,7 @@ public class Button implements TButton {
     }
 
 
-    public void setSound(TButtonSound sound) {
+    public void setSound(ButtonSound sound) {
         this.sound = sound;
     }
 

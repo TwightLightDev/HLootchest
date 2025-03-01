@@ -2,17 +2,21 @@ package org.twightlight.hlootchest.sessions;
 
 import com.cryptomorin.xseries.XMaterial;
 import org.bukkit.Bukkit;
+import org.bukkit.Chunk;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.objects.TBox;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.api.objects.TSessions;
+import org.twightlight.hlootchest.api.events.session.SessionCloseEvent;
+import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
+import org.twightlight.hlootchest.api.interfaces.TBox;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.TSessions;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;
@@ -22,6 +26,12 @@ public class LootChestSessions extends SessionsManager implements TSessions {
     Player player;
 
     private TBox box;
+
+    GameMode gm;
+
+    Location initialLocation;
+
+    Collection<PotionEffect> potionEffects;
 
     public LootChestSessions(Player p, String identifier) {
         if (HLootchest.getNms().getBoxFromPlayer(p) == null) {
@@ -37,98 +47,126 @@ public class LootChestSessions extends SessionsManager implements TSessions {
                     new ArrayList<>(),
                     false);
             TConfigManager templateconfig = HLootchest.getAPI().getConfigUtil().getTemplateConfig();
-            Location location = HLootchest.getNms().stringToLocation(templateconfig.getString(identifier + ".settings.location"));
-
-            box = HLootchest.getNms().spawnBox(location, identifier, p, icon, templateconfig, p.getLocation());
-
-            if (templateconfig.getYml().getConfigurationSection(identifier + ".buttons") != null) {
-                Set<String> buttons = templateconfig.getYml().getConfigurationSection(identifier + ".buttons").getKeys(false);
-
-                PriorityQueue<ButtonTask> taskQueue = new PriorityQueue<>(Comparator.comparingInt(ButtonTask::getDelay));
-
-                int highestdelay = 0;
-
-                for (String button : buttons) {
-                    String path = identifier + ".buttons." + button;
-
-                    boolean isSatisfied = Utility.checkConditions(p, conf, path + ".spawn-requirements");
-
-                    if (isSatisfied) {
-                        int delay = templateconfig.getYml().contains(path + ".delay") ? templateconfig.getInt(path + ".delay") : 0;
-                        if (delay > highestdelay) {
-                            highestdelay = delay;
-                        }
-                        taskQueue.add(new ButtonTask(path, delay));
-                    }
-                }
-
-                if (taskQueue.isEmpty()) {
-                    return;
-                }
-
-                int stop = highestdelay;
-                new BukkitRunnable() {
-                    int currentTick = 0;
-                    @Override
-                    public void run() {
-                        if (currentTick > stop) {
-                            this.cancel();
-                            return;
-                        }
-
-                        while (!taskQueue.isEmpty() && taskQueue.peek().getDelay() <= currentTick) {
-                            ButtonTask task = taskQueue.poll();
-                            String path = task.getPath();
-
-                            boolean dynamicIcon = (templateconfig.getYml().contains(path + ".icon.dynamic")) ? templateconfig.getBoolean(path + ".icon.dynamic") : false;
-                            String iconMaterial;
-                            String iconHeadValue;
-                            int iconData;
-                            if (!dynamicIcon) {
-                                iconMaterial = templateconfig.getString(path + ".icon.material");
-                                iconHeadValue = templateconfig.getString(path + ".icon.head_value");
-                                iconData = (templateconfig.getYml().contains(path + ".icon.data")) ? templateconfig.getInt(path + ".icon.data") : 0;
-                            } else {
-                                List<String> iconPaths = new ArrayList<>(templateconfig.getYml().getConfigurationSection(path + ".icon.dynamic-icons").getKeys(false));
-                                String thisIconPath = path + ".icon.dynamic-icons." + iconPaths.get(0);
-                                iconMaterial = templateconfig.getString(thisIconPath + ".material");
-                                iconHeadValue = templateconfig.getString(thisIconPath + ".head_value");
-                                iconData = (templateconfig.getYml().contains(thisIconPath + ".data")) ? templateconfig.getInt(thisIconPath + ".data") : 0;
-                            }
-                            String locationString = templateconfig.getString(path + ".location");
-
-                            ItemStack buttonIcon = HLootchest.getNms().createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false);
-                            Location location = HLootchest.getNms().stringToLocation(locationString);
-
-                            HLootchest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, buttonIcon, path, templateconfig);
-                        }
-
-                        currentTick++;
-                    }
-                }.runTaskTimer(HLootchest.getInstance(), 0L, 1L);
+            Location Plocation = HLootchest.getNms().stringToLocation(templateconfig.getString(identifier + ".settings.player-location"));
+            Chunk chunk = Plocation.getChunk();
+            if (!chunk.isLoaded()) {
+                chunk.load();
             }
-            String initialLoc = Utility.locationToString(box.getPlayerInitialLoc());
-            HLootchest.getAPI().getDatabaseUtil().getDb().pullData(p, initialLoc, "fallback_loc");
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    potionEffects = p.getActivePotionEffects();
+                    potionEffects.forEach(effect ->
+                            p.removePotionEffect(effect.getType())
+                    );
+                    initialLocation = p.getLocation();
+                    p.teleport(Plocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    for (Player online : Bukkit.getOnlinePlayers()) {
+                        if (!online.equals(p)) {
+                            online.hidePlayer(p);
+                        }
+                    }
+
+                    Bukkit.getScheduler().runTaskLater(HLootchest.getInstance(), () -> {
+                        Location location = HLootchest.getNms().stringToLocation(templateconfig.getString(identifier + ".settings.location"));
+
+                        box = HLootchest.getNms().spawnBox(location, identifier, p, icon, templateconfig, initialLocation);
+                        gm = p.getGameMode();
+                        HLootchest.getNms().setFakeGameMode(p, GameMode.SURVIVAL);
+
+                        if (templateconfig.getYml().getConfigurationSection(identifier + ".buttons") != null) {
+                            Set<String> buttons = templateconfig.getYml().getConfigurationSection(identifier + ".buttons").getKeys(false);
+
+                            PriorityQueue<ButtonTask> taskQueue = new PriorityQueue<>(Comparator.comparingInt(ButtonTask::getDelay));
+                            int highestDelay = 0;
+
+                            for (String button : buttons) {
+                                String path = identifier + ".buttons." + button;
+                                if (Utility.checkConditions(p, conf, path + ".spawn-requirements")) {
+                                    int delay = templateconfig.getYml().getInt(path + ".delay", 0);
+                                    highestDelay = Math.max(highestDelay, delay);
+                                    taskQueue.add(new ButtonTask(path, delay));
+                                }
+                            }
+
+                            if (!taskQueue.isEmpty()) {
+
+                                int finalHighestDelay = highestDelay;
+                                new BukkitRunnable() {
+                                    int currentTick = 0;
+                                    @Override
+                                    public void run() {
+                                        while (!taskQueue.isEmpty() && taskQueue.peek().getDelay() <= currentTick) {
+                                            ButtonTask task = taskQueue.poll();
+                                            String path = task.getPath();
+
+                                            boolean dynamicIcon = templateconfig.getYml().getBoolean(path + ".icon.dynamic", false);
+                                            String iconMaterial, iconHeadValue;
+                                            int iconData;
+
+                                            if (!dynamicIcon) {
+                                                iconMaterial = templateconfig.getString(path + ".icon.material");
+                                                iconHeadValue = templateconfig.getString(path + ".icon.head_value");
+                                                iconData = templateconfig.getYml().getInt(path + ".icon.data", 0);
+                                            } else {
+                                                List<String> iconPaths = new ArrayList<>(templateconfig.getYml().getConfigurationSection(path + ".icon.dynamic-icons").getKeys(false));
+                                                String thisIconPath = path + ".icon.dynamic-icons." + iconPaths.get(0);
+                                                iconMaterial = templateconfig.getString(thisIconPath + ".material");
+                                                iconHeadValue = templateconfig.getString(thisIconPath + ".head_value");
+                                                iconData = templateconfig.getYml().getInt(thisIconPath + ".data", 0);
+                                            }
+
+                                            ItemStack buttonIcon = HLootchest.getNms().createItem(
+                                                    XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false
+                                            );
+
+                                            Location location = HLootchest.getNms().stringToLocation(templateconfig.getString(path + ".location"));
+                                            HLootchest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, buttonIcon, path, templateconfig);
+                                        }
+
+                                        if (currentTick >= finalHighestDelay || taskQueue.isEmpty()) {
+                                            this.cancel();
+                                        }
+
+                                        currentTick++;
+                                    }
+                                }.runTaskTimer(HLootchest.getInstance(), 0L, 1L);
+                            }
+                        }
+
+                        String initialLoc = Utility.locationToString(box.getPlayerInitialLoc());
+                        HLootchest.getAPI().getDatabaseUtil().getDb().pullData(p, initialLoc, "fallback_loc");
+                    }, 1L);
+                }
+            }.runTaskLater(HLootchest.getInstance(), 1L);
+            SessionStartEvent event = new SessionStartEvent(player, this);
+            Bukkit.getPluginManager().callEvent(event);
         }
     }
 
 
     public void close() {
         box.removeVehicle(player);
-        box.getOwner().teleport(box.getPlayerInitialLoc());
-        box.getOwner().setVelocity(new Vector(0, 0, 0));
+        Bukkit.getScheduler().runTaskLater(HLootchest.getInstance(), () -> {
+                    box.getOwner().teleport(box.getPlayerInitialLoc());
+                }, 1L);
         HLootchest.getAPI().getDatabaseUtil().getDb().pullData(box.getOwner(), "", "fallback_loc");
         box.remove();
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.FUNCTIONAL);
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.REWARD);
         player.setGameMode(GameMode.SPECTATOR);
-        player.setGameMode(GameMode.SURVIVAL);
+        player.setGameMode(gm);
         SessionsManager.sessions.remove(player);
+        potionEffects.forEach(effect ->
+                player.addPotionEffect(effect)
+        );
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (!online.equals(player)) {
                 online.showPlayer(player);
             }
         }
+        SessionCloseEvent event = new SessionCloseEvent(player, this);
+        Bukkit.getPluginManager().callEvent(event);
     }
 
     public boolean isOpening() {

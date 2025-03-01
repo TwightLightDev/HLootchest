@@ -2,7 +2,7 @@ package org.twightlight.hlootchest.config;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.plugin.Plugin;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 
 import java.io.File;
 import java.io.IOException;

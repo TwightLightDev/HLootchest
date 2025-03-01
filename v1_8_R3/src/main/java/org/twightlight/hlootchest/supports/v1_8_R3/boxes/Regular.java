@@ -11,8 +11,8 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.events.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.Main;
 import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
 
@@ -131,7 +131,7 @@ public class Regular extends BoxManager {
 
                 Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_CHICKEN_EGG.name(), 20, 5);
 
-                ParticleType.of("CLOUD").spawn(getOwner(), getLoc().clone().add(0, -2.8, 0), 1, 0, 0, 0, 0);
+                ParticleType.of("CLOUD").spawn(getOwner(), getLoc().clone().add(0, -2.6, 0), 1, 0, 0, 0, 0);
                 time += 1;
                 DataWatcher dataWatcher = getBox().getDataWatcher();
                 float x;

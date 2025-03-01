@@ -5,7 +5,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
 
 import java.util.*;
 
@@ -109,9 +109,7 @@ public class Utility {
             int i = closestGreater(chances, randValue);
             randomElements.add(list.get(i));
         }
-
         return randomElements;
-
     }
 
     public static int closestGreater(List<Integer> A, int x) {
@@ -145,7 +143,7 @@ public class Utility {
             switch (type) {
                 case "string-equals":
                     if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null) {
-                        info("Missing PlaceholderAPI, this comparision will not work");
+                        info("Missing PlaceholderAPI, this comparison will not work");
 
                         return false;
                     }
@@ -224,12 +222,18 @@ public class Utility {
         for (Entity entity : chunk.getEntities()) {
             if (entity.getCustomName() != null && entity.getCustomName().contains(name) && !(entity instanceof Player)) {
                 entity.remove();
+            } else if (entity.hasMetadata(name) && !(entity instanceof Player)) {
+                entity.remove();
             }
         }
 
         if (!isLoaded) {
             chunk.unload();
         }
+    }
+
+    public static boolean isDebug() {
+        return HLootchest.mainConfig.getBoolean("debug", false);
     }
 }
 

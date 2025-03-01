@@ -1,6 +1,5 @@
 package org.twightlight.hlootchest.commands.main;
 
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -8,8 +7,6 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.objects.TBox;
 import org.twightlight.hlootchest.sessions.LootChestSessions;
 import org.twightlight.hlootchest.utils.Utility;
 

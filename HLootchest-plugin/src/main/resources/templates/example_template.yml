@@ -1,6 +1,6 @@
 regular:
   settings:
-    player-location: world, 182.5, 70, 196.3, 180, 0
+    player-location: world, 182.5, 70, 196.5, 180, 0
     location: world, 182.5, 73.2, 193.5, 0
     rotations:
       '1':
@@ -111,4 +111,3 @@ regular:
   - world, 182.5, 71.1, 193.2, 0, 0
   - world, 180, 71.1, 194.5, -55, 0
   - world, 185, 71.1, 194.5, 55, 0
-

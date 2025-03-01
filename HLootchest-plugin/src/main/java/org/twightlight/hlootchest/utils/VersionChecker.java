@@ -1,8 +1,6 @@
 package org.twightlight.hlootchest.utils;
 
 import org.bukkit.Bukkit;
-import org.bukkit.command.ConsoleCommandSender;
-import org.bukkit.permissions.ServerOperator;
 import org.bukkit.plugin.java.JavaPlugin;
 
 import java.io.BufferedReader;
@@ -56,16 +54,15 @@ public class VersionChecker {
 
     private void notifyUpdateAvailable(String currentVersion, String latestVersion) {
         String updateMessage = String.format(
-                "§6[Updater] §eA new version is available! Current: §c%s §e→ Latest: §a%s\n" +
-                        "§6[Updater] §eDownload it here: §bhttps://www.spigotmc.org/resources/%s/",
-                currentVersion, latestVersion, resourceId
+                "§eA new version is available! Current: §c%s §e→ Latest: §a%s",
+                currentVersion, latestVersion
+        );
+        String updateMessage1 = String.format(
+                "§eDownload it here: §bhttps://www.spigotmc.org/resources/%s/",
+                resourceId
         );
 
-        ConsoleCommandSender console = Bukkit.getConsoleSender();
-        console.sendMessage(updateMessage);
-
-        Bukkit.getOnlinePlayers().stream()
-                .filter(ServerOperator::isOp)
-                .forEach(player -> player.sendMessage(updateMessage));
+        Utility.info(updateMessage);
+        Utility.info(updateMessage1);
     }
 }

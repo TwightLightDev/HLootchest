@@ -23,14 +23,16 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.objects.TBox;
-import org.twightlight.hlootchest.api.objects.TButton;
-import org.twightlight.hlootchest.api.objects.TConfigManager;
-import org.twightlight.hlootchest.api.supports.LootChestFactory;
+import org.twightlight.hlootchest.api.interfaces.NMSService;
+import org.twightlight.hlootchest.api.interfaces.TBox;
+import org.twightlight.hlootchest.api.interfaces.TButton;
+import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_18_R2.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_18_R2.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_18_R2.listeners.ClickEvent;
+import org.twightlight.hlootchest.supports.v1_18_R2.utilities.NMSUtil;
 import org.twightlight.hlootchest.utils.ColorUtils;
 
 import java.lang.reflect.Field;
@@ -45,6 +47,7 @@ public class Main extends NMSHandler {
     public static NMSHandler handler;
     public static ColorUtils colorUtils;
     public static HLootchest api;
+    public static NMSUtil nmsUtil;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
 
     public Main(Plugin pl, String name, HLootchest api) {
@@ -52,8 +55,13 @@ public class Main extends NMSHandler {
         handler = this;
         colorUtils = new ColorUtils();
         this.api = api;
+        nmsUtil = new NMSUtil();
     }
 
+    @Override
+    public NMSService getNMSService() {
+        return nmsUtil;
+    }
     public static String p(Player p, String value) {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
             return colorUtils.colorize(value);
