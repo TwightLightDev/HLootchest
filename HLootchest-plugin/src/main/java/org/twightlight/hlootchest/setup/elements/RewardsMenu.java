@@ -6,9 +6,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.sessions.ChatSessions;
-import org.twightlight.hlootchest.sessions.SetupSessions;
+import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.setup.LCMenu;
 import org.twightlight.hlootchest.setup.MenuManager;
@@ -24,9 +24,9 @@ public class RewardsMenu {
     private final TConfigManager templateFile;
     private final String name;
     private final String path;
-    private final SetupSessions session;
+    private final SetupSession session;
 
-    public RewardsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSessions session) {
+    public RewardsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSession session) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -54,7 +54,7 @@ public class RewardsMenu {
                 26,
                 (e) -> {
                     p.closeInventory();
-                    final SetupSessions session2 = session;
+                    final SetupSession session2 = session;
                     ChatSessions sessions = new ChatSessions(p);
                     sessions.prompt(Arrays.asList(new String[] {"&aType the name of the new reward: ", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {

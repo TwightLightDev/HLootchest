@@ -6,9 +6,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.sessions.ChatSessions;
-import org.twightlight.hlootchest.sessions.SetupSessions;
+import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.setup.MenuManager;
@@ -26,10 +26,10 @@ public class Rotation {
     private final TConfigManager templateFile;
     private final String name;
     private final String path;
-    private final SetupSessions session;
+    private final SetupSession session;
     private final Executable backAction;
 
-    public Rotation(Player p, TConfigManager templateFile, String name, String path, SetupSessions session, Executable backAction) {
+    public Rotation(Player p, TConfigManager templateFile, String name, String path, SetupSession session, Executable backAction) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -89,7 +89,7 @@ public class Rotation {
                 12,
                 (e) -> {
                     p.closeInventory();
-                    final SetupSessions session2 = session;
+                    final SetupSession session2 = session;
                     ChatSessions sessions = new ChatSessions(p);
                     sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aThe format should be X, Y, Z", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {

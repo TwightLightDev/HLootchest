@@ -1,10 +1,20 @@
 package org.twightlight.hlootchest.api.enums;
 
 public enum ItemSlot {
-    HEAD,
-    CHESTPLATE,
-    LEGGINGS,
-    BOOTS,
-    MAIN_HAND,
-    OFF_HAND
+    HEAD("HEAD"),
+    CHESTPLATE("CHESTPLATE"),
+    LEGGINGS("LEGGINGS"),
+    BOOTS("BOOTS"),
+    MAIN_HAND("MAIN_HAND"),
+    OFF_HAND("OFF_HAND");
+
+    final String reference;
+
+    ItemSlot(String reference) {
+        this.reference = reference;
+    }
+
+    public String toString() {
+        return reference;
+    }
 }

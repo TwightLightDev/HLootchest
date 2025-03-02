@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.api.interfaces;
+package org.twightlight.hlootchest.api.interfaces.internal;
 
 import org.bukkit.configuration.file.YamlConfiguration;
 

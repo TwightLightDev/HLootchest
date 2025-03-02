@@ -6,8 +6,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
-import org.twightlight.hlootchest.sessions.SetupSessions;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.setup.MenuManager;
 import org.twightlight.hlootchest.setup.TemplateMenu;
@@ -22,9 +22,9 @@ public class Settings {
     private final TConfigManager templateFile;
     private final String name;
     private final String path;
-    private final SetupSessions session;
+    private final SetupSession session;
 
-    public Settings(Player p, TConfigManager templateFile, String name, String path, SetupSessions session) {
+    public Settings(Player p, TConfigManager templateFile, String name, String path, SetupSession session) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;

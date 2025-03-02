@@ -7,7 +7,7 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.sessions.LootChestSessions;
+import org.twightlight.hlootchest.sessions.LootChestSession;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.Set;
@@ -45,7 +45,7 @@ public class MainCommands implements CommandExecutor {
                         if (!p.hasPermission("hlc." + args[0] + "." + args[1])) {
                             p.sendMessage(Utility.getMsg(p, "noPerms"));
                         }
-                        new LootChestSessions(p, type);
+                        new LootChestSession(p, type);
                         return true;
                     case "list":
                         if (!p.hasPermission("hlc."+args[0])) {

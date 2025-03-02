@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.api.supports;
+package org.twightlight.hlootchest.api.version_supports;
 
 import org.bukkit.GameMode;
 import org.bukkit.Location;
@@ -7,11 +7,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.interfaces.NMSService;
+import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
-import org.twightlight.hlootchest.api.interfaces.TBox;
-import org.twightlight.hlootchest.api.interfaces.TButton;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 
 import java.util.List;
 import java.util.Map;

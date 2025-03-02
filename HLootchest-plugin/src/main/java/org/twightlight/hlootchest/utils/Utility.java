@@ -5,7 +5,7 @@ import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 
 import java.util.*;
 

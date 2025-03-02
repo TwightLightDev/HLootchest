@@ -6,8 +6,8 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
-import org.twightlight.hlootchest.sessions.SetupSessions;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.setup.elements.ButtonsMenu;
 import org.twightlight.hlootchest.setup.modules.Settings;
@@ -21,9 +21,9 @@ public class TemplateMenu {
     private final Player p;
     private final TConfigManager templateFile;
     private final String name;
-    private final SetupSessions session;
+    private final SetupSession session;
 
-    public TemplateMenu(Player p, TConfigManager templateFile, String name, SetupSessions session) {
+    public TemplateMenu(Player p, TConfigManager templateFile, String name, SetupSession session) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;

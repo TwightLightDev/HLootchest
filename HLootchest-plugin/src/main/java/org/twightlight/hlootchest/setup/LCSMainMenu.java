@@ -6,9 +6,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
-import org.twightlight.hlootchest.api.interfaces.TSessions;
-import org.twightlight.hlootchest.sessions.SetupSessions;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TSession;
+import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 
 import java.util.Collections;
@@ -20,10 +20,10 @@ public class LCSMainMenu {
         if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
             return;
         }
-        TSessions session1 = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
-        SetupSessions session;
-        if (session1 instanceof SetupSessions) {
-            session = ((SetupSessions) session1);
+        TSession session1 = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+        SetupSession session;
+        if (session1 instanceof SetupSession) {
+            session = ((SetupSession) session1);
         } else {
             return;
         }

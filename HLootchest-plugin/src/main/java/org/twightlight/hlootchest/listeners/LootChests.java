@@ -1,9 +1,7 @@
 package org.twightlight.hlootchest.listeners;
 
-import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -18,10 +16,11 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.interfaces.TButton;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
-import org.twightlight.hlootchest.api.interfaces.TSessions;
-import org.twightlight.hlootchest.sessions.LootChestSessions;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TSession;
+import org.twightlight.hlootchest.objects.Reward;
+import org.twightlight.hlootchest.sessions.LootChestSession;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.ArrayList;
@@ -49,27 +48,31 @@ public class LootChests implements Listener {
             chances.add(chance);
         }
         Set<String> rewards = Utility.getRandomElements(prerewards, chances, maxRewards);
+        List<Reward> awaiting_rewards = new ArrayList<>();
         List<Location> locs = e.getLootChest().getRewardsLocation();
         Random random = new Random();
         for (String reward : rewards) {
             String path = boxid + ".rewards-list" + "." + reward;
-            ItemStack buttonicon = HLootchest.getNms().createItem(Material.valueOf(boxConf.getString(path + ".icon.material")), boxConf.getString(path + ".icon.head_value"), boxConf.getInt(path + ".icon.data"), "", new ArrayList<>(), false);
-
             List<String> rewardactions = boxConf.getList(path + ".rewards");
-            for (String action : rewardactions) {
-                String[] dataset = action.split(" ", 2);
-                if (dataset[0].equals("[player]")) {
-                    e.getPlayer().performCommand(dataset[1].replace("{player}", e.getPlayer().getName()));
-                } else if (dataset[0].equals("[console]")) {
-                    ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-                    Bukkit.getServer().dispatchCommand(console, dataset[1].replace("{player}", e.getPlayer().getName()));
-                }
+
+            if (e.getPlayer().isOnline()) {
+                ItemStack buttonicon = HLootchest.getNms().createItem(Material.valueOf(boxConf.getString(path + ".icon.material")), boxConf.getString(path + ".icon.head_value"), boxConf.getInt(path + ".icon.data"), "", new ArrayList<>(), false);
+
+                Reward reward1 = new Reward(rewardactions);
+                reward1.accept(e.getPlayer());
+                int randint = random.nextInt(locs.size());
+                Location loc = locs.get(randint);
+                locs.remove(randint);
+                HLootchest.getNms().spawnButton(loc, ButtonType.REWARD, e.getPlayer(), buttonicon, path, boxConf);
+
+            } else {
+                awaiting_rewards.add(new Reward(rewardactions));
             }
-            int randint = random.nextInt(locs.size());
-            Location loc = locs.get(randint);
-            locs.remove(randint);
-            HLootchest.getNms().spawnButton(loc, ButtonType.REWARD, e.getPlayer(), buttonicon, path, boxConf);
         }
+        if (!e.getPlayer().isOnline()) {
+            HLootchest.getAPI().getDatabaseUtil().getDb().pullData(e.getPlayer(), awaiting_rewards, "awaiting_rewards");
+        }
+
     }
 
     @EventHandler
@@ -81,7 +84,7 @@ public class LootChests implements Listener {
             player = (Player) exited;
         }
 
-        TSessions session = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(player);
+        TSession session = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(player);
 
         if (session == null) {
             return;
@@ -96,8 +99,8 @@ public class LootChests implements Listener {
         org.twightlight.hlootchest.api.HLootchest.DatabaseUtil api = HLootchest.getAPI().getDatabaseUtil();
         if (api.getDb().getLootChestData(p, "lootchests").get(boxid) > 0) {
             try {
-                api.getDb().addData(p, boxid, -1, "lootchests");
-                api.getDb().addData(p, boxid, 1, "opened");
+                api.getDb().addLootchest(p, boxid, -1, "lootchests");
+                api.getDb().addLootchest(p, boxid, 1, "opened");
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage());
             }
@@ -138,7 +141,7 @@ public class LootChests implements Listener {
         Player p = e.getPlayer();
         String cmd = e.getMessage();
         if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
-            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSessions) {
+            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
                 List<String> allowed_commands = HLootchest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.opening");
                 for (String command : allowed_commands) {
                     if (e.getMessage().contains(command)) {

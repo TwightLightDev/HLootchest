@@ -4,9 +4,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
-import org.twightlight.hlootchest.api.interfaces.TDatabase;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
-import org.twightlight.hlootchest.api.supports.NMSHandler;
+import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.commands.admin.AdminCommand;
 import org.twightlight.hlootchest.commands.admin.AdminTabCompleter;
 import org.twightlight.hlootchest.commands.main.MainCommands;
@@ -68,6 +68,7 @@ public final class HLootchest extends JavaPlugin {
             case "8":
                 nms = new org.twightlight.hlootchest.supports.v1_8_R3.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
+                nms.register("mystic", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Mystic::new);
                 break;
             case "12":
                 nms = new org.twightlight.hlootchest.supports.v1_12_R1.Main(this, version, api);

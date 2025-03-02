@@ -1,9 +1,10 @@
-package org.twightlight.hlootchest.api.interfaces;
+package org.twightlight.hlootchest.api.interfaces.lootchest;
 
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.utils.ButtonSound;
 
 import java.util.List;
@@ -12,7 +13,7 @@ public interface TButton {
     int getCustomId();
     Player getOwner();
     void remove();
-    void equipIcon(ItemStack bukkiticon);
+    void equipIcon(TIcon bukkiticon);
     void moveForward();
     void moveBackward();
     boolean isMoved();
@@ -21,7 +22,7 @@ public interface TButton {
     ButtonType getType();
     List<String> getActions();
     boolean isHiding();
-    void setIcon(ItemStack icon);
+    void setIcon(TIcon icon);
     void hide(boolean isHiding);
     ButtonSound getSound();
     BukkitTask getTask();
@@ -31,7 +32,7 @@ public interface TButton {
     void setActions(List<String> actions);
     void setSound(ButtonSound sound);
     void setHidingState(boolean hiding);
-    ItemStack getIcon();
+    TIcon getIcon();
     void setConfig(TConfigManager config);
     String getPathToButton();
     void setPathToButton(String pathToButton);

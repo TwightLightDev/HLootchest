@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.Main;
 import org.twightlight.hlootchest.supports.v1_8_R3.utilities.Animations;
 
@@ -78,6 +78,11 @@ public class Regular extends BoxManager {
             @Override
             public void run() {
                 if (System.currentTimeMillis() - startTime > 3500) {
+                    cancel();
+                    return;
+                }
+                if (!getOwner().isOnline()) {
+                    cancel();
                     return;
                 }
                 EntityPlayer craftPlayer = ((CraftPlayer) getOwner()).getHandle();
@@ -100,9 +105,7 @@ public class Regular extends BoxManager {
             @Override
             public void run() {
                 if (System.currentTimeMillis() - startTime > 3000) {
-                    Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
-                        setOpeningState(false);
-                    }, 2L);
+                    setOpeningState(false);
                     Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_CAT_AMBIENT.name(), 20, 5);
 
                     PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
@@ -125,6 +128,12 @@ public class Regular extends BoxManager {
                     return;
                 }
                 if (getBox() == null) {
+                    cancel();
+                    return;
+                }
+                if (!getOwner().isOnline()) {
+                    PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
+                    Bukkit.getPluginManager().callEvent(event);
                     cancel();
                     return;
                 }

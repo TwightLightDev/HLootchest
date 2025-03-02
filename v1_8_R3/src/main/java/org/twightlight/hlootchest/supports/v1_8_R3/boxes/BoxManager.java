@@ -1,25 +1,20 @@
 package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 
-import com.cryptomorin.xseries.XPotion;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPig;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
-import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.potion.PotionEffect;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
-import org.twightlight.hlootchest.api.interfaces.TBox;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.Main;
 
 import java.util.ArrayList;
@@ -60,25 +55,7 @@ public class BoxManager implements TBox {
 
         if (vehicles.get(owner) == null) {
 
-            Pig vehicle = (Pig) Plocation.getWorld().spawnEntity(Plocation.clone().add(0, -0.3, 0), EntityType.PIG);
-            vehicle.addPotionEffect(new PotionEffect(XPotion.INVISIBILITY.getPotionEffectType(), Integer.MAX_VALUE, 1, false, false));
-
-            vehicle.setCustomName("LootchestVehicle");
-            vehicle.setCustomNameVisible(false);
-
-
-            EntityPig entityPig = ((CraftPig) vehicle).getHandle();
-            NBTTagCompound tag = entityPig.getNBTTag();
-
-            if(tag == null) {
-                tag = new NBTTagCompound();
-            }
-
-            entityPig.c(tag);
-            tag.setInt("NoAI", 1);
-            tag.setInt("NoGravity", 1);
-
-            entityPig.f(tag);
+            Pig vehicle = Main.nmsUtil.summonVehicle(Plocation, Pig.class);
 
             vehicle.setPassenger(owner);
             vehicles.put(owner, vehicle);

@@ -9,9 +9,9 @@ import org.bukkit.command.CommandSender;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.config.ConfigManager;
-import org.twightlight.hlootchest.sessions.SetupSessions;
+import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.LCSMainMenu;
 import org.twightlight.hlootchest.setup.TSMainMenu;
 import org.twightlight.hlootchest.utils.Utility;
@@ -65,12 +65,12 @@ public class AdminCommand implements CommandExecutor {
                                 case "edit":
                                     if (file.exists()) {
                                         TConfigManager conf = new ConfigManager(HLootchest.getInstance(), name, HLootchest.getFilePath() + "/templates");
-                                        SetupSessions session = null;
+                                        SetupSession session = null;
                                         if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
-                                            session = new SetupSessions(p, conf);
+                                            session = new SetupSession(p, conf);
                                         } else {
-                                            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof SetupSessions) {
-                                                session = (SetupSessions) HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+                                            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof SetupSession) {
+                                                session = (SetupSession) HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
                                             }
                                         }
                                         if (session != null && session.getConfigManager().getYml().getName().equals(conf.getYml().getName())) {
@@ -110,12 +110,12 @@ public class AdminCommand implements CommandExecutor {
                             return true;
                         }
                     case "lootchestssetup":
-                        SetupSessions session = null;
+                        SetupSession session = null;
                         if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
-                            session = new SetupSessions(p, HLootchest.getAPI().getConfigUtil().getBoxesConfig());
+                            session = new SetupSession(p, HLootchest.getAPI().getConfigUtil().getBoxesConfig());
                         } else {
-                            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof SetupSessions) {
-                                session = (SetupSessions) HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+                            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof SetupSession) {
+                                session = (SetupSession) HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
                             }
                         }
                         if (session != null) {
@@ -144,7 +144,7 @@ public class AdminCommand implements CommandExecutor {
                                 p.sendMessage(Utility.getMsg(p, "invalidArguments"));
                                 return true;
                             }
-                            boolean completed = HLootchest.getAPI().getDatabaseUtil().getDb().addData(player, args[2], amount, "lootchests");
+                            boolean completed = HLootchest.getAPI().getDatabaseUtil().getDb().addLootchest(player, args[2], amount, "lootchests");
                             if (!completed) {
                                 p.sendMessage(Utility.getMsg(p, "invalidArguments"));
                                 return true;

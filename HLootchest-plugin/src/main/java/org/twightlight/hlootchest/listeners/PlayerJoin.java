@@ -1,6 +1,8 @@
 package org.twightlight.hlootchest.listeners;
 
 import com.google.common.reflect.TypeToken;
+import com.google.gson.Gson;
+import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -9,8 +11,11 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.objects.Reward;
 import org.twightlight.hlootchest.utils.Utility;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -35,18 +40,35 @@ public class PlayerJoin implements Listener{
         HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, lchsData, "lootchests");
         HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, lchsData1, "opened");
 
-        String locS = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "fallback_loc", TypeToken.of(String.class), null);
-        try {
-            Location loc = Utility.stringToLocation(locS);
+        HLootchest.getAPI().getDatabaseUtil().getDb().addColumnIfNotExists("awaiting_rewards", "TEXT", "NULL");
+        Bukkit.getScheduler().runTaskLater(HLootchest.getInstance(), () -> {
+            String locS = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "fallback_loc", TypeToken.of(String.class), null);
+            try {
+                Chunk chunk = player.getLocation().getChunk();
+                Utility.clean(chunk, "LootchestVehicle");
+                Utility.clean(chunk, "removeOnRestart");
 
+                Location loc = Utility.stringToLocation(locS);
 
-            Chunk chunk = player.getLocation().getChunk();
-            Utility.clean(chunk, "LootchestVehicle");
-            Utility.clean(chunk, "removeOnRestart");
+                player.teleport(loc);
+                player.setVelocity(new Vector(0, 0, 0));
+                HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, "", "fallback_loc");
+            } catch (Exception ignored) {}
+        }, 2L);
+        Bukkit.getScheduler().runTaskLater(HLootchest.getInstance(), () -> {
+            try {
+                List<Reward> awaiting_rewards = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "awaiting_rewards", new TypeToken<List<Reward>>() {}, Collections.emptyList());
+                if (!awaiting_rewards.isEmpty()) {
+                    for (Reward reward : awaiting_rewards) {
+                        reward.accept(player);
+                    }
 
-            player.teleport(loc);
-            player.setVelocity(new Vector(0, 0, 0));
-            HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, "", "fallback_loc");
-        } catch (Exception ignored) {}
+                    HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, "NULL", "awaiting_rewards");
+
+                }
+
+            } catch (Exception ignored) {}
+        }, 2L);
+
     }
 }

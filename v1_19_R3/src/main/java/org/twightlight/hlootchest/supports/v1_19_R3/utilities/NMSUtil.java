@@ -2,15 +2,13 @@ package org.twightlight.hlootchest.supports.v1_19_R3.utilities;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
-import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.EntityType;
-import org.bukkit.entity.Player;
+import org.bukkit.entity.*;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
-import org.twightlight.hlootchest.api.interfaces.NMSService;
+import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 import org.twightlight.hlootchest.supports.v1_19_R3.Main;
 
 public class NMSUtil implements NMSService {
@@ -32,6 +30,10 @@ public class NMSUtil implements NMSService {
     public void sendDespawnPacket(Player player, Entity entityLiving) {
         player.hideEntity(Main.handler.plugin, entityLiving);
 
+    }
+
+    public void equipIcon(Player p, ArmorStand entityLiving, TIcon icon) {
+        equipIcon(p, entityLiving, icon.getItemStack(), icon.getItemSlot());
     }
 
     public void equipIcon(Player p, ArmorStand entityLiving, ItemStack bukkiticon, ItemSlot slot) {
@@ -59,6 +61,36 @@ public class NMSUtil implements NMSService {
 
             entityLiving.getEquipment().setItem(slotint, bukkiticon);
         }
+    }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> T summonVehicle(Location loc, Class<T> entityClass) {
+        EntityType entityType = getEntityType(entityClass);
+        if (entityType == null) {
+            throw new IllegalArgumentException("Unsupported entity class: " + entityClass.getName());
+        }
+        Entity vehicle = loc.getWorld().spawnEntity(loc.clone().add(0, -0.3, 0), entityType);
+
+        vehicle.setCustomName("LootchestVehicle");
+        vehicle.setCustomNameVisible(false);
+        vehicle.setSilent(true);
+        vehicle.setInvulnerable(true);
+        vehicle.setGravity(false);
+        if (vehicle instanceof LivingEntity) {
+            ((LivingEntity) vehicle).setAI(false);
+            ((LivingEntity) vehicle).setInvisible(true);
+            ((LivingEntity) vehicle).setCollidable(false);
+        }
+        return (T) vehicle;
+    }
+
+    private EntityType getEntityType(Class<? extends Entity> entityClass) {
+        for (EntityType type : EntityType.values()) {
+            if (type.getEntityClass() != null && type.getEntityClass().equals(entityClass)) {
+                return type;
+            }
+        }
+        return null;
     }
 
     public void drawCircle(Player player, ArmorStand armorStand, Location center, double radius, double rotX, double rotY, double rotZ, int points) {

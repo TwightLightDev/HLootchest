@@ -3,7 +3,7 @@ package org.twightlight.hlootchest.api.events.lootchest;
 import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import org.twightlight.hlootchest.api.interfaces.TButton;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 
 public class ButtonSpawnEvent extends Event {
 

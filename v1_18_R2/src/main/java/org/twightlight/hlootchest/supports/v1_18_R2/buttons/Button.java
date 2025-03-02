@@ -31,10 +31,13 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.lootchest.ButtonSpawnEvent;
-import org.twightlight.hlootchest.api.interfaces.TButton;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
+import org.twightlight.hlootchest.objects.Icon;
 import org.twightlight.hlootchest.utils.ButtonSound;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_18_R2.Main;
 import org.twightlight.hlootchest.supports.v1_18_R2.utilities.Animations;
 
@@ -67,7 +70,7 @@ public class Button implements TButton {
 
     private boolean isHiding = false;
 
-    private ItemStack icon = null;
+    private TIcon icon = null;
 
     private TConfigManager config;
 
@@ -89,7 +92,7 @@ public class Button implements TButton {
 
     public static final Map<TButton, List<EntityArmorStand>> linkedStands = new HashMap<>();
 
-    public static final Map<EntityArmorStand, ItemStack> linkedStandsIcon = new HashMap<>();
+    public static final Map<EntityArmorStand, TIcon> linkedStandsIcon = new HashMap<>();
 
     public Button(final Location location, ButtonType type, Player player, ItemStack icon, final String path, final TConfigManager config) {
         this.owner = player;
@@ -174,25 +177,28 @@ public class Button implements TButton {
                 }
             }).runTaskTimer(Main.handler.plugin, 2L, 1L);
         }
-        boolean isHoldingIcon = config.getYml().contains(path + ".holding-icon") ? config.getBoolean(this.pathToButton + ".holding-icon") : true;
-        if (isHoldingIcon) {
-            equipIcon(armorStand, icon);
-            this.icon = icon;
-        }
-        dynamicIcon = (config.getYml().contains(path + ".icon.dynamic")) ? config.getBoolean(path + ".icon.dynamic") : false;
+        boolean isHoldingIcon = (config.getYml().contains(path + ".holding-icon")) ? config.getBoolean(pathToButton + ".holding-icon") : true;
 
+        dynamicIcon = (config.getYml().contains(path + ".icon.dynamic")) ? config.getBoolean(path + ".icon.dynamic") : false;
+        if (isHoldingIcon && !dynamicIcon) {
+            ItemSlot slot = ItemSlot.valueOf(config.getString(path + ".icon.slot", "HEAD"));
+            TIcon ticon = new Icon(icon, slot);
+            equipIcon(armorStand, ticon);
+            this.icon = ticon;
+        }
         if (isHoldingIcon && dynamicIcon && config.getYml().contains(path + ".icon.refresh-interval")) {
             int interval = config.getInt(path + ".icon.refresh-interval");
             List<String> iconPaths = new ArrayList<>(config.getYml().getConfigurationSection(path + ".icon.dynamic-icons").getKeys(false));
-            List<ItemStack> icons = new ArrayList<>();
+            List<TIcon> icons = new ArrayList<>();
             for (String iconPath : iconPaths) {
                 String thisIconPath = path + ".icon.dynamic-icons." + iconPath;
                 String iconMaterial = config.getString(thisIconPath + ".material");
                 String iconHeadValue = config.getString(thisIconPath + ".head_value");
                 int iconData = (config.getYml().contains(thisIconPath + ".data")) ? config.getInt(thisIconPath + ".data") : 0;
                 boolean isGlowing = config.getBoolean(thisIconPath + ".glowing", false);
+                ItemSlot slot = ItemSlot.valueOf(config.getString(thisIconPath + ".slot", "HEAD"));
                 ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), isGlowing);
-                icons.add(thisIcon);
+                icons.add(new Icon(thisIcon, slot));
             }
             (new BukkitRunnable() {
                 int i = 1;
@@ -323,13 +329,16 @@ public class Button implements TButton {
                             linkedStandsSettings.get(child).add(String.valueOf(isChildDI));
                             if (!isChildDI) {
                                 ItemStack childicon = Main.handler.createItem(XMaterial.valueOf(config.getString(newpath + ".icon.material")).parseMaterial(), config.getString(newpath + ".icon.head_value"), config.getInt(newpath + ".icon.data"), "", new ArrayList(), false);
-                                equipIcon(child, childicon);
-                                linkedStandsIcon.put(child, childicon);
+                                ItemSlot slot = ItemSlot.valueOf(config.getString(newpath + ".icon.slot", "HEAD"));
+
+                                TIcon finalIcon = new Icon(childicon, slot);
+                                equipIcon(child, finalIcon);
+                                linkedStandsIcon.put(child, finalIcon);
 
                             } else {
 
                                 List<String> iconPaths = new ArrayList<>(config.getYml().getConfigurationSection(newpath + ".icon.dynamic-icons").getKeys(false));
-                                List<ItemStack> icons = new ArrayList<>();
+                                List<TIcon> icons = new ArrayList<>();
                                 for (String iconPath : iconPaths) {
                                     String thisIconPath = newpath + ".icon.dynamic-icons." + iconPath;
                                     String iconMaterial = config.getString(thisIconPath + ".material");
@@ -337,7 +346,9 @@ public class Button implements TButton {
                                     int iconData = (config.getYml().contains(thisIconPath + ".data")) ? config.getInt(thisIconPath + ".data") : 0;
                                     boolean isGlowing = config.getBoolean(thisIconPath + ".glowing", false);
                                     ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), isGlowing);
-                                    icons.add(thisIcon);
+                                    ItemSlot slot = ItemSlot.valueOf(config.getString(thisIconPath + ".slot", "HEAD"));
+
+                                    icons.add(new Icon(thisIcon, slot));
                                 }
 
                                 equipIcon(child, icons.get(0));
@@ -475,26 +486,12 @@ public class Button implements TButton {
         }, time, TimeUnit.MILLISECONDS);
     }
 
-    public void equipIcon(ItemStack bukkiticon) {
-        if (bukkiticon != null) {
-            net.minecraft.world.item.ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
-            EnumItemSlot slot = EnumItemSlot.f;
-            if (this.type == ButtonType.REWARD)
-                slot = EnumItemSlot.a;
-            PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(this.armorstand.ae(), Collections.singletonList(new Pair(slot, icon)));
-            (((CraftPlayer)this.owner).getHandle()).b.a((Packet)packet);
-        }
+    public void equipIcon(TIcon icon) {
+        equipIcon(armorstand, icon);
     }
 
-    private void equipIcon(EntityArmorStand armorStand, ItemStack bukkiticon) {
-        if (bukkiticon != null) {
-            net.minecraft.world.item.ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
-            EnumItemSlot slot = EnumItemSlot.f;
-            if (this.type == ButtonType.REWARD)
-                slot = EnumItemSlot.a;
-            PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(armorStand.ae(), Collections.singletonList(new Pair(slot, icon)));
-            (((CraftPlayer)this.owner).getHandle()).b.a((Packet)packet);
-        }
+    public void equipIcon(EntityArmorStand armorStand, TIcon icon) {
+        Main.nmsUtil.equipIcon(owner, armorStand, icon.getItemStack(), icon.getItemSlot());
     }
 
     public void hide(boolean isHiding) {
@@ -598,7 +595,7 @@ public class Button implements TButton {
         return this.isHiding;
     }
 
-    public void setIcon(ItemStack icon) {
+    public void setIcon(TIcon icon) {
         this.icon = icon;
     }
 
@@ -637,7 +634,7 @@ public class Button implements TButton {
         isHiding = hiding;
     }
 
-    public ItemStack getIcon() {
+    public TIcon getIcon() {
         return icon;
     }
 

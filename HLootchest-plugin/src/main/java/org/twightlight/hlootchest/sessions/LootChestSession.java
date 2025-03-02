@@ -14,14 +14,14 @@ import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.session.SessionCloseEvent;
 import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
-import org.twightlight.hlootchest.api.interfaces.TBox;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
-import org.twightlight.hlootchest.api.interfaces.TSessions;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;
 
-public class LootChestSessions extends SessionsManager implements TSessions {
+public class LootChestSession extends SessionsManager implements TSession {
 
     Player player;
 
@@ -33,7 +33,7 @@ public class LootChestSessions extends SessionsManager implements TSessions {
 
     Collection<PotionEffect> potionEffects;
 
-    public LootChestSessions(Player p, String identifier) {
+    public LootChestSession(Player p, String identifier) {
         if (HLootchest.getNms().getBoxFromPlayer(p) == null) {
             player = p;
             SessionsManager.sessions.putIfAbsent(p, this);

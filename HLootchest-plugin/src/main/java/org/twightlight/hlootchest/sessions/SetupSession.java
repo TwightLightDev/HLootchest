@@ -4,13 +4,13 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.events.session.SessionCloseEvent;
 import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
-import org.twightlight.hlootchest.api.interfaces.TBox;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
-import org.twightlight.hlootchest.api.interfaces.TSessions;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 
 
-public class SetupSessions extends SessionsManager implements TSessions {
+public class SetupSession extends SessionsManager implements TSession {
 
     Player player;
 
@@ -18,7 +18,7 @@ public class SetupSessions extends SessionsManager implements TSessions {
 
     private TConfigManager conf;
 
-    public SetupSessions(Player p, TConfigManager configManager) {
+    public SetupSession(Player p, TConfigManager configManager) {
         player = p;
         SessionsManager.sessions.putIfAbsent(p, this);
         conf = configManager;

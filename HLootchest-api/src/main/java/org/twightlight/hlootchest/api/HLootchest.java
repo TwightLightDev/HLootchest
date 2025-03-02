@@ -1,10 +1,10 @@
 package org.twightlight.hlootchest.api;
 
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.api.interfaces.TDatabase;
-import org.twightlight.hlootchest.api.interfaces.TConfigManager;
-import org.twightlight.hlootchest.api.interfaces.TSessions;
-import org.twightlight.hlootchest.api.supports.NMSHandler;
+import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TSession;
+import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 
 import java.util.Map;
 
@@ -24,8 +24,8 @@ public interface HLootchest {
     }
 
     interface SessionUtil {
-        TSessions getSessionFromPlayer(Player p);
-        Map<Player, TSessions> getSessionsList();
+        TSession getSessionFromPlayer(Player p);
+        Map<Player, TSession> getSessionsList();
         void closeAll();
     }
 

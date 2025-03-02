@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.api.interfaces;
+package org.twightlight.hlootchest.api.interfaces.internal;
 
 import com.google.common.reflect.TypeToken;
 import org.bukkit.OfflinePlayer;
@@ -16,6 +16,7 @@ public interface TDatabase {
     <T> T getLootChestData(OfflinePlayer player1, String column1, TypeToken<T> type, T fallback);
 
     Map<String, Integer> getLootChestData(OfflinePlayer player, String column);
-    boolean addData(OfflinePlayer player, String lootchestId, Integer amount, String column);
+    boolean addLootchest(OfflinePlayer player, String lootchestId, Integer amount, String column);
     <T> boolean pullData(OfflinePlayer player, T data, String column);
+    boolean addColumnIfNotExists(String columnName, String columnType, String defaultValue);
 }

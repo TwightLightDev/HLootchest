@@ -7,13 +7,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
-import org.twightlight.hlootchest.api.interfaces.TDatabase;
+import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 public class SQLite implements TDatabase {
     private Connection connection;
@@ -33,7 +32,7 @@ public class SQLite implements TDatabase {
         System.out.println("Creating tables...");
         try {
             Statement statement = getConnection().createStatement();
-            statement.executeUpdate(" CREATE TABLE IF NOT EXISTS hlootchest ( player TEXT PRIMARY KEY, lootchests TEXT DEFAULT '{}', opened TEXT DEFAULT '{}', fallback_loc TEXT DEFAULT ''); ");
+            statement.executeUpdate(" CREATE TABLE IF NOT EXISTS hlootchest ( player TEXT PRIMARY KEY, lootchests TEXT DEFAULT '{}', opened TEXT DEFAULT '{}', fallback_loc TEXT DEFAULT '', awaiting_rewards TEXT DEFAULT NULL); ");
             statement.close();
             System.out.println("Tables created successfully!");
         } catch (SQLException e) {
@@ -73,11 +72,12 @@ public class SQLite implements TDatabase {
             if (player != null)
                 return;
             connection = getConnection();
-            ps = connection.prepareStatement("INSERT INTO hlootchest (player, lootchests, opened, fallback_loc) VALUES (?, ?, ?, ?)");
+            ps = connection.prepareStatement("INSERT INTO hlootchest (player, lootchests, opened, fallback_loc, awaiting_rewards) VALUES (?, ?, ?, ?, ?)");
             ps.setString(1, p.getUniqueId().toString());
             ps.setString(2, "{}");
             ps.setString(3, "{}");
             ps.setString(4, "\"\"");
+            ps.setString(5, "NULL");
             ps.executeUpdate();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -97,10 +97,9 @@ public class SQLite implements TDatabase {
         return this.type;
     }
 
-
     public <T> T getLootChestData(OfflinePlayer player, String column, TypeToken<T> typeToken, T fallback) {
         try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM hlootchest WHERE player = ?")) {
+            PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM hlootchest WHERE player = ?")) {
 
             ps.setString(1, player.getUniqueId().toString());
             ResultSet rs = ps.executeQuery();
@@ -114,6 +113,8 @@ public class SQLite implements TDatabase {
                     } catch (JsonSyntaxException e) {
                         Bukkit.getLogger().warning("Invalid JSON in database for " + column + ": " + dataString);
                     }
+                } else {
+                    return fallback;
                 }
             }
         } catch (SQLException e) {
@@ -148,7 +149,7 @@ public class SQLite implements TDatabase {
         }
     }
 
-    public boolean addData(OfflinePlayer player, String lootchestId, Integer amount, String column) {
+    public boolean addLootchest(OfflinePlayer player, String lootchestId, Integer amount, String column) {
         Map<String, Integer> lchs = getLootChestData(player, column);
         if (!lchs.containsKey(lootchestId)) {
             return false;
@@ -158,6 +159,40 @@ public class SQLite implements TDatabase {
         }
         lchs.put(lootchestId, lchs.get(lootchestId) + amount);
         return pullData(player, lchs, column);
+    }
+
+    public boolean addColumnIfNotExists(String columnName, String columnType, String defaultValue) {
+
+        try (Connection conn = getConnection();
+             Statement stmt = conn.createStatement()) {
+
+            if (!columnExists(columnName)) {
+
+                String statement = "ALTER TABLE hlootchest ADD COLUMN " + columnName + " " + columnType +
+                        (defaultValue != null ? " DEFAULT " + defaultValue : "") + ";";
+                stmt.executeUpdate(statement);
+                return true;
+            } else {
+                return false;
+            }
+
+        } catch (SQLException e) {
+            return false;
+        }
+    }
+
+    private boolean columnExists(String columnName) throws SQLException {
+        Connection conn = getConnection();
+        String query = "PRAGMA table_info(hlootchest)";
+        try (PreparedStatement pstmt = conn.prepareStatement(query);
+            ResultSet rs = pstmt.executeQuery()) {
+            while (rs.next()) {
+                if (columnName.equalsIgnoreCase(rs.getString("name"))) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
 

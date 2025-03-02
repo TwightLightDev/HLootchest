@@ -9,12 +9,12 @@ import org.bukkit.craftbukkit.v1_16_R3.entity.CraftArmorStand;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
-import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
-import org.twightlight.hlootchest.api.interfaces.NMSService;
+import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 import org.twightlight.hlootchest.supports.v1_16_R3.Main;
 
 import java.util.Collections;
@@ -56,9 +56,16 @@ public class NMSUtil implements NMSService {
         }
     }
 
+    public void equipIcon(Player p, ArmorStand entityLiving, TIcon icon) {
+        equipIcon(p, entityLiving, icon.getItemStack(), icon.getItemSlot());
+    }
+
     public void equipIcon(Player p, ArmorStand entityLiving, ItemStack bukkiticon, ItemSlot slot) {
+        equipIcon(p, ((CraftArmorStand) entityLiving).getHandle(), bukkiticon, slot);
+    }
+
+    public void equipIcon(Player p, EntityArmorStand nmsEntity, ItemStack bukkiticon, ItemSlot slot) {
         if (bukkiticon != null) {
-            EntityArmorStand nmsEntity = ((CraftArmorStand) entityLiving).getHandle();
             net.minecraft.server.v1_16_R3.ItemStack icon = CraftItemStack.asNMSCopy(bukkiticon);
             EnumItemSlot slotint = EnumItemSlot.MAINHAND;
             switch (slot) {
@@ -87,6 +94,37 @@ public class NMSUtil implements NMSService {
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
         }
     }
+
+    @SuppressWarnings("unchecked")
+    public <T extends Entity> T summonVehicle(Location loc, Class<T> entityClass) {
+        EntityType entityType = getEntityType(entityClass);
+        if (entityType == null) {
+            throw new IllegalArgumentException("Unsupported entity class: " + entityClass.getName());
+        }
+        Entity vehicle = loc.getWorld().spawnEntity(loc.clone().add(0, -0.3, 0), entityType);
+
+        vehicle.setCustomName("LootchestVehicle");
+        vehicle.setCustomNameVisible(false);
+        vehicle.setSilent(true);
+        vehicle.setInvulnerable(true);
+        vehicle.setGravity(false);
+        if (vehicle instanceof LivingEntity) {
+            ((LivingEntity) vehicle).setAI(false);
+            ((LivingEntity) vehicle).setInvisible(true);
+            ((LivingEntity) vehicle).setCollidable(false);
+        }
+        return (T) vehicle;
+    }
+
+    private EntityType getEntityType(Class<? extends Entity> entityClass) {
+        for (EntityType type : EntityType.values()) {
+            if (type.getEntityClass() != null && type.getEntityClass().equals(entityClass)) {
+                return type;
+            }
+        }
+        return null;
+    }
+
     public void drawCircle(Player player, ArmorStand armorStand, Location center, double radius, double rotX, double rotY, double rotZ, int points) {
         Animations.DrawCircle(player, ((CraftArmorStand) armorStand).getHandle(), center, radius, points, rotX, rotY, rotZ);
     }
