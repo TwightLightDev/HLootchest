@@ -88,11 +88,11 @@ public class Animations {
             val += 360.0F;
         packetArmorStand.o(val);
         PacketPlayOutEntityTeleport teleportPacket = new PacketPlayOutEntityTeleport((Entity)packetArmorStand);
-        (((CraftPlayer)player).getHandle()).b.a((Packet)teleportPacket);
+        (((CraftPlayer)player).getHandle()).b.a(teleportPacket);
 
 
         PacketPlayOutEntity.PacketPlayOutEntityLook lookPacket = new PacketPlayOutEntity.PacketPlayOutEntityLook(packetArmorStand.ae(), (byte)(int)(val * 256.0F / 360.0F), (byte)(int)(Main.getPitch(packetArmorStand) * 256.0F / 360.0F), true);
-        (((CraftPlayer)player).getHandle()).b.a((Packet)lookPacket);
+        (((CraftPlayer)player).getHandle()).b.a(lookPacket);
     }
 
 

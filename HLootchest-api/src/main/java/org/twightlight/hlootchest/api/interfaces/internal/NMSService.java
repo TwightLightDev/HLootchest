@@ -14,6 +14,8 @@ public interface NMSService {
     void sendDespawnPacket(Player player, Entity entityLiving);
     void equipIcon(Player p, ArmorStand entityLiving, TIcon icon);
     void equipIcon(Player p, ArmorStand entityLiving, ItemStack bukkiticon, ItemSlot slot);
+    void teleport(Player player, Entity entityLiving, Location location);
+    void lockAngle(Player p, Location loc, long duration);
     <T extends Entity> T summonVehicle(Location loc, Class<T> entityClass);
     void drawCircle(Player player, ArmorStand armorStand, Location center, double radius, double rotX, double rotY, double rotZ, int points);
     void moveBackward(Player player, ArmorStand armorStand, float val);

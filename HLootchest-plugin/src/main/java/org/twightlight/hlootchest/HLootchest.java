@@ -73,37 +73,45 @@ public final class HLootchest extends JavaPlugin {
             case "12":
                 nms = new org.twightlight.hlootchest.supports.v1_12_R1.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Regular::new);
+                nms.register("mystic", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Mystic::new);
                 break;
             case "16":
                 nms = new org.twightlight.hlootchest.supports.v1_16_R3.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_16_R3.boxes.Regular::new);
+                nms.register("mystic", org.twightlight.hlootchest.supports.v1_16_R3.boxes.Mystic::new);
                 break;
             case "17":
                 nms = new org.twightlight.hlootchest.supports.v1_17_R1.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_17_R1.boxes.Regular::new);
+                nms.register("mystic", org.twightlight.hlootchest.supports.v1_17_R1.boxes.Mystic::new);
                 break;
             case "18":
                 nms = new org.twightlight.hlootchest.supports.v1_18_R2.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_18_R2.boxes.Regular::new);
+                nms.register("mystic", org.twightlight.hlootchest.supports.v1_18_R2.boxes.Mystic::new);
                 break;
             case "19":
                 nms = new org.twightlight.hlootchest.supports.v1_19_R3.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
                 break;
             case "20":
                 String minor = Bukkit.getBukkitVersion().split("-")[0].split("\\.").length > 2 ? Bukkit.getBukkitVersion().split("-")[0].split("\\.")[2] : "0";
                 if (Integer.parseInt(minor) <= 4) {
                     nms = new org.twightlight.hlootchest.supports.v1_20_R3.Main(this, version, api);
                     nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                    nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
                     break;
                 } else {
                     nms = new org.twightlight.hlootchest.supports.v1_20_R4.Main(this, version, api);
                     nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                    nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
                     break;
                 }
             case "21":
                 nms = new org.twightlight.hlootchest.supports.v1_21_R3.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
                 break;
             default:
                 Utility.info("Sorry, this version is unsupported! HLootChest will be disable!");

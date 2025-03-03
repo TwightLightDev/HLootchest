@@ -3,9 +3,11 @@ package org.twightlight.hlootchest.supports.v1_19_R3.utilities;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.entity.*;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.metadata.FixedMetadataValue;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
@@ -61,6 +63,23 @@ public class NMSUtil implements NMSService {
 
             entityLiving.getEquipment().setItem(slotint, bukkiticon);
         }
+    }
+
+    public void teleport(Player player, Entity entityLiving, Location location) {
+        entityLiving.teleport(location);
+    }
+
+    public void lockAngle(Player p, Location loc, long duration) {
+        (new BukkitRunnable() {
+            long startTime = System.currentTimeMillis();
+            public void run() {
+                if (System.currentTimeMillis() - this.startTime > duration * 50)
+                    return;
+                if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
+                    p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                }
+            }
+        }).runTaskTimer(Main.handler.plugin, 0L, 2L);
     }
 
     @SuppressWarnings("unchecked")

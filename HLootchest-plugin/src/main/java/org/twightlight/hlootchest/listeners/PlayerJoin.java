@@ -54,7 +54,7 @@ public class PlayerJoin implements Listener{
                 player.setVelocity(new Vector(0, 0, 0));
                 HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, "", "fallback_loc");
             } catch (Exception ignored) {}
-        }, 2L);
+        }, 3L);
         Bukkit.getScheduler().runTaskLater(HLootchest.getInstance(), () -> {
             try {
                 List<Reward> awaiting_rewards = HLootchest.getAPI().getDatabaseUtil().getDb().getLootChestData(player, "awaiting_rewards", new TypeToken<List<Reward>>() {}, Collections.emptyList());
@@ -63,8 +63,7 @@ public class PlayerJoin implements Listener{
                         reward.accept(player);
                     }
 
-                    HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, "NULL", "awaiting_rewards");
-
+                    HLootchest.getAPI().getDatabaseUtil().getDb().pullData(player, null, "awaiting_rewards");
                 }
 
             } catch (Exception ignored) {}

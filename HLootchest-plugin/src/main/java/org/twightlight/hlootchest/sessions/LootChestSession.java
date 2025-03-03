@@ -96,6 +96,10 @@ public class LootChestSession extends SessionsManager implements TSession {
                                     int currentTick = 0;
                                     @Override
                                     public void run() {
+                                        if (!player.isOnline()) {
+                                            this.cancel();
+                                        }
+
                                         while (!taskQueue.isEmpty() && taskQueue.peek().getDelay() <= currentTick) {
                                             ButtonTask task = taskQueue.poll();
                                             String path = task.getPath();
@@ -147,9 +151,7 @@ public class LootChestSession extends SessionsManager implements TSession {
 
     public void close() {
         box.removeVehicle(player);
-        Bukkit.getScheduler().runTaskLater(HLootchest.getInstance(), () -> {
-                    box.getOwner().teleport(box.getPlayerInitialLoc());
-                }, 1L);
+        box.getOwner().teleport(box.getPlayerInitialLoc());
         HLootchest.getAPI().getDatabaseUtil().getDb().pullData(box.getOwner(), "", "fallback_loc");
         box.remove();
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.FUNCTIONAL);

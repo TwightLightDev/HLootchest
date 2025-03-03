@@ -1,16 +1,18 @@
-package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
+package org.twightlight.hlootchest.supports.v1_16_R3.boxes;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import fr.mrmicky.fastparticles.ParticleType;
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_16_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_16_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftArmorStand;
+import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
+import org.bukkit.entity.Entity;
+import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -19,7 +21,7 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
-import org.twightlight.hlootchest.supports.v1_8_R3.Main;
+import org.twightlight.hlootchest.supports.v1_16_R3.Main;
 
 import java.util.Collections;
 import java.util.Random;
@@ -138,9 +140,10 @@ public class Mystic extends BoxManager {
                 if (scale >= 1.5) shrinking = true;
                 if (scale <= 0.8) shrinking = false;
 
-
                 DataWatcher dataWatcher = getBox().getDataWatcher();
-                dataWatcher.watch(11, new Vector3f(0, (float) (scale * 10), 0));
+
+                Vector3f pose = new Vector3f(0, (float) scale*10, 0);
+                dataWatcher.set(new DataWatcherObject<>(15, DataWatcherRegistry.k), pose);
                 PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(getBox().getId(), dataWatcher, true);
                 ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(packet);
 
@@ -230,16 +233,14 @@ public class Mystic extends BoxManager {
                     double offsetZ = (random.nextDouble() - 0.5) * 16;
                     Location strikeLoc = center.clone().add(offsetX, 0, offsetZ);
 
-
-                    EntityLightning lightning = new EntityLightning(((CraftWorld) center.getWorld()).getHandle(),
-                            strikeLoc.getX(), strikeLoc.getY(), strikeLoc.getZ(), false, false);
-                    PacketPlayOutSpawnEntityWeather lightningPacket = new PacketPlayOutSpawnEntityWeather(lightning);
+                    EntityLightning lightning = new EntityLightning(EntityTypes.LIGHTNING_BOLT, ((CraftWorld) strikeLoc.getWorld()).getHandle());
+                    Entity lightningEntity = lightning.getBukkitEntity();
+                    Main.nmsUtil.sendSpawnPacket(getOwner(), lightningEntity);
 
                     getOwner().playSound(getPlayerLocation(), XSound.ENTITY_LIGHTNING_BOLT_THUNDER.parseSound(), 10, 0.8f + (random.nextFloat()) * 0.4f);
-                    ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(lightningPacket);
 
                     Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
-                        Main.nmsUtil.sendDespawnPacket(getOwner(), lightning.getBukkitEntity());
+                        Main.nmsUtil.sendDespawnPacket(getOwner(), lightningEntity);
                     }, 5L);
                 }
                 ticks += 15;

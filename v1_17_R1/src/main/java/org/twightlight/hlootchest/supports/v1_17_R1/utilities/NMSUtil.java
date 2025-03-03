@@ -2,10 +2,7 @@ package org.twightlight.hlootchest.supports.v1_17_R1.utilities;
 
 import com.mojang.datafixers.util.Pair;
 import net.minecraft.network.chat.IChatBaseComponent;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityEquipment;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntityLiving;
+import net.minecraft.network.protocol.game.*;
 import net.minecraft.network.syncher.DataWatcherObject;
 import net.minecraft.network.syncher.DataWatcherRegistry;
 import net.minecraft.server.level.WorldServer;
@@ -20,7 +17,9 @@ import org.bukkit.craftbukkit.v1_17_R1.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_17_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_17_R1.inventory.CraftItemStack;
 import org.bukkit.entity.*;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
@@ -101,6 +100,37 @@ public class NMSUtil implements NMSService {
 
             ((CraftPlayer) p).getHandle().b.sendPacket(packet);
         }
+    }
+
+    public void teleport(Player player, Entity entityLiving, Location location) {
+        net.minecraft.world.entity.Entity nmsEntity = ((CraftEntity) entityLiving).getHandle();
+        nmsEntity.setPositionRaw(
+                location.getX(),
+                location.getY(),
+                location.getZ()
+        );
+        PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(nmsEntity);
+        ((CraftPlayer) player).getHandle().b.sendPacket(packet);
+        PacketPlayOutEntity.PacketPlayOutEntityLook lookPacket = new PacketPlayOutEntity.PacketPlayOutEntityLook(
+                nmsEntity.getId(),
+                (byte) ((location.getYaw() * 256.0F) / 360.0F),
+                (byte) ((location.getPitch() * 256.0F) / 360.0F),
+                true
+        );
+        ((CraftPlayer) player).getHandle().b.sendPacket(lookPacket);
+    }
+
+    public void lockAngle(Player p, Location loc, long duration) {
+        (new BukkitRunnable() {
+            long startTime = System.currentTimeMillis();
+            public void run() {
+                if (System.currentTimeMillis() - this.startTime > duration * 50)
+                    return;
+                if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
+                    p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                }
+            }
+        }).runTaskTimer(Main.handler.plugin, 0L, 2L);
     }
 
     @SuppressWarnings("unchecked")

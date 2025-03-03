@@ -11,7 +11,9 @@ import org.bukkit.craftbukkit.v1_16_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_16_R3.inventory.CraftItemStack;
 import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
+import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
+import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
@@ -93,6 +95,32 @@ public class NMSUtil implements NMSService {
             );
             ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
         }
+    }
+
+    public void teleport(Player player, Entity entityLiving, Location location) {
+        net.minecraft.server.v1_16_R3.Entity nmsEntity = ((CraftEntity) entityLiving).getHandle();
+        nmsEntity.setLocation(
+                location.getX(),
+                location.getY(),
+                location.getZ(),
+                location.getYaw(),
+                location.getPitch()
+        );
+        PacketPlayOutEntityTeleport packet = new PacketPlayOutEntityTeleport(nmsEntity);
+        ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+    }
+
+    public void lockAngle(Player p, Location loc, long duration) {
+        (new BukkitRunnable() {
+            long startTime = System.currentTimeMillis();
+            public void run() {
+                if (System.currentTimeMillis() - this.startTime > duration * 50)
+                    return;
+                if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
+                    p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                }
+            }
+        }).runTaskTimer(Main.handler.plugin, 0L, 2L);
     }
 
     @SuppressWarnings("unchecked")

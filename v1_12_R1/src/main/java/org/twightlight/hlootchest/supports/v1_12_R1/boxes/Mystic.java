@@ -1,15 +1,15 @@
-package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
+package org.twightlight.hlootchest.supports.v1_12_R1.boxes;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
 import fr.mrmicky.fastparticles.ParticleType;
-import net.minecraft.server.v1_8_R3.*;
+import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
-import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
-import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
+import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftArmorStand;
+import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
@@ -19,7 +19,7 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
-import org.twightlight.hlootchest.supports.v1_8_R3.Main;
+import org.twightlight.hlootchest.supports.v1_12_R1.Main;
 
 import java.util.Collections;
 import java.util.Random;
@@ -138,9 +138,10 @@ public class Mystic extends BoxManager {
                 if (scale >= 1.5) shrinking = true;
                 if (scale <= 0.8) shrinking = false;
 
-
                 DataWatcher dataWatcher = getBox().getDataWatcher();
-                dataWatcher.watch(11, new Vector3f(0, (float) (scale * 10), 0));
+
+                Vector3f pose = new Vector3f(0, (float) scale*10, 0);
+                dataWatcher.set(new DataWatcherObject<>(12, DataWatcherRegistry.i), pose);
                 PacketPlayOutEntityMetadata packet = new PacketPlayOutEntityMetadata(getBox().getId(), dataWatcher, true);
                 ((CraftPlayer) getOwner()).getHandle().playerConnection.sendPacket(packet);
 
