@@ -79,7 +79,7 @@ public class NMSUtil implements NMSService {
             long startTime = System.currentTimeMillis();
             public void run() {
                 if (System.currentTimeMillis() - this.startTime > duration * 50)
-                    return;
+                    cancel();
                 if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
                     p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
                 }
