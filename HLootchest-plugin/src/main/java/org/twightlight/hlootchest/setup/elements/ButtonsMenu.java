@@ -54,7 +54,6 @@ public class ButtonsMenu {
                 26,
                 (e) -> {
                     p.closeInventory();
-                    final SetupSession session2 = session;
                     ChatSessions sessions = new ChatSessions(p);
                     sessions.prompt(Arrays.asList(new String[] {"&aType the name of the new button: ", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {

@@ -15,12 +15,11 @@ regular:
     click-to-open: false
   buttons:
     '1':
-      location: world, 181, 69.9, 194, 148.5, 0
+      location: world, 179.5, 69.9, 196.3, 90, 0
       icon:
         material: PLAYER_HEAD
         data: 3
-        slot: "HEAD"
-        head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmZjOWNiODAwZjk3MzQ3MzBjMWJkM2U1NDZmNTMyMjVlMTlmNzk4MDFiZDJiN2ZiYTQ1MzM5ODM1ZWJkYjRlMiJ9fX0=
+        head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWE2Nzg3YmEzMjU2NGU3YzJmM2EwY2U2NDQ5OGVjYmIyM2I4OTg0NWU1YTY2YjVjZWM3NzM2ZjcyOWVkMzcifX19
         dynamic: false
       click-sound:
         sound: UI_BUTTON_CLICK
@@ -36,25 +35,7 @@ regular:
         dynamic: true
         refresh-interval: 5
         display-name:
-        - <#FF6600>Close!</#9DFF8A>
-        - <#FF771F>Close!</#88FF9D>
-        - <#FF9A5E>Close!</#66FFAA>
-        - <#FFBC9D>Close!</#44FFBB>
-        - <#FFDFDC>Close!</#22FFCC>
-        - <#EEF6CB>Close!</#11FFD9>
-        - <#DDFEBA>Close!</#00FFE6>
-        - <#CCFFA9>Close!</#00FFF2>
-        - <#AAFF87>Close!</#00FFFC>
-        - <#9DFF8A>Close!</#00FFF2>
-        - <#AAFF87>Close!</#00FFFC>
-        - <#CCFFA9>Close!</#00FFF2>
-        - <#DDFEBA>Close!</#00FFE6>
-        - <#EEF6CB>Close!</#11FFD9>
-        - <#FFDFDC>Close!</#22FFCC>
-        - <#FFBC9D>Close!</#44FFBB>
-        - <#FF9A5E>Close!</#66FFAA>
-        - <#FF771F>Close!</#88FF9D>
-        - <#FF6600>Close!</#9DFF8A>
+        - '&eClose!'
       delay: 30
       spawn-requirements:
         '1':
@@ -62,12 +43,12 @@ regular:
           value: hlc.test
       rotate-on-spawn:
         enable: true
-        final-yaw: -31.5
+        final-yaw: -90
         reverse: true
       actions:
       - '[close]'
     '2':
-      location: world, 184, 69.9, 194, -148.5, 0
+      location: world, 181, 69.9, 194, 148.5, 0
       icon:
         material: PLAYER_HEAD
         data: 3
@@ -89,7 +70,6 @@ regular:
             enable: true
             visible-mode: hover
             display-name: '&eClick to open!'
-      
       click-sound:
         sound: UI_BUTTON_CLICK
         yaw: 10
@@ -101,13 +81,43 @@ regular:
       delay: 30
       rotate-on-spawn:
         enable: true
-        final-yaw: 31.5
+        final-yaw: -31.5
         reverse: false
       name:
         enable: false
         display-name: ''
       actions:
       - '[open]'
+    '3':
+      location: world, 184, 69.9, 194, -148.5, 0
+      icon:
+        material: PLAYER_HEAD
+        data: 3
+        slot: "HEAD"
+        head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGQxNTg0MmExZWM0MDliMWY5YTRlNWE5N2I0MTM3NTYyNTc2MTQwMzhmMWYxZjU5YzVlZjk3OTQxM2EyZWUwMiJ9fX0=
+        dynamic: false
+      click-sound:
+        sound: UI_BUTTON_CLICK
+        yaw: 10
+        pitch: 10
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
+      name:
+        enable: true
+        visible-mode: hover
+        dynamic: true
+        refresh-interval: 5
+        display-name:
+        - '&aShop!'
+      delay: 30
+      rotate-on-spawn:
+        enable: true
+        final-yaw: 31.5
+        reverse: true
+      actions:
+      - '[player] dm open shop'
   rewards-location:
   - world, 182.5, 71.1, 193.2, 0, 0
   - world, 180, 71.1, 194.5, -55, 0
@@ -135,11 +145,11 @@ mystic:
     click-to-open: false
   buttons:
     '1':
-      location: world, 181, 69.9, 194, 148.5, 0
+      location: world, 179.5, 69.9, 196.3, 90, 0
       icon:
         material: PLAYER_HEAD
         data: 3
-        head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvZmZjOWNiODAwZjk3MzQ3MzBjMWJkM2U1NDZmNTMyMjVlMTlmNzk4MDFiZDJiN2ZiYTQ1MzM5ODM1ZWJkYjRlMiJ9fX0=
+        head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNWE2Nzg3YmEzMjU2NGU3YzJmM2EwY2U2NDQ5OGVjYmIyM2I4OTg0NWU1YTY2YjVjZWM3NzM2ZjcyOWVkMzcifX19
         dynamic: false
       click-sound:
         sound: UI_BUTTON_CLICK
@@ -155,25 +165,7 @@ mystic:
         dynamic: true
         refresh-interval: 5
         display-name:
-        - <#FF6600>Close!</#9DFF8A>
-        - <#FF771F>Close!</#88FF9D>
-        - <#FF9A5E>Close!</#66FFAA>
-        - <#FFBC9D>Close!</#44FFBB>
-        - <#FFDFDC>Close!</#22FFCC>
-        - <#EEF6CB>Close!</#11FFD9>
-        - <#DDFEBA>Close!</#00FFE6>
-        - <#CCFFA9>Close!</#00FFF2>
-        - <#AAFF87>Close!</#00FFFC>
-        - <#9DFF8A>Close!</#00FFF2>
-        - <#AAFF87>Close!</#00FFFC>
-        - <#CCFFA9>Close!</#00FFF2>
-        - <#DDFEBA>Close!</#00FFE6>
-        - <#EEF6CB>Close!</#11FFD9>
-        - <#FFDFDC>Close!</#22FFCC>
-        - <#FFBC9D>Close!</#44FFBB>
-        - <#FF9A5E>Close!</#66FFAA>
-        - <#FF771F>Close!</#88FF9D>
-        - <#FF6600>Close!</#9DFF8A>
+        - '&eClose!'
       delay: 30
       spawn-requirements:
         '1':
@@ -181,16 +173,16 @@ mystic:
           value: hlc.test
       rotate-on-spawn:
         enable: true
-        final-yaw: -31.5
+        final-yaw: -90
         reverse: true
       actions:
       - '[close]'
     '2':
-      location: world, 184, 69.9, 194, -148.5, 0
+      location: world, 181, 69.9, 194, 148.5, 0
       icon:
         material: PLAYER_HEAD
         data: 3
-        head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvOWM5NmJlNzg4NmViN2RmNzU1MjVhMzYzZTVmNTQ5NjI2YzIxMzg4ZjBmZGE5ODhhNmU4YmY0ODdhNTMifX19
+        head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTliOTkyMzhkOWY4MTM0MDE1ZDc0MzQxYjE3MTE1YmUzMGYxMjVhMzdlYTQ5MDMyYjhjOWUzYjc2OWNmN2VlMSJ9fX0=
       rotations:
         '1':
           position: HEAD
@@ -208,7 +200,6 @@ mystic:
             enable: true
             visible-mode: hover
             display-name: '&eClick to open!'
-      
       click-sound:
         sound: UI_BUTTON_CLICK
         yaw: 10
@@ -220,13 +211,43 @@ mystic:
       delay: 30
       rotate-on-spawn:
         enable: true
-        final-yaw: 31.5
+        final-yaw: -31.5
         reverse: false
       name:
         enable: false
         display-name: ''
       actions:
       - '[open]'
+    '3':
+      location: world, 184, 69.9, 194, -148.5, 0
+      icon:
+        material: PLAYER_HEAD
+        data: 3
+        slot: "HEAD"
+        head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNGQxNTg0MmExZWM0MDliMWY5YTRlNWE5N2I0MTM3NTYyNTc2MTQwMzhmMWYxZjU5YzVlZjk3OTQxM2EyZWUwMiJ9fX0=
+        dynamic: false
+      click-sound:
+        sound: UI_BUTTON_CLICK
+        yaw: 10
+        pitch: 10
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
+      name:
+        enable: true
+        visible-mode: hover
+        dynamic: true
+        refresh-interval: 5
+        display-name:
+        - '&aShop!'
+      delay: 30
+      rotate-on-spawn:
+        enable: true
+        final-yaw: 31.5
+        reverse: true
+      actions:
+      - '[player] dm open shop'
   rewards-location:
   - world, 182.5, 71.1, 193.2, 0, 0
   - world, 180, 71.1, 194.5, -55, 0

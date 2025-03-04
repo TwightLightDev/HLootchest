@@ -15,12 +15,17 @@ import org.twightlight.hlootchest.supports.v1_19_R3.Main;
 
 public class NMSUtil implements NMSService {
     public ArmorStand createArmorStand(Player p, Location location, String name, boolean isNameEnable) {
+        return createArmorStand(p, location, name, false, isNameEnable);
+    }
+
+    public ArmorStand createArmorStand(Player p, Location location, String name, boolean isSmall, boolean isNameEnable) {
         ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
         armorStand.setCustomNameVisible(isNameEnable);
         armorStand.setCustomName(Main.p(p, ChatColor.translateAlternateColorCodes('&', name)));
         armorStand.setVisible(false);
         armorStand.setGravity(false);
         armorStand.setVisibleByDefault(false);
+        armorStand.setSmall(isSmall);
         armorStand.setMetadata("removeOnRestart", new FixedMetadataValue(Main.handler.plugin, true));
         return armorStand;
     }

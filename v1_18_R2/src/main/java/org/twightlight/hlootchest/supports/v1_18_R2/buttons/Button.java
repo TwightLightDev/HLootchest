@@ -117,7 +117,8 @@ public class Button implements TButton {
         } else {
             name = (config.getList(path + ".name.display-name") != null) ? config.getList(path + ".name.display-name").get(0) : "";
         }
-        final EntityArmorStand armorStand = createArmorStand(location, name, enableName);
+        boolean isSmall = config.getBoolean(path + ".small", false);
+        final EntityArmorStand armorStand = createArmorStand(location, name, isSmall, enableName);
         this.id = armorStand.ae();
         this.armorstand = armorStand;
         Main.rotate(this.armorstand, config, path);
@@ -291,7 +292,9 @@ public class Button implements TButton {
                         } else {
                             name1 = (config.getList(newpath + ".name.display-name") != null) ? config.getList(newpath + ".name.display-name").get(0) : "";
                         }
-                        final EntityArmorStand child = createArmorStand(childlocation, name1, childEnableName);
+                        boolean isSmallChild = config.getBoolean(newpath + ".small", false);
+
+                        final EntityArmorStand child = createArmorStand(childlocation, name1, isSmallChild, childEnableName);
                         Main.rotate(child, config, newpath);
                         linkedStandsSettings.computeIfAbsent(child, k -> new ArrayList()).add(childNameVisibleMode);
                         linkedStands.get(this).add(child);
@@ -452,13 +455,14 @@ public class Button implements TButton {
         }
     }
 
-    private EntityArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
+    private EntityArmorStand createArmorStand(Location location, String name, boolean isSmall, boolean isNameEnable) {
         WorldServer nmsWorld = ((CraftWorld)location.getWorld()).getHandle();
         EntityArmorStand armorStand = new EntityArmorStand((World)nmsWorld, location.getX(), location.getY(), location.getZ());
         armorStand.n(isNameEnable);
         armorStand.a(IChatBaseComponent.a(Main.p(this.owner, ChatColor.translateAlternateColorCodes('&', name))));
         armorStand.j(true);
         armorStand.e(true);
+        armorStand.a(isSmall);
         armorStand.o(location.getYaw());
         armorStand.p(location.getPitch());
         return armorStand;

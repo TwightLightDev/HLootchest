@@ -29,6 +29,10 @@ import java.util.Collections;
 
 public class NMSUtil implements NMSService {
     public ArmorStand createArmorStand(Player p, Location location, String name, boolean isNameEnable) {
+        return createArmorStand(p, location, name, false, isNameEnable);
+    }
+
+    public ArmorStand createArmorStand(Player p, Location location, String name, boolean isSmall, boolean isNameEnable) {
         WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
@@ -36,6 +40,7 @@ public class NMSUtil implements NMSService {
         armorStand.setCustomName(IChatBaseComponent.a(Main.p(p, ChatColor.translateAlternateColorCodes('&', name))));
         armorStand.setInvisible(true);
         armorStand.setNoGravity(true);
+        armorStand.setSmall(isSmall);
 
         armorStand.setYRot(location.getYaw());
         armorStand.setXRot(location.getPitch());

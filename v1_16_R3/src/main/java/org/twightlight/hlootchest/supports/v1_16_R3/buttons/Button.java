@@ -92,7 +92,8 @@ public class Button implements TButton {
         } else {
             name = (config.getList(path + ".name.display-name") != null) ? config.getList(path + ".name.display-name").get(0) : "";
         }
-        final EntityArmorStand armorStand = createArmorStand(location, name, enableName);
+        boolean isSmall = config.getBoolean(path + ".small", false);
+        final EntityArmorStand armorStand = createArmorStand(location, name, isSmall, enableName);
         this.id = armorStand.getId();
 
         this.armorstand = armorStand;
@@ -281,7 +282,8 @@ public class Button implements TButton {
                         } else {
                             name1 = (config.getList(newpath + ".name.display-name") != null) ? config.getList(newpath + ".name.display-name").get(0) : "";
                         }
-                        final EntityArmorStand child = createArmorStand(childlocation, name1, childEnableName);
+                        boolean isSmallChild = config.getBoolean(newpath + ".small", false);
+                        final EntityArmorStand child = createArmorStand(childlocation, name1, isSmallChild, childEnableName);
                         Main.rotate(child, config, newpath);
                         linkedStandsSettings.computeIfAbsent(child, k -> new ArrayList()).add(childNameVisibleMode);
                         linkedStands.get(this).add(child);
@@ -458,7 +460,7 @@ public class Button implements TButton {
         }
     }
 
-    private EntityArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
+    private EntityArmorStand createArmorStand(Location location, String name, boolean isSmall, boolean isNameEnable) {
         WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
@@ -466,6 +468,7 @@ public class Button implements TButton {
         armorStand.setCustomName(Main.IChatBaseComponentfromString(Main.p(owner, ChatColor.translateAlternateColorCodes('&', name))));
         armorStand.setInvisible(true);
         armorStand.setNoGravity(true);
+        armorStand.setSmall(isSmall);
 
         armorStand.yaw = location.getYaw();
         armorStand.pitch = location.getPitch();

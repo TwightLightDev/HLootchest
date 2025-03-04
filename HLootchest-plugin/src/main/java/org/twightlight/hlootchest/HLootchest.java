@@ -221,9 +221,8 @@ public final class HLootchest extends JavaPlugin {
         return hex_gradient;
     }
 
-
     public static String getVersion() {
-        return "1.0.4";
+        return "1.0.6";
     }
 
     public static String getAPIVersion() {

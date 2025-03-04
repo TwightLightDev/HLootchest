@@ -9,6 +9,7 @@ import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 
 public interface NMSService {
+    ArmorStand createArmorStand(Player p, Location location, String name, boolean isSmall, boolean isNameEnable);
     ArmorStand createArmorStand(Player p, Location location, String name, boolean isNameEnable);
     void sendSpawnPacket(Player player, Entity entityLiving);
     void sendDespawnPacket(Player player, Entity entityLiving);

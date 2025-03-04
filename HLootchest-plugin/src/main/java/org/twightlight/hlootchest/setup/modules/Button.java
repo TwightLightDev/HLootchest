@@ -259,6 +259,19 @@ public class Button {
                         p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".holding-icon")));
                         setItems(inv);
                     });
+            MenuManager.setItem(p,
+                    inv,
+                    HLootchest.getNms().createItem(XMaterial.GOLD_NUGGET.parseMaterial(), "", 0,
+                            "&bSmall",
+                            Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".small", false)),
+                                    "", "&eClick to change!"}),
+                            false),
+                    32,
+                    (e) -> {
+                        templateFile.setNotSave(name + path + ".small", !templateFile.getBoolean(name + path + ".small", false));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".small")));
+                        setItems(inv);
+                    });
             List<String> actions = Collections.emptyList();
             if (templateFile.getYml().contains(name + path + ".actions")) {
                 actions = templateFile.getList(name + path + ".actions");
@@ -395,6 +408,19 @@ public class Button {
                     15,
                     (e) -> {
                         new Icon(p, templateFile, name, path + ".icon", session, isChild, (ev) -> new Button(p, templateFile, name, path, session, isChild));
+                    });
+            MenuManager.setItem(p,
+                    inv,
+                    HLootchest.getNms().createItem(XMaterial.GOLD_NUGGET.parseMaterial(), "", 0,
+                            "&bSmall",
+                            Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".small", false)),
+                                    "", "&eClick to change!"}),
+                            false),
+                    20,
+                    (e) -> {
+                        templateFile.setNotSave(name + path + ".small", !templateFile.getBoolean(name + path + ".small", false));
+                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".small")));
+                        setItems(inv);
                     });
         }
         p.openInventory(inv);

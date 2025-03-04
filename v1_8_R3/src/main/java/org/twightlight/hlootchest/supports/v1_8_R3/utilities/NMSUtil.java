@@ -20,11 +20,14 @@ import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 import org.twightlight.hlootchest.supports.v1_8_R3.Main;
 
-import java.util.HashSet;
 
 public class NMSUtil implements NMSService {
 
     public ArmorStand createArmorStand(Player p, Location location, String name, boolean isNameEnable) {
+        return createArmorStand(p, location, name, false, isNameEnable);
+    }
+
+    public ArmorStand createArmorStand(Player p, Location location, String name, boolean isSmall, boolean isNameEnable) {
         WorldServer nmsWorld = ((CraftWorld) location.getWorld()).getHandle();
         EntityArmorStand armorStand = new EntityArmorStand(nmsWorld, location.getX(), location.getY(), location.getZ());
 
@@ -32,6 +35,7 @@ public class NMSUtil implements NMSService {
         armorStand.setCustomName(Main.p(p, ChatColor.translateAlternateColorCodes('&', name)));
         armorStand.setInvisible(true);
         armorStand.setGravity(false);
+        armorStand.setSmall(isSmall);
 
         armorStand.yaw = location.getYaw();
         armorStand.pitch = location.getPitch();

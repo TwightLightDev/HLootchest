@@ -104,7 +104,8 @@ public class Button implements TButton {
         } else {
             name = (config.getList(path + ".name.display-name") != null) ? config.getList(path + ".name.display-name").get(0) : "";
         }
-        final ArmorStand armorStand = createArmorStand(location, name, enableName);
+        boolean isSmall = config.getBoolean(path + ".small", false);
+        final ArmorStand armorStand = createArmorStand(location, name, isSmall, enableName);
         this.id = (armorStand).getEntityId();
         this.armorstand = armorStand;
         Main.rotate(this.armorstand, config, path);
@@ -277,7 +278,8 @@ public class Button implements TButton {
                         } else {
                             name1 = (config.getList(newpath + ".name.display-name") != null) ? config.getList(newpath + ".name.display-name").get(0) : "";
                         }
-                        final ArmorStand child = createArmorStand(childlocation, name1, childEnableName);
+                        boolean isSmallChild = config.getBoolean(newpath + ".small", false);
+                        final ArmorStand child = createArmorStand(childlocation, name1, isSmallChild, childEnableName);
                         Main.rotate(child, config, newpath);
                         linkedStandsSettings.computeIfAbsent(child, k -> new ArrayList()).add(childNameVisibleMode);
                         linkedStands.get(this).add(child);
@@ -438,12 +440,13 @@ public class Button implements TButton {
         }
     }
 
-    private ArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
+    private ArmorStand createArmorStand(Location location, String name, boolean isSmall, boolean isNameEnable) {
         ArmorStand armorStand = (ArmorStand) location.getWorld().spawnEntity(location, EntityType.ARMOR_STAND);
         armorStand.setCustomNameVisible(isNameEnable);
         armorStand.setCustomName(Main.p(this.owner, ChatColor.translateAlternateColorCodes('&', name)));
         armorStand.setVisible(false);
         armorStand.setGravity(false);
+        armorStand.setSmall(isSmall);
         armorStand.setVisibleByDefault(false);
         return armorStand;
     }
