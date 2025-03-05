@@ -18,7 +18,6 @@ public interface TBox {
     Player getOwner();
     Location getLoc();
     ItemStack getIcon();
-    Location getPlayerInitialLoc();
     Map<Player, Pig> getVehiclesList();
     void removeVehicle(Player p);
     TBox getInstance();

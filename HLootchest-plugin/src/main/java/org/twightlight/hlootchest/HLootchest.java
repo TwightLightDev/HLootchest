@@ -20,6 +20,7 @@ import org.twightlight.hlootchest.listeners.PlayerQuit;
 import org.twightlight.hlootchest.listeners.Setup;
 import org.twightlight.hlootchest.supports.PlaceholdersAPI;
 import org.twightlight.hlootchest.utils.ColorUtils;
+import org.twightlight.hlootchest.utils.Metrics;
 import org.twightlight.hlootchest.utils.Utility;
 import org.twightlight.hlootchest.utils.VersionChecker;
 
@@ -51,6 +52,10 @@ public final class HLootchest extends JavaPlugin {
         loadDatabase();
         loadPlaceholdersAPI();
         loadCredit();
+
+        if (mainConfig.getBoolean("metrics")) {
+            loadMetrics();
+        }
         new VersionChecker(this, "122671").checkForUpdates();
 
     }
@@ -196,6 +201,14 @@ public final class HLootchest extends JavaPlugin {
         }
     }
 
+    private void loadMetrics() {
+        int pluginId = 24836;
+        Metrics metrics = new Metrics(this, pluginId);
+
+        metrics.addCustomChart(new Metrics.SingleLineChart("players_online", () -> Bukkit.getOnlinePlayers().size()));
+
+        metrics.addCustomChart(new Metrics.SingleLineChart("servers", () -> 1));
+    }
 
     public static NMSHandler getNms() {
         return nms;
@@ -222,7 +235,7 @@ public final class HLootchest extends JavaPlugin {
     }
 
     public static String getVersion() {
-        return "1.0.6";
+        return "1.0.7";
     }
 
     public static String getAPIVersion() {

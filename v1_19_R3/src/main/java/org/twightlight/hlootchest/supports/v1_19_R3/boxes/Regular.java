@@ -21,8 +21,8 @@ import org.twightlight.hlootchest.supports.v1_19_R3.utilities.Animations;
 
 public class Regular extends BoxManager {
     private final ArmorStand sword;
-    public Regular(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
-        super(location, player, icon, config, boxid, initialLocation);
+    public Regular(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid) {
+        super(location, player, icon, config, boxid);
         final Location loc = Main.handler.stringToLocation(config.getString(boxid + ".settings.decoration.location"));
 
         this.sword = createArmorStand(loc, "", false);
@@ -106,7 +106,7 @@ public class Regular extends BoxManager {
 
                     Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_GENERIC_EXPLODE.name(), 20, 5);
 
-                    new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
+                    new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId());
                     cancel();
                     return;
                 }

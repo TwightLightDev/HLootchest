@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.utils;
+package org.twightlight.hlootchest.objects;
 
 import com.cryptomorin.xseries.XSound;
 import org.bukkit.Sound;
@@ -21,7 +21,7 @@ public class ButtonSound {
     }
 
     public String getSoundString() {
-        return XSound.matchXSound(this.sound).name();
+        return XSound.of(this.sound).name();
     }
 
     public float getYaw() {

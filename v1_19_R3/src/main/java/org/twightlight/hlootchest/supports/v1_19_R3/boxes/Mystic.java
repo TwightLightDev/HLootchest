@@ -2,6 +2,7 @@ package org.twightlight.hlootchest.supports.v1_19_R3.boxes;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
+import com.cryptomorin.xseries.particles.XParticle;
 import fr.mrmicky.fastparticles.ParticleType;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
@@ -28,8 +29,8 @@ public class Mystic extends BoxManager {
     private ArmorStand floatingOrb2;
     private BukkitTask task;
 
-    public Mystic(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
-        super(location, player, icon, config, boxid, initialLocation);
+    public Mystic(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+        super(location, player, icon, config, boxid);
 
         Location orbLocation1 = location.clone().add(1, 1.0, 0);
         Location orbLocation2 = location.clone().add(-1, 1.0, 0);
@@ -112,7 +113,6 @@ public class Mystic extends BoxManager {
         Location headLoc = getLoc().clone().add(0, 1.2, 0);
         summonGlyph(headLoc, 60);
         summonRay(headLoc, 60);
-        summonLightning(headLoc, 60);
         summonCircle(headLoc.clone().add(0, 0.2, 0), 60, 36 , 1, ParticleType.of("PORTAL"));
         new BukkitRunnable() {
             long startTime = System.currentTimeMillis();
@@ -159,7 +159,7 @@ public class Mystic extends BoxManager {
         Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
         setClickable(true);
 
-        new Mystic(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
+        new Mystic(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId());
     }
 
     private void summonGlyph(Location location, int durationTicks) {
@@ -206,38 +206,6 @@ public class Mystic extends BoxManager {
                 ticks += 4;
             }
         }.runTaskTimer(Main.handler.plugin, 0L, 4L);
-    }
-
-    public void summonLightning(Location center, int durationTicks) {
-        Random random = new Random();
-        new BukkitRunnable() {
-            int ticks = 0;
-
-            @Override
-            public void run() {
-                if (ticks >= durationTicks || !getOwner().isOnline()) {
-                    cancel();
-                    return;
-                }
-                int num = 1 + random.nextInt(2);
-                for (int i = 0; i < num; i++) {
-                    double offsetX = (random.nextDouble() - 0.5) * 16;
-                    double offsetZ = (random.nextDouble() - 0.5) * 16;
-                    Location strikeLoc = center.clone().add(offsetX, 0, offsetZ);
-
-                    LightningStrike lightning = strikeLoc.getWorld().spawn(strikeLoc, LightningStrike.class);
-                    lightning.setVisibleByDefault(false);
-                    Main.nmsUtil.sendSpawnPacket(getOwner(), lightning);
-
-                    getOwner().playSound(getPlayerLocation(), XSound.ENTITY_LIGHTNING_BOLT_THUNDER.parseSound(), 10, 0.8f + (random.nextFloat()) * 0.4f);
-
-                    Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
-                        Main.nmsUtil.sendDespawnPacket(getOwner(), lightning);
-                    }, 5L);
-                }
-                ticks += 15;
-            }
-        }.runTaskTimer(Main.handler.plugin, 0L, 15L);
     }
 
     private void summonCircle(Location center, int durationTicks, int points, double radius, ParticleType particle) {

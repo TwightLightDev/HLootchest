@@ -38,7 +38,7 @@ public class SetupSession extends SessionsManager implements TSession {
         return false;
     }
 
-    public void setNewBox(TBox box) {
+    public void setBox(TBox box) {
     }
 
     public void setInvConstructor(MenuHandler<?> inv0) {

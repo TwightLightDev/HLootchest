@@ -23,8 +23,8 @@ public class Regular extends BoxManager {
 
     private EntityArmorStand sword;
 
-    public Regular(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
-        super(location, player, icon, config, boxid, initialLocation);
+    public Regular(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+        super(location, player, icon, config, boxid);
 
         Location loc = Main.handler.stringToLocation(config.getString(boxid+".settings.decoration.location"));
 
@@ -125,7 +125,7 @@ public class Regular extends BoxManager {
 
                     Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_GENERIC_EXPLODE.name(), 20, 5);
 
-                    new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
+                    new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId());
                     cancel();
                     return;
                 }

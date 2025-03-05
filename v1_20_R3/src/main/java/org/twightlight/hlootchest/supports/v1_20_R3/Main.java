@@ -48,7 +48,7 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
         itemMeta.addItemFlags(new ItemFlag[] { ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS });
         itemMeta.setCustomModelData(data);
         i.setItemMeta(itemMeta);
-        if (material.equals(XMaterial.PLAYER_HEAD.parseMaterial()) && headUrl != null) {
+        if (material.equals(XMaterial.PLAYER_HEAD.get()) && headUrl != null) {
             SkullMeta skullMeta = (SkullMeta) i.getItemMeta();
             PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
 

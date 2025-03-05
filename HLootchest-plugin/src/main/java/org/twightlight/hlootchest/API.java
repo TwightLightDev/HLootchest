@@ -16,7 +16,7 @@ public class API implements HLootchest {
     private final HLootchest.SessionUtil sessionUtil = new SessionUtil();
     private final HLootchest.DatabaseUtil dbUtil = new DatabaseUtil();
     private final HLootchest.PlayerUtil playerUtil = new PlayerUtil();
-
+    private final HLootchest.Debug debug = new Debug();
 
     private static class ConfigUtil implements HLootchest.ConfigUtil {
 
@@ -72,6 +72,14 @@ public class API implements HLootchest {
         }
     }
 
+    private static class Debug implements HLootchest.Debug {
+        public void sendDebugMsg(Player p, String msg) {
+            if (Utility.isDebug()) {
+                p.sendMessage("[Debug] " + msg);
+            }
+        }
+    }
+
     public HLootchest.ConfigUtil getConfigUtil() {
         return configUtil;
     }
@@ -85,5 +93,7 @@ public class API implements HLootchest {
         return playerUtil;
     }
     public NMSHandler getNMS() { return org.twightlight.hlootchest.HLootchest.getNms(); }
-
+    public HLootchest.Debug getDebugService() {
+        return debug;
+    }
 }

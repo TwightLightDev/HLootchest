@@ -10,7 +10,6 @@ import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
-import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -22,7 +21,7 @@ import org.twightlight.hlootchest.api.events.lootchest.ButtonSpawnEvent;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 import org.twightlight.hlootchest.objects.Icon;
-import org.twightlight.hlootchest.utils.ButtonSound;
+import org.twightlight.hlootchest.objects.ButtonSound;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_12_R1.Main;
 import org.twightlight.hlootchest.supports.v1_12_R1.utilities.Animations;
@@ -71,7 +70,7 @@ public class Button implements TButton {
 
         this.actions = (config.getList(path+".actions") != null) ? config.getList(path+".actions") : new ArrayList<>();
         if (config.getYml().contains(path+".click-sound")) {
-            this.sound = new ButtonSound(XSound.valueOf(config.getString(path + ".click-sound.sound")).parseSound(), (float) config.getDouble(path + ".click-sound.yaw"), (float) config.getDouble(path + ".click-sound.pitch"));
+            this.sound = new ButtonSound(XSound.of(config.getString(path + ".click-sound.sound")).get().get(), (float) config.getDouble(path + ".click-sound.yaw"), (float) config.getDouble(path + ".click-sound.pitch"));
         }
 
         boolean enableName = (config.getYml().contains(path+".name")) ? config.getBoolean(path+".name.enable") : false;
@@ -85,7 +84,7 @@ public class Button implements TButton {
 
 
         dynamicName = (config.getYml().contains(path + ".name.dynamic")) ? config.getBoolean(path + ".name.dynamic") : false;
-        String name = "";
+        String name;
         if (!dynamicName) {
             name = (config.getString(path + ".name.display-name") != null) ? config.getString(path + ".name.display-name") : "";
         } else {
@@ -178,7 +177,7 @@ public class Button implements TButton {
                 int iconData = (config.getYml().contains(thisIconPath + ".data")) ? config.getInt(thisIconPath + ".data") : 0;
                 boolean isGlowing = config.getBoolean(thisIconPath + ".glowing", false);
                 ItemSlot slot = ItemSlot.valueOf(config.getString(thisIconPath + ".slot", "HEAD"));
-                ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), isGlowing);
+                ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).get(), iconHeadValue, iconData, "", new ArrayList<>(), isGlowing);
                 icons.add(new Icon(thisIcon, slot));
             }
             (new BukkitRunnable() {
@@ -318,7 +317,7 @@ public class Button implements TButton {
                             boolean isChildDI = (config.getYml().contains(newpath + ".icon.dynamic")) ? config.getBoolean(newpath + ".icon.dynamic") : false;
                             linkedStandsSettings.get(child).add(String.valueOf(isChildDI));
                             if (!isChildDI) {
-                                ItemStack childicon = Main.handler.createItem(XMaterial.valueOf(config.getString(newpath + ".icon.material")).parseMaterial(), config.getString(newpath + ".icon.head_value"), config.getInt(newpath + ".icon.data"), "", new ArrayList(), false);
+                                ItemStack childicon = Main.handler.createItem(XMaterial.valueOf(config.getString(newpath + ".icon.material")).get(), config.getString(newpath + ".icon.head_value"), config.getInt(newpath + ".icon.data"), "", new ArrayList(), false);
                                 ItemSlot slot = ItemSlot.valueOf(config.getString(newpath + ".icon.slot", "HEAD"));
 
                                 TIcon finalIcon = new Icon(childicon, slot);
@@ -335,7 +334,7 @@ public class Button implements TButton {
                                     String iconHeadValue = config.getString(thisIconPath + ".head_value");
                                     int iconData = (config.getYml().contains(thisIconPath + ".data")) ? config.getInt(thisIconPath + ".data") : 0;
                                     boolean isGlowing = config.getBoolean(thisIconPath + ".glowing", false);
-                                    ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), isGlowing);
+                                    ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).get(), iconHeadValue, iconData, "", new ArrayList<>(), isGlowing);
                                     ItemSlot slot = ItemSlot.valueOf(config.getString(thisIconPath + ".slot", "HEAD"));
 
                                     icons.add(new Icon(thisIcon, slot));
@@ -378,7 +377,7 @@ public class Button implements TButton {
         if (moveForward) {
             ButtonSound hoverSound;
             if (config.getYml().contains(path+".hover-sound")) {
-                hoverSound = new ButtonSound(XSound.valueOf(config.getString(path + ".hover-sound.sound")).parseSound(), (float) config.getDouble(path + ".hover-sound.yaw"), (float) config.getDouble(path + ".hover-sound.pitch"));
+                hoverSound = new ButtonSound(XSound.of(config.getString(path + ".hover-sound.sound")).get().get(), (float) config.getDouble(path + ".hover-sound.yaw"), (float) config.getDouble(path + ".hover-sound.pitch"));
             } else {
                 hoverSound = null;
             }

@@ -15,6 +15,7 @@ public interface HLootchest {
     DatabaseUtil getDatabaseUtil();
     PlayerUtil getPlayerUtil();
     NMSHandler getNMS();
+    Debug getDebugService();
 
     interface ConfigUtil {
         TConfigManager getTemplateConfig();
@@ -31,6 +32,10 @@ public interface HLootchest {
 
     interface DatabaseUtil {
         TDatabase getDb();
+    }
+
+    interface Debug {
+        void sendDebugMsg(Player p, String msg);
     }
 
     interface PlayerUtil {

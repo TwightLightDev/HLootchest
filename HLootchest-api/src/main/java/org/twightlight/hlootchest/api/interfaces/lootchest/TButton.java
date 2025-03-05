@@ -1,11 +1,10 @@
 package org.twightlight.hlootchest.api.interfaces.lootchest;
 
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitTask;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
-import org.twightlight.hlootchest.utils.ButtonSound;
+import org.twightlight.hlootchest.objects.ButtonSound;
 
 import java.util.List;
 

@@ -40,7 +40,6 @@ public class BoxManager implements TBox {
     private TBox instance;
     private boolean clickToOpen;
     private Location playerLocation;
-    private Location initialLocation;
     private List<Location> rewardsLocation = new ArrayList<>();
 
     private static final Map<Player, Pig> vehicles = new HashMap<>();
@@ -48,8 +47,8 @@ public class BoxManager implements TBox {
     public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
     private boolean isOpening;
 
-    public BoxManager(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
-        Main.api.getSessionUtil().getSessionFromPlayer(player).setNewBox(this);
+    public BoxManager(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+        Main.api.getSessionUtil().getSessionFromPlayer(player).setBox(this);
 
         this.owner = player;
 
@@ -83,7 +82,6 @@ public class BoxManager implements TBox {
             vehicles.put(owner, vehicle);
         }
 
-        this.initialLocation = initialLocation;
 
         this.box = createArmorStand(location, "", false);
 
@@ -209,9 +207,6 @@ public class BoxManager implements TBox {
 
     public String getBoxId() { return boxid; }
 
-    public Location getPlayerInitialLoc() {
-        return initialLocation;
-    }
 
     public Map<Player, Pig> getVehiclesList() {
         return vehicles;

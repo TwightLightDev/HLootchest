@@ -69,13 +69,13 @@ public class Main extends NMSHandler {
         new Button(location, type, player, icon, path, config);
     }
 
-    public TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config, Location initialLocation) {
+    public TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config) {
         LootChestFactory factory = tboxdata.get(boxid);
         if (factory == null) {
             player.sendMessage(ChatColor.RED + "Unknow lootchest type!");
             return null;
         }
-        return factory.create(location, player, icon, config, boxid, initialLocation);
+        return factory.create(location, player, icon, config, boxid);
     }
 
     public void removeButtonsFromPlayer(Player player, ButtonType type) {
@@ -129,7 +129,7 @@ public class Main extends NMSHandler {
 
     public void playSound(Player player, Location location, String sound, float yaw, float pitch) {
         player.playSound(location,
-                XSound.valueOf(sound).parseSound(),
+                XSound.of(sound).get().get(),
                 yaw,
                 pitch);
     }

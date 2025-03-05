@@ -73,13 +73,13 @@ public class Main extends NMSHandler {
         new Button(location, type, player, icon, path, config);
     }
 
-    public TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config, Location initialLocation) {
+    public TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config) {
         LootChestFactory factory = tboxdata.get(boxid);
         if (factory == null) {
             player.sendMessage(ChatColor.RED + "Unknow lootchest type!");
             return null;
         }
-        return factory.create(location, player, icon, config, boxid, initialLocation);
+        return factory.create(location, player, icon, config, boxid);
     }
 
     public void removeButtonsFromPlayer(Player player, ButtonType type) {
@@ -134,7 +134,7 @@ public class Main extends NMSHandler {
     public ItemStack createItemStack(String material, int amount, short data) {
         ItemStack i;
         try {
-            Material Xmaterial = XMaterial.valueOf(material).parseMaterial();
+            Material Xmaterial = XMaterial.valueOf(material).get();
             if (Xmaterial == null) {
                 return XMaterial.BEDROCK.parseItem();
             }
@@ -147,7 +147,7 @@ public class Main extends NMSHandler {
 
     public void playSound(Player player, Location location, String sound, float yaw, float pitch) {
         player.playSound(location,
-                XSound.valueOf(sound).parseSound(),
+                XSound.of(sound).get().get(),
                 yaw,
                 pitch);
     }
@@ -175,7 +175,7 @@ public class Main extends NMSHandler {
         itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
         i.setItemMeta(itemMeta);
 
-        if (material == XMaterial.PLAYER_HEAD.parseMaterial() && headUrl != null && !headUrl.trim().isEmpty()) {
+        if (material == XMaterial.PLAYER_HEAD.get() && headUrl != null && !headUrl.trim().isEmpty()) {
             try {
                 SkullMeta skullMeta = (SkullMeta) i.getItemMeta();
                 GameProfile profile = new GameProfile(UUID.randomUUID(), null);

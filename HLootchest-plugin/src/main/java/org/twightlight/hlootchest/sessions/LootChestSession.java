@@ -70,7 +70,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                     Bukkit.getScheduler().runTaskLater(HLootchest.getInstance(), () -> {
                         Location location = HLootchest.getNms().stringToLocation(templateconfig.getString(identifier + ".settings.location"));
 
-                        box = HLootchest.getNms().spawnBox(location, identifier, p, icon, templateconfig, initialLocation);
+                        box = HLootchest.getNms().spawnBox(location, identifier, p, icon, templateconfig);
                         gm = p.getGameMode();
                         HLootchest.getNms().setFakeGameMode(p, GameMode.SURVIVAL);
 
@@ -138,7 +138,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                             }
                         }
 
-                        String initialLoc = Utility.locationToString(box.getPlayerInitialLoc());
+                        String initialLoc = Utility.locationToString(initialLocation);
                         HLootchest.getAPI().getDatabaseUtil().getDb().pullData(p, initialLoc, "fallback_loc");
                     }, 1L);
                 }
@@ -151,7 +151,7 @@ public class LootChestSession extends SessionsManager implements TSession {
 
     public void close() {
         box.removeVehicle(player);
-        box.getOwner().teleport(box.getPlayerInitialLoc());
+        box.getOwner().teleport(initialLocation);
         HLootchest.getAPI().getDatabaseUtil().getDb().pullData(box.getOwner(), "", "fallback_loc");
         box.remove();
         HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.FUNCTIONAL);
@@ -175,7 +175,7 @@ public class LootChestSession extends SessionsManager implements TSession {
         return box.isOpening();
     }
 
-    public void setNewBox(TBox box) {
+    public void setBox(TBox box) {
         this.box = box;
     }
 

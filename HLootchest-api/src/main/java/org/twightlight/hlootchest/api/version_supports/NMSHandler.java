@@ -30,7 +30,7 @@ public abstract class NMSHandler {
     public abstract NMSService getNMSService();
     public abstract void registerButtonClick(Player player);
     public abstract void spawnButton(Location location, ButtonType typePlayer, Player player, ItemStack icon, String path, TConfigManager config);
-    public abstract TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config, Location initialLocation);
+    public abstract TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config);
     public abstract void removeButtonsFromPlayer(Player player, ButtonType type);
     public abstract void hideButtonsFromPlayer(Player player, ButtonType type, boolean state);
     public abstract ConcurrentHashMap<Player, List<TButton>> getGlobalButtons();

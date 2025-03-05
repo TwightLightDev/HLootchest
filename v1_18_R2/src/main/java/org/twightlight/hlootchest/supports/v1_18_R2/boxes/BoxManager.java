@@ -58,8 +58,6 @@ public class BoxManager implements TBox {
 
     private Location playerLocation;
 
-    private Location initialLocation;
-
     private List<Location> rewardsLocation = new ArrayList<>();
 
     private static final Map<Player, Pig> vehicles = new HashMap<>();
@@ -70,8 +68,8 @@ public class BoxManager implements TBox {
 
     private boolean isOpening;
 
-    public BoxManager(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
-        Main.api.getSessionUtil().getSessionFromPlayer(player).setNewBox(this);
+    public BoxManager(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid) {
+        Main.api.getSessionUtil().getSessionFromPlayer(player).setBox(this);
         owner = player;
         Location Plocation = Main.handler.stringToLocation(config.getString(boxid + ".settings.player-location"));
         playerLocation = Plocation;
@@ -88,7 +86,6 @@ public class BoxManager implements TBox {
             vehicle.addPassenger(owner);
             vehicles.put(owner, vehicle);
         }
-        this.initialLocation = initialLocation;
         this.box = createArmorStand(location, "", false);
         this.clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
         this.instance = this;
@@ -191,10 +188,6 @@ public class BoxManager implements TBox {
 
     public String getBoxId() {
         return boxid;
-    }
-
-    public Location getPlayerInitialLoc() {
-        return initialLocation;
     }
 
     public Map<Player, Pig> getVehiclesList() {

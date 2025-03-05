@@ -32,8 +32,8 @@ public class Mystic extends BoxManager {
     private ArmorStand floatingOrb2;
     private BukkitTask task;
 
-    public Mystic(Location location, Player player, ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
-        super(location, player, icon, config, boxid, initialLocation);
+    public Mystic(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+        super(location, player, icon, config, boxid);
 
         Location orbLocation1 = location.clone().add(1, 1.0, 0);
         Location orbLocation2 = location.clone().add(-1, 1.0, 0);
@@ -167,7 +167,7 @@ public class Mystic extends BoxManager {
         Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
         setClickable(true);
 
-        new Mystic(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
+        new Mystic(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId());
     }
 
     private void summonGlyph(Location location, int durationTicks) {

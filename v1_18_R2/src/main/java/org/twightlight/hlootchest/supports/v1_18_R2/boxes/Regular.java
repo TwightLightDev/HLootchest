@@ -36,17 +36,17 @@ import java.util.concurrent.atomic.AtomicInteger;
 public class Regular extends BoxManager {
     private EntityArmorStand sword;
 
-    public Regular(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid, Location initialLocation) {
-        super(location, player, icon, config, boxid, initialLocation);
+    public Regular(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid) {
+        super(location, player, icon, config, boxid);
         final Location loc = Main.handler.stringToLocation(config.getString(boxid + ".settings.decoration.location"));
         this.sword = createArmorStand(loc, "", false);
         Main.rotate(this.sword, config, boxid + ".settings.decoration");
         PacketPlayOutEntityMetadata metadataPacket = new PacketPlayOutEntityMetadata(this.sword.ae(), this.sword.ai(), true);
-        (((CraftPlayer)getOwner()).getHandle()).b.a((Packet)metadataPacket);
+        (((CraftPlayer)getOwner()).getHandle()).b.a(metadataPacket);
         sendSpawnPacket(getOwner(), this.sword);
         ItemStack icon1 = CraftItemStack.asNMSCopy(new org.bukkit.inventory.ItemStack(XMaterial.DIAMOND_SWORD.parseMaterial()));
         PacketPlayOutEntityEquipment packet = new PacketPlayOutEntityEquipment(this.sword.ae(), Collections.singletonList(new Pair(EnumItemSlot.a, icon1)));
-        (((CraftPlayer)getOwner()).getHandle()).b.a((Packet)packet);
+        (((CraftPlayer)getOwner()).getHandle()).b.a(packet);
         (new BukkitRunnable() {
             public void run() {
                 if (getBox().de() < loc.clone().getY() - 5.2D)
@@ -102,7 +102,7 @@ public class Regular extends BoxManager {
                     setClickable(true);
                     ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0.0D, -3.2D, 0.0D), 2, 0.5D, 0.5D, 0.5D, 0.0D);
                     Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_GENERIC_EXPLODE.name(), 20.0F, 5.0F);
-                    new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId(), getPlayerInitialLoc());
+                    new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId());
                     cancel();
                     return;
                 }
