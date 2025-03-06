@@ -28,6 +28,7 @@ import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_19_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_19_R3.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_19_R3.listeners.ClickEvent;
+import org.twightlight.hlootchest.supports.v1_19_R3.supports.ProtocolLib;
 import org.twightlight.hlootchest.supports.v1_19_R3.utilities.NMSUtil;
 import org.twightlight.hlootchest.utils.ColorUtils;
 
@@ -43,6 +44,8 @@ public class Main extends NMSHandler {
     public static HLootchest api;
     public static NMSUtil nmsUtil;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
+    private static ProtocolLib protocolLib;
+    private static boolean hasProtocolLib = false;
 
     public Main(Plugin pl, String name, HLootchest api) {
         super(pl, name);
@@ -51,6 +54,22 @@ public class Main extends NMSHandler {
         this.api = api;
         nmsUtil = new NMSUtil();
         Bukkit.getServer().getPluginManager().registerEvents(new ClickEvent(), pl);
+        if (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null) {
+            hasProtocolLib = true;
+            protocolLib = new ProtocolLib();
+        }
+    }
+
+    public static ProtocolLib getProtocolService() {
+        return protocolLib;
+    }
+
+    public static boolean hasProtocolLib() {
+        return hasProtocolLib;
+    }
+
+    public static void setProtocolService(ProtocolLib service) {
+        protocolLib = service;
     }
 
     @Override

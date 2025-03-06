@@ -81,5 +81,10 @@
           <groupId>me.clip</groupId>
           <artifactId>placeholderapi</artifactId>
       </dependency>
+      <dependency>
+          <groupId>com.comphenix.protocol</groupId>
+          <artifactId>ProtocolLib</artifactId>
+          <version>5.4.0</version>
+      </dependency>
   </dependencies>
 </project>

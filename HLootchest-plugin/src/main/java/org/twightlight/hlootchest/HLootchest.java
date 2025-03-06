@@ -19,6 +19,7 @@ import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
 import org.twightlight.hlootchest.listeners.Setup;
 import org.twightlight.hlootchest.supports.PlaceholdersAPI;
+import org.twightlight.hlootchest.supports.v1_21_R3.supports.ProtocolLib;
 import org.twightlight.hlootchest.utils.ColorUtils;
 import org.twightlight.hlootchest.utils.Metrics;
 import org.twightlight.hlootchest.utils.Utility;
@@ -190,6 +191,9 @@ public final class HLootchest extends JavaPlugin {
         Utility.info("  §7Plugin Version: §a" + getVersion());
         Utility.info("  §7Author: §a" + String.join(", ", getDescription().getAuthors()));
         Utility.info("  §7PlaceholderAPI: " + (isPlaceholderAPI() ? "§aEnabled" : "§cDisabled"));
+        if (version.equals("19") || version.equals("20") || version.equals("21")) {
+            Utility.info("  §7ProtocolLib: " + (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null ? "§aEnabled" : "§cDisabled"));
+        }
         Utility.info("  §7Hex & Gradient: " + (isHexGradient() ? "§aSupported" : "§cNot Supported"));
         Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
     }
@@ -235,7 +239,7 @@ public final class HLootchest extends JavaPlugin {
     }
 
     public static String getVersion() {
-        return "1.0.7";
+        return "1.0.8";
     }
 
     public static String getAPIVersion() {

@@ -17,6 +17,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 import org.twightlight.hlootchest.api.HLootchest;
+import org.twightlight.hlootchest.supports.v1_20_R3.supports.ProtocolLib;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -29,6 +30,19 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
 
     public Main(Plugin pl, String name, HLootchest api) {
         super(pl, name, api);
+        if (org.twightlight.hlootchest.supports.v1_19_R3.Main.hasProtocolLib()) {
+
+            org.twightlight.hlootchest.supports.v1_19_R3.Main.setProtocolService(new ProtocolLib());
+        }
+    }
+
+    public static org.twightlight.hlootchest.supports.v1_20_R3.supports.ProtocolLib getProtocolService() {
+        return (org.twightlight.hlootchest.supports.v1_20_R3.supports.ProtocolLib)
+                org.twightlight.hlootchest.supports.v1_19_R3.Main.getProtocolService();
+    }
+
+    public static boolean hasProtocolLib() {
+        return org.twightlight.hlootchest.supports.v1_19_R3.Main.hasProtocolLib();
     }
 
 
@@ -89,22 +103,8 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
 
     @Override
     public void setFakeGameMode(Player p, GameMode gamemode) {
-        PacketPlayOutGameStateChange packet = null;
-        switch (gamemode) {
-            case SURVIVAL:
-                packet = new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.d, 0.0F);
-                break;
-            case CREATIVE:
-                packet = new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.d, 1.0F);
-                break;
-            case ADVENTURE:
-                packet = new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.d, 2.0F);
-                break;
-            case SPECTATOR:
-                packet = new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.d, 3.0F);
-                break;
+        if (hasProtocolLib()) {
+            getProtocolService().setFakeGameMode(p, gamemode);
         }
-        if (packet != null)
-            ((CraftPlayer)p).getHandle().c.a(packet);
     }
 }
