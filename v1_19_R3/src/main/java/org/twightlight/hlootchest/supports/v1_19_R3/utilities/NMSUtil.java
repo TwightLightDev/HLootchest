@@ -81,7 +81,11 @@ public class NMSUtil implements NMSService {
                 if (System.currentTimeMillis() - this.startTime > duration * 50)
                     cancel();
                 if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
-                    p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    if (Main.hasPacketService()) {
+                        Main.getPacketService().teleport(p, loc);
+                    } else {
+                        p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    }
                     Main.api.getDebugService().sendDebugMsg(p, "Attempt to teleport " + p + "to " + loc);
                 }
             }

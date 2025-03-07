@@ -2,8 +2,11 @@ package org.twightlight.hlootchest.supports.v1_19_R3;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.PacketEventsAPI;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import org.bukkit.*;
@@ -28,7 +31,7 @@ import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_19_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_19_R3.buttons.Button;
 import org.twightlight.hlootchest.supports.v1_19_R3.listeners.ClickEvent;
-import org.twightlight.hlootchest.supports.v1_19_R3.supports.ProtocolLib;
+import org.twightlight.hlootchest.supports.v1_19_R3.supports.PacketEventsSupport;
 import org.twightlight.hlootchest.supports.v1_19_R3.utilities.NMSUtil;
 import org.twightlight.hlootchest.utils.ColorUtils;
 
@@ -44,8 +47,8 @@ public class Main extends NMSHandler {
     public static HLootchest api;
     public static NMSUtil nmsUtil;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
-    private static ProtocolLib protocolLib;
-    private static boolean hasProtocolLib = false;
+    private static boolean haspacketService = false;
+    private static PacketEventsSupport packetService;
 
     public Main(Plugin pl, String name, HLootchest api) {
         super(pl, name);
@@ -54,22 +57,19 @@ public class Main extends NMSHandler {
         this.api = api;
         nmsUtil = new NMSUtil();
         Bukkit.getServer().getPluginManager().registerEvents(new ClickEvent(), pl);
-        if (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null) {
-            hasProtocolLib = true;
-            protocolLib = new ProtocolLib();
+
+        if (Bukkit.getPluginManager().getPlugin("packetevents") != null) {
+            haspacketService = true;
+            packetService = new PacketEventsSupport();
         }
     }
 
-    public static ProtocolLib getProtocolService() {
-        return protocolLib;
+    public static boolean hasPacketService() {
+        return haspacketService;
     }
 
-    public static boolean hasProtocolLib() {
-        return hasProtocolLib;
-    }
-
-    public static void setProtocolService(ProtocolLib service) {
-        protocolLib = service;
+    public static PacketEventsSupport getPacketService() {
+        return packetService;
     }
 
     @Override
@@ -271,22 +271,8 @@ public class Main extends NMSHandler {
     }
 
     public void setFakeGameMode(Player p, GameMode gamemode) {
-        PacketPlayOutGameStateChange packet = null;
-        switch (gamemode) {
-            case SURVIVAL:
-                packet = new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.d, 0.0F);
-                break;
-            case CREATIVE:
-                packet = new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.d, 1.0F);
-                break;
-            case ADVENTURE:
-                packet = new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.d, 2.0F);
-                break;
-            case SPECTATOR:
-                packet = new PacketPlayOutGameStateChange(PacketPlayOutGameStateChange.d, 3.0F);
-                break;
+        if (hasPacketService()) {
+            getPacketService().setGameMode(p, gamemode);
         }
-        if (packet != null)
-            (((CraftPlayer)p).getHandle()).b.a(packet);
     }
 }

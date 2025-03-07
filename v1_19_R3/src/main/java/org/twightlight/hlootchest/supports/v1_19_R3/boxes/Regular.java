@@ -64,6 +64,17 @@ public class Regular extends BoxManager {
         setOpeningState(true);
         setClickable(false);
         moveUp();
+
+        if (Main.hasPacketService()) {
+            FireworkEffect effect = FireworkEffect.builder()
+                    .flicker(false)
+                    .with(FireworkEffect.Type.BURST)
+                    .withColor(Color.RED, Color.ORANGE, Color.YELLOW)
+                    .withFade(Color.GREEN, Color.BLUE)
+                    .withTrail()
+                    .build();
+            Main.getPacketService().spawnFirework(getOwner(), getPlayerLocation().add(0, 1, 0), effect);
+        }
         Main.handler.setFakeGameMode(getOwner(), GameMode.SPECTATOR);
         Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, true);
         (new BukkitRunnable() {

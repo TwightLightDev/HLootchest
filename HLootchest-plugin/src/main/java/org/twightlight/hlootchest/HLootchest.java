@@ -1,5 +1,8 @@
 package org.twightlight.hlootchest;
 
+import com.github.retrooper.packetevents.PacketEvents;
+import com.github.retrooper.packetevents.protocol.player.User;
+import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -19,7 +22,6 @@ import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
 import org.twightlight.hlootchest.listeners.Setup;
 import org.twightlight.hlootchest.supports.PlaceholdersAPI;
-import org.twightlight.hlootchest.supports.v1_21_R3.supports.ProtocolLib;
 import org.twightlight.hlootchest.utils.ColorUtils;
 import org.twightlight.hlootchest.utils.Metrics;
 import org.twightlight.hlootchest.utils.Utility;
@@ -53,7 +55,11 @@ public final class HLootchest extends JavaPlugin {
         loadDatabase();
         loadPlaceholdersAPI();
         loadCredit();
-
+        if (Bukkit.getPluginManager().getPlugin("packetevents") != null) {
+            PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
+            PacketEvents.getAPI().load();
+            PacketEvents.getAPI().init();
+        }
         if (mainConfig.getBoolean("metrics")) {
             loadMetrics();
         }
@@ -63,6 +69,10 @@ public final class HLootchest extends JavaPlugin {
 
     @Override
     public void onDisable() {
+        if (Bukkit.getPluginManager().getPlugin("packetevents") != null) {
+
+            PacketEvents.getAPI().terminate();
+        }
         api.getSessionUtil().closeAll();
         Bukkit.getScheduler().cancelTasks(this);
         Utility.info("HLootchest has been disabled successfully!");
@@ -192,7 +202,7 @@ public final class HLootchest extends JavaPlugin {
         Utility.info("  §7Author: §a" + String.join(", ", getDescription().getAuthors()));
         Utility.info("  §7PlaceholderAPI: " + (isPlaceholderAPI() ? "§aEnabled" : "§cDisabled"));
         if (version.equals("19") || version.equals("20") || version.equals("21")) {
-            Utility.info("  §7ProtocolLib: " + (Bukkit.getPluginManager().getPlugin("ProtocolLib") != null ? "§aEnabled" : "§cDisabled"));
+            Utility.info("  §7PacketEvents: " + (Bukkit.getPluginManager().getPlugin("packetevents") != null ? "§aEnabled" : "§cDisabled"));
         }
         Utility.info("  §7Hex & Gradient: " + (isHexGradient() ? "§aSupported" : "§cNot Supported"));
         Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
@@ -239,7 +249,7 @@ public final class HLootchest extends JavaPlugin {
     }
 
     public static String getVersion() {
-        return "1.0.8";
+        return "1.0.9";
     }
 
     public static String getAPIVersion() {

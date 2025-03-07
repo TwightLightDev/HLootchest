@@ -88,10 +88,4 @@ public class Animations {
         loc.setYaw(val);
         armorStand.teleport(loc);
     }
-
-    public static void spawnFireWork(Player player, Location location, FireworkEffect effect) {
-        if (Main.hasProtocolLib()) {
-            Main.getProtocolService().spawnFakeFirework(player, location, effect);
-        }
-    }
 }

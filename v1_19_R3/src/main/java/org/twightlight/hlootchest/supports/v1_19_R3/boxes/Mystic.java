@@ -22,6 +22,7 @@ import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_19_R3.Main;
+import org.twightlight.hlootchest.supports.v1_19_R3.supports.PacketEventsSupport;
 
 import java.util.Collections;
 import java.util.Random;
@@ -116,6 +117,7 @@ public class Mystic extends BoxManager {
         Location headLoc = getLoc().clone().add(0, 1.2, 0);
         summonGlyph(headLoc, 60);
         summonRay(headLoc, 60);
+        summonLightning(headLoc, 60);
         summonCircle(headLoc.clone().add(0, 0.2, 0), 60, 36 , 1, ParticleType.of("PORTAL"));
         new BukkitRunnable() {
             long startTime = System.currentTimeMillis();
@@ -209,6 +211,35 @@ public class Mystic extends BoxManager {
                 ticks += 4;
             }
         }.runTaskTimer(Main.handler.plugin, 0L, 4L);
+    }
+
+    public void summonLightning(Location center, int durationTicks) {
+        Random random = new Random();
+        new BukkitRunnable() {
+            int ticks = 0;
+
+            @Override
+            public void run() {
+                if (ticks >= durationTicks || !getOwner().isOnline()) {
+                    cancel();
+                    return;
+                }
+                int num = 1 + random.nextInt(2);
+                for (int i = 0; i < num; i++) {
+                    double offsetX = (random.nextDouble() - 0.5) * 16;
+                    double offsetZ = (random.nextDouble() - 0.5) * 16;
+                    Location strikeLoc = center.clone().add(offsetX, 0, offsetZ);
+                    if (Main.hasPacketService()) {
+                        Main.getPacketService().spawnLightning(getOwner(), strikeLoc);
+
+                    }
+
+                    getOwner().playSound(getPlayerLocation(), XSound.ENTITY_LIGHTNING_BOLT_THUNDER.parseSound(), 10, 0.8f + (random.nextFloat()) * 0.4f);
+
+                }
+                ticks += 15;
+            }
+        }.runTaskTimer(Main.handler.plugin, 0L, 15L);
     }
 
     private void summonCircle(Location center, int durationTicks, int points, double radius, ParticleType particle) {

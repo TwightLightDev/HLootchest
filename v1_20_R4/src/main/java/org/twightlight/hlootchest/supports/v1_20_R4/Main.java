@@ -17,7 +17,6 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 import org.twightlight.hlootchest.api.HLootchest;
-import org.twightlight.hlootchest.supports.v1_20_R4.supports.ProtocolLib;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -31,19 +30,9 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
 
     public Main(Plugin pl, String name, HLootchest api) {
         super(pl, name, api);
-        if (org.twightlight.hlootchest.supports.v1_19_R3.Main.hasProtocolLib()) {
-            org.twightlight.hlootchest.supports.v1_19_R3.Main.setProtocolService(new ProtocolLib());
-        }
     }
 
-    public static org.twightlight.hlootchest.supports.v1_20_R4.supports.ProtocolLib getProtocolService() {
-        return (org.twightlight.hlootchest.supports.v1_20_R4.supports.ProtocolLib)
-                org.twightlight.hlootchest.supports.v1_19_R3.Main.getProtocolService();
-    }
 
-    public static boolean hasProtocolLib() {
-        return org.twightlight.hlootchest.supports.v1_19_R3.Main.hasProtocolLib();
-    }
     @Override
     public ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted) {
         ItemStack i = handler.createItemStack(XMaterial.matchXMaterial(material).name(), 1, (short)data);
@@ -100,10 +89,4 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
         return new URL(decoded.substring(prefix.length(), decoded.length() - suffix.length()));
     }
 
-    @Override
-    public void setFakeGameMode(Player p, GameMode gamemode) {
-        if (hasProtocolLib()) {
-            ((ProtocolLib) getProtocolService()).setFakeGameMode(p, gamemode);
-        }
-    }
 }
