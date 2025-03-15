@@ -12,7 +12,8 @@ import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import java.io.File;
 import java.io.IOException;
 import java.sql.*;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class SQLite implements TDatabase {
     private Connection connection;

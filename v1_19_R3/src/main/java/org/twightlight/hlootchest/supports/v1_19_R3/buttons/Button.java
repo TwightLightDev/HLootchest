@@ -18,11 +18,11 @@ import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.lootchest.ButtonSpawnEvent;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
-import org.twightlight.hlootchest.objects.Icon;
 import org.twightlight.hlootchest.objects.ButtonSound;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.objects.Icon;
 import org.twightlight.hlootchest.supports.v1_19_R3.Main;
 import org.twightlight.hlootchest.supports.v1_19_R3.utilities.Animations;
 

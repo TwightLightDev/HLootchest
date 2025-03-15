@@ -1,24 +1,9 @@
 package org.twightlight.hlootchest.supports.v1_19_R3.utilities;
 
-import com.cryptomorin.xseries.XSound;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityDestroy;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityMetadata;
-import net.minecraft.network.protocol.game.PacketPlayOutEntityStatus;
-import net.minecraft.network.protocol.game.PacketPlayOutSpawnEntity;
-import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.EntityTypes;
-import net.minecraft.world.entity.projectile.EntityFireworks;
-import net.minecraft.world.level.World;
-import org.bukkit.Bukkit;
-import org.bukkit.FireworkEffect;
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.ItemStack;
-import org.bukkit.inventory.meta.FireworkMeta;
 import org.bukkit.util.Vector;
-import org.twightlight.hlootchest.supports.v1_19_R3.Main;
 
 public class Animations {
     public static void drawCircle(Player player, ArmorStand packetArmorStand, Location center, double radius, double rotX, double rotY, double rotZ, int points) {

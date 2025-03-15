@@ -14,9 +14,9 @@ import org.twightlight.hlootchest.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.session.SessionCloseEvent;
 import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
-import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;

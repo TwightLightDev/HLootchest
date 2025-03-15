@@ -224,7 +224,7 @@ public class Mystic extends BoxManager {
                     cancel();
                     return;
                 }
-                int num = 1 + random.nextInt(2);
+                int num = 1 + random.nextInt(3);
                 for (int i = 0; i < num; i++) {
                     double offsetX = (random.nextDouble() - 0.5) * 16;
                     double offsetZ = (random.nextDouble() - 0.5) * 16;

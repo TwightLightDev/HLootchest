@@ -6,14 +6,16 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.setup.elements.ButtonsMenu;
 import org.twightlight.hlootchest.setup.modules.Settings;
 import org.twightlight.hlootchest.utils.Utility;
 
-import java.util.*;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
 import java.util.stream.Collectors;
 
 public class TemplateMenu {

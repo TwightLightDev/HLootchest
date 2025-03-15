@@ -1,14 +1,10 @@
 package org.twightlight.hlootchest.supports.v1_21_R3;
 
 import com.cryptomorin.xseries.XMaterial;
-import net.minecraft.network.protocol.game.PacketPlayOutGameStateChange;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.GameMode;
 import org.bukkit.Material;
-import org.bukkit.craftbukkit.v1_21_R3.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
-import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
@@ -53,7 +49,14 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
             PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
 
             PlayerTextures textures = profile.getTextures();
-
+            if (api.getSupportsUtil().hasHeadDatabase()) {
+                if (headUrl.contains(":")) {
+                    String[] value = headUrl.split(":", 2);
+                    if (value[0].equals("hdb")) {
+                        headUrl = api.getSupportsUtil().getHeadDatabaseService().getBase64(value[1]);
+                    }
+                }
+            }
             URL urlObject;
             try {
                 urlObject = getUrlFromBase64(headUrl);

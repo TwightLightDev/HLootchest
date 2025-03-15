@@ -1,14 +1,13 @@
 package org.twightlight.hlootchest;
 
 import com.github.retrooper.packetevents.PacketEvents;
-import com.github.retrooper.packetevents.protocol.player.User;
 import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
-import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.commands.admin.AdminCommand;
 import org.twightlight.hlootchest.commands.admin.AdminTabCompleter;
@@ -21,6 +20,7 @@ import org.twightlight.hlootchest.listeners.LootChests;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
 import org.twightlight.hlootchest.listeners.Setup;
+import org.twightlight.hlootchest.supports.HeadDatabase;
 import org.twightlight.hlootchest.supports.PlaceholdersAPI;
 import org.twightlight.hlootchest.utils.ColorUtils;
 import org.twightlight.hlootchest.utils.Metrics;
@@ -35,6 +35,8 @@ public final class HLootchest extends JavaPlugin {
     private static API api;
     private String path = getDataFolder().getPath();
     private boolean papi = false;
+    private boolean hasHeadDb = false;
+    public static HeadDatabase headDb;
     public static TConfigManager mainConfig;
     public static TConfigManager templateConfig;
     public static TConfigManager boxesConfig;
@@ -53,7 +55,7 @@ public final class HLootchest extends JavaPlugin {
         loadListeners();
         loadConf();
         loadDatabase();
-        loadPlaceholdersAPI();
+        loadDependencies();
         loadCredit();
         if (Bukkit.getPluginManager().getPlugin("packetevents") != null) {
             PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
@@ -64,18 +66,16 @@ public final class HLootchest extends JavaPlugin {
             loadMetrics();
         }
         new VersionChecker(this, "122671").checkForUpdates();
-
     }
 
     @Override
     public void onDisable() {
         if (Bukkit.getPluginManager().getPlugin("packetevents") != null) {
-
             PacketEvents.getAPI().terminate();
         }
         api.getSessionUtil().closeAll();
         Bukkit.getScheduler().cancelTasks(this);
-        Utility.info("HLootchest has been disabled successfully!");
+        Utility.info("HLootChest has been disabled successfully!");
         Utility.info("Current Version: " + version);
     }
 
@@ -85,31 +85,21 @@ public final class HLootchest extends JavaPlugin {
                 nms = new org.twightlight.hlootchest.supports.v1_8_R3.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
                 nms.register("mystic", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Mystic::new);
+                nms.register("spooky", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Spooky::new);
+
                 break;
             case "12":
                 nms = new org.twightlight.hlootchest.supports.v1_12_R1.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Regular::new);
                 nms.register("mystic", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Mystic::new);
-                break;
-            case "16":
-                nms = new org.twightlight.hlootchest.supports.v1_16_R3.Main(this, version, api);
-                nms.register("regular", org.twightlight.hlootchest.supports.v1_16_R3.boxes.Regular::new);
-                nms.register("mystic", org.twightlight.hlootchest.supports.v1_16_R3.boxes.Mystic::new);
-                break;
-            case "17":
-                nms = new org.twightlight.hlootchest.supports.v1_17_R1.Main(this, version, api);
-                nms.register("regular", org.twightlight.hlootchest.supports.v1_17_R1.boxes.Regular::new);
-                nms.register("mystic", org.twightlight.hlootchest.supports.v1_17_R1.boxes.Mystic::new);
-                break;
-            case "18":
-                nms = new org.twightlight.hlootchest.supports.v1_18_R2.Main(this, version, api);
-                nms.register("regular", org.twightlight.hlootchest.supports.v1_18_R2.boxes.Regular::new);
-                nms.register("mystic", org.twightlight.hlootchest.supports.v1_18_R2.boxes.Mystic::new);
+                nms.register("spooky", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Spooky::new);
+
                 break;
             case "19":
                 nms = new org.twightlight.hlootchest.supports.v1_19_R3.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                 nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
+                nms.register("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
                 break;
             case "20":
                 String minor = Bukkit.getBukkitVersion().split("-")[0].split("\\.").length > 2 ? Bukkit.getBukkitVersion().split("-")[0].split("\\.")[2] : "0";
@@ -117,17 +107,20 @@ public final class HLootchest extends JavaPlugin {
                     nms = new org.twightlight.hlootchest.supports.v1_20_R3.Main(this, version, api);
                     nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                     nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
+                    nms.register("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
                     break;
                 } else {
                     nms = new org.twightlight.hlootchest.supports.v1_20_R4.Main(this, version, api);
                     nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                     nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
+                    nms.register("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
                     break;
                 }
             case "21":
                 nms = new org.twightlight.hlootchest.supports.v1_21_R3.Main(this, version, api);
                 nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                 nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
+                nms.register("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
                 break;
             default:
                 Utility.info("Sorry, this version is unsupported! HLootChest will be disable!");
@@ -144,8 +137,8 @@ public final class HLootchest extends JavaPlugin {
         getCommand("hlootchests").setTabCompleter(new MainTabCompleter());
         getCommand("hlootchestsadmin").setExecutor(new AdminCommand());
         getCommand("hlootchestsadmin").setTabCompleter(new AdminTabCompleter());
-
     }
+
     private void loadListeners() {
 
         Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoin(), HLootchest.getInstance());
@@ -201,6 +194,7 @@ public final class HLootchest extends JavaPlugin {
         Utility.info("  §7Plugin Version: §a" + getVersion());
         Utility.info("  §7Author: §a" + String.join(", ", getDescription().getAuthors()));
         Utility.info("  §7PlaceholderAPI: " + (isPlaceholderAPI() ? "§aEnabled" : "§cDisabled"));
+        Utility.info("  §7HeadDatabase: " + (hasHeadDb() ? "§aEnabled" : "§cDisabled"));
         if (version.equals("19") || version.equals("20") || version.equals("21")) {
             Utility.info("  §7PacketEvents: " + (Bukkit.getPluginManager().getPlugin("packetevents") != null ? "§aEnabled" : "§cDisabled"));
         }
@@ -208,10 +202,14 @@ public final class HLootchest extends JavaPlugin {
         Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
     }
 
-    private void loadPlaceholdersAPI() {
+    private void loadDependencies() {
         if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
             new PlaceholdersAPI(this).register();
             papi = true;
+        }
+        if (Bukkit.getPluginManager().getPlugin("HeadDatabase") != null) {
+            headDb = new HeadDatabase();
+            hasHeadDb = true;
         }
     }
 
@@ -246,6 +244,10 @@ public final class HLootchest extends JavaPlugin {
 
     public boolean isHexGradient() {
         return hex_gradient;
+    }
+
+    public boolean hasHeadDb() {
+        return hasHeadDb;
     }
 
     public static String getVersion() {

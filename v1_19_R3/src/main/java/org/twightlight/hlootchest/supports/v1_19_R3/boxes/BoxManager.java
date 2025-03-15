@@ -12,8 +12,8 @@ import org.bukkit.inventory.ItemStack;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
-import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.supports.v1_19_R3.Main;
 
 import java.util.ArrayList;

@@ -7,11 +7,11 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
+import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 
 import java.util.List;
 import java.util.Map;

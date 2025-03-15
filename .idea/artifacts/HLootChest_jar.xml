@@ -6,15 +6,13 @@
       <element id="module-output" name="HLootchest-api" />
       <element id="module-output" name="HLootchest-plugin" />
       <element id="module-output" name="v1_12_R1" />
-      <element id="module-output" name="v1_17_R1" />
-      <element id="module-output" name="v1_18_R2" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/cryptomorin/XSeries/9.0.0/XSeries-9.0.0.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/fr/mrmicky/FastParticles/2.0.1/fastparticles-2.0.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/net/objecthunter/exp4j/0.4.8/exp4j-0.4.8.jar" path-in-jar="/" />
       <element id="module-output" name="v1_19_R3" />
       <element id="module-output" name="v1_20_R3" />
       <element id="module-output" name="v1_20_R4" />
       <element id="module-output" name="v1_21_R3" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/github/cryptomorin/XSeries/13.0.0/XSeries-13.0.0.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>

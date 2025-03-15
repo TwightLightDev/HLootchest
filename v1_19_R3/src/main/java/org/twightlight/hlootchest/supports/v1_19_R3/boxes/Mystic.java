@@ -2,16 +2,11 @@ package org.twightlight.hlootchest.supports.v1_19_R3.boxes;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
-import com.cryptomorin.xseries.particles.XParticle;
 import fr.mrmicky.fastparticles.ParticleType;
-import net.minecraft.world.entity.EntityLightning;
-import net.minecraft.world.entity.EntityTypes;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
-import org.bukkit.entity.Entity;
-import org.bukkit.entity.LightningStrike;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -22,7 +17,6 @@ import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.supports.v1_19_R3.Main;
-import org.twightlight.hlootchest.supports.v1_19_R3.supports.PacketEventsSupport;
 
 import java.util.Collections;
 import java.util.Random;

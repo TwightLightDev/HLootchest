@@ -7,16 +7,19 @@ import com.github.retrooper.packetevents.protocol.entity.data.EntityData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityDataTypes;
 import com.github.retrooper.packetevents.protocol.entity.type.EntityTypes;
 import com.github.retrooper.packetevents.protocol.teleport.RelativeFlag;
+import com.github.retrooper.packetevents.protocol.world.states.WrappedBlockState;
 import com.github.retrooper.packetevents.util.Vector3d;
 import com.github.retrooper.packetevents.util.Vector3i;
 import com.github.retrooper.packetevents.wrapper.play.server.*;
 import io.github.retrooper.packetevents.util.SpigotConversionUtil;
 import io.github.retrooper.packetevents.util.SpigotReflectionUtil;
 import org.bukkit.*;
+import org.bukkit.block.BlockFace;
+import org.bukkit.block.data.BlockData;
+import org.bukkit.block.data.Directional;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.FireworkMeta;
-import org.bukkit.material.MaterialData;
 import org.twightlight.hlootchest.supports.v1_19_R3.Main;
 
 import java.util.Collections;
@@ -92,5 +95,34 @@ public class PacketEventsSupport {
             PacketEvents.getAPI().getPlayerManager().sendPacket(p, destroyPacket);
         }, 1L);
         p.playSound(loc, XSound.ENTITY_FIREWORK_ROCKET_BLAST.parseSound(), 10.0F, 10.0F);
+    }
+
+    public void setBlock(Player p, Location loc, Material to, BlockFace face) {
+        if (loc == null || to == null) return;
+        BlockData data = to.createBlockData();
+        int id = SpigotConversionUtil.fromBukkitBlockData(data).getGlobalId();
+        WrapperPlayServerBlockChange packet = new WrapperPlayServerBlockChange(
+                new Vector3i((int) loc.getX(),
+                        (int) loc.getY(),
+                        (int) loc.getZ()), id);
+        if (data instanceof Directional){
+            WrappedBlockState state = packet.getBlockState();
+            state.setFacing(getBlockFace(face));
+            packet.setBlockState(state);
+        }
+        PacketEvents.getAPI().getPlayerManager().sendPacket(p, packet);
+    }
+
+    private com.github.retrooper.packetevents.protocol.world.BlockFace getBlockFace(BlockFace face) {
+        switch (face) {
+            case SOUTH:
+                return com.github.retrooper.packetevents.protocol.world.BlockFace.SOUTH;
+            case WEST:
+                return com.github.retrooper.packetevents.protocol.world.BlockFace.WEST;
+            case EAST:
+                return com.github.retrooper.packetevents.protocol.world.BlockFace.EAST;
+            default:
+                return com.github.retrooper.packetevents.protocol.world.BlockFace.NORTH;
+        }
     }
 }

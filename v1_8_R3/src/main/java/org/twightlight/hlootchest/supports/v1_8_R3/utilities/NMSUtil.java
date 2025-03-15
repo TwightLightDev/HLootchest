@@ -4,13 +4,15 @@ import com.cryptomorin.xseries.XPotion;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftArmorStand;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftEntity;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_8_R3.inventory.CraftItemStack;
-import org.bukkit.entity.*;
 import org.bukkit.entity.Entity;
+import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
@@ -184,5 +186,35 @@ public class NMSUtil implements NMSService {
 
     public void spin(Player player, ArmorStand armorStand, float val) {
         Animations.Spinning(player, ((CraftArmorStand) armorStand).getHandle(), val);
+    }
+
+    public void setNmsBlock(Player p, Location loc, Material to, BlockFace facing) {
+        if (loc == null || to == null) return;
+
+        BlockPosition blockPos = new BlockPosition(loc.getBlockX(), loc.getBlockY(), loc.getBlockZ());
+        net.minecraft.server.v1_8_R3.World world = ((CraftWorld) loc.getWorld()).getHandle();
+        net.minecraft.server.v1_8_R3.Block newBlock = net.minecraft.server.v1_8_R3.Block.getById(to.getId());
+
+        if (newBlock == null) return;
+
+        IBlockData blockData = newBlock.getBlockData();
+
+        if (newBlock instanceof BlockFurnace || newBlock instanceof BlockPumpkin || newBlock instanceof BlockDispenser) {
+            blockData = (newBlock).fromLegacyData(getBlockFaceData(facing));
+        }
+
+        PacketPlayOutBlockChange packet = new PacketPlayOutBlockChange(world, blockPos);
+        packet.block = blockData;
+
+        ((CraftPlayer) p).getHandle().playerConnection.sendPacket(packet);
+    }
+
+    private int getBlockFaceData(BlockFace face) {
+        switch (face) {
+            case SOUTH: return 3;
+            case WEST: return 4;
+            case EAST: return 5;
+            default: return 2;
+        }
     }
 }

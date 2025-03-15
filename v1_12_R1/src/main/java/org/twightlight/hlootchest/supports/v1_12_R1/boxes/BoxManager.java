@@ -9,6 +9,7 @@ import org.bukkit.craftbukkit.v1_12_R1.CraftWorld;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPig;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;
 import org.bukkit.craftbukkit.v1_12_R1.inventory.CraftItemStack;
+import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -17,8 +18,8 @@ import org.bukkit.potion.PotionEffect;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
-import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.supports.v1_12_R1.Main;
 
 import java.util.ArrayList;
@@ -32,6 +33,7 @@ public class BoxManager implements TBox {
     private Player owner;
     int id;
     private EntityArmorStand box;
+    private ArmorStand boxreferrence;
     private boolean clickable = true;
     private Location loc;
     private ItemStack icon;
@@ -84,6 +86,8 @@ public class BoxManager implements TBox {
 
 
         this.box = createArmorStand(location, "", false);
+
+        this.boxreferrence = (ArmorStand) box.getBukkitEntity();
 
         this.clickToOpen = config.getBoolean(boxid + ".settings.click-to-open");
 
@@ -193,6 +197,10 @@ public class BoxManager implements TBox {
 
     public EntityArmorStand getBox() {
         return box;
+    }
+
+    public ArmorStand getBoxReferrence() {
+        return boxreferrence;
     }
 
     public Location getLoc() {

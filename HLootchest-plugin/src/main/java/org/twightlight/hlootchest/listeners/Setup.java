@@ -9,10 +9,10 @@ import org.bukkit.event.inventory.InventoryClickEvent;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.setup.MenuManager;
 
 public class Setup implements Listener {

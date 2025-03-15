@@ -1,7 +1,6 @@
 package org.twightlight.hlootchest.listeners;
 
 import com.google.common.reflect.TypeToken;
-import com.google.gson.Gson;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;

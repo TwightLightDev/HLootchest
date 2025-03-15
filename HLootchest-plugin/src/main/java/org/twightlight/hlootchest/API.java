@@ -2,11 +2,12 @@ package org.twightlight.hlootchest;
 
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.HLootchest;
-import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.sessions.LootChestSession;
+import org.twightlight.hlootchest.supports.HeadDatabase;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.Map;
@@ -17,6 +18,7 @@ public class API implements HLootchest {
     private final HLootchest.DatabaseUtil dbUtil = new DatabaseUtil();
     private final HLootchest.PlayerUtil playerUtil = new PlayerUtil();
     private final HLootchest.Debug debug = new Debug();
+    private final HLootchest.Support supports = new Supports();
 
     private static class ConfigUtil implements HLootchest.ConfigUtil {
 
@@ -80,6 +82,16 @@ public class API implements HLootchest {
         }
     }
 
+    private static class Supports implements HLootchest.Support {
+        public boolean hasHeadDatabase() {
+            return org.twightlight.hlootchest.HLootchest.getInstance().hasHeadDb();
+        }
+
+        public HeadDatabase getHeadDatabaseService() {
+            return org.twightlight.hlootchest.HLootchest.headDb;
+        }
+    }
+
     public HLootchest.ConfigUtil getConfigUtil() {
         return configUtil;
     }
@@ -95,5 +107,8 @@ public class API implements HLootchest {
     public NMSHandler getNMS() { return org.twightlight.hlootchest.HLootchest.getNms(); }
     public HLootchest.Debug getDebugService() {
         return debug;
+    }
+    public HLootchest.Support getSupportsUtil() {
+        return supports;
     }
 }

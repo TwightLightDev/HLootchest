@@ -1,6 +1,8 @@
 package org.twightlight.hlootchest.api.interfaces.internal;
 
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
@@ -23,4 +25,5 @@ public interface NMSService {
     void moveForward(Player player, ArmorStand armorStand, float val);
     void moveUp(Player player, ArmorStand armorStand, double val);
     void spin(Player player, ArmorStand armorStand, float val);
+    void setNmsBlock(Player p, Location loc, Material to, BlockFace facing);
 }

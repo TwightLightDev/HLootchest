@@ -6,10 +6,10 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 
 import java.util.Collections;
 import java.util.Set;

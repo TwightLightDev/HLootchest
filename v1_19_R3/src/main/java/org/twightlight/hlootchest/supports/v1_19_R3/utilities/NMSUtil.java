@@ -2,6 +2,8 @@ package org.twightlight.hlootchest.supports.v1_19_R3.utilities;
 
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
+import org.bukkit.Material;
+import org.bukkit.block.BlockFace;
 import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
@@ -86,7 +88,6 @@ public class NMSUtil implements NMSService {
                     } else {
                         p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }
-                    Main.api.getDebugService().sendDebugMsg(p, "Attempt to teleport " + p + "to " + loc);
                 }
             }
         }).runTaskTimer(Main.handler.plugin, 0L, 2L);
@@ -140,5 +141,10 @@ public class NMSUtil implements NMSService {
 
     public void spin(Player player, ArmorStand armorStand, float val) {
         Animations.spin(player, armorStand, val);
+    }
+    public void setNmsBlock(Player p, Location loc, Material to, BlockFace facing) {
+        if (Main.hasPacketService()) {
+            Main.getPacketService().setBlock(p, loc, to, facing);
+        }
     }
 }

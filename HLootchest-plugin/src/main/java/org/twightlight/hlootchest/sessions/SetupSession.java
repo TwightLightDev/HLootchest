@@ -4,10 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.events.session.SessionCloseEvent;
 import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
-import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
+import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 
 
 public class SetupSession extends SessionsManager implements TSession {

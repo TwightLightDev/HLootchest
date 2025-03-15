@@ -1,10 +1,11 @@
 package org.twightlight.hlootchest.api;
 
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
+import org.twightlight.hlootchest.supports.HeadDatabase;
 
 import java.util.Map;
 
@@ -16,6 +17,7 @@ public interface HLootchest {
     PlayerUtil getPlayerUtil();
     NMSHandler getNMS();
     Debug getDebugService();
+    Support getSupportsUtil();
 
     interface ConfigUtil {
         TConfigManager getTemplateConfig();
@@ -46,5 +48,10 @@ public interface HLootchest {
         void leaveLcSession(Player p);
 
         boolean checkConditions(Player p, TConfigManager config, String path);
+    }
+
+    interface Support {
+        boolean hasHeadDatabase();
+        HeadDatabase getHeadDatabaseService();
     }
 }

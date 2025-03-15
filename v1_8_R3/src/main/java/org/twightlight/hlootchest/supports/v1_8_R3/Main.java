@@ -13,20 +13,18 @@ import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
-import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
+import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
-import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.supports.v1_8_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.v1_8_R3.buttons.Button;
@@ -179,7 +177,14 @@ public class Main extends NMSHandler {
             try {
                 SkullMeta skullMeta = (SkullMeta) i.getItemMeta();
                 GameProfile profile = new GameProfile(UUID.randomUUID(), null);
-
+                if (api.getSupportsUtil().hasHeadDatabase()) {
+                    if (headUrl.contains(":")) {
+                        String[] value = headUrl.split(":", 2);
+                        if (value[0].equals("hdb")) {
+                            headUrl = api.getSupportsUtil().getHeadDatabaseService().getBase64(value[1]);
+                        }
+                    }
+                }
                 if (isValidBase64(headUrl)) {
                     profile.getProperties().put("textures", new Property("textures", headUrl));
 
@@ -217,35 +222,45 @@ public class Main extends NMSHandler {
     }
 
     public static Vector3f stringToVector3f(String str) {
-        String[] parts = str.split(",");
-        if (parts.length != 3) {
-            throw new IllegalArgumentException("Invalid vector string: " + str);
+        try {
+            String[] parts = str.split(",");
+            if (parts.length != 3) {
+                throw new IllegalArgumentException("Invalid vector string: " + str);
+            }
+            float x = Float.parseFloat(parts[0]);
+            float y = Float.parseFloat(parts[1]);
+            float z = Float.parseFloat(parts[2]);
+            return new Vector3f(x, y, z);
+        } catch (Exception e) {
+            System.err.println("There is some errors during deserialize this line: " + str);
+            throw new RuntimeException(e);
         }
-        float x = Float.parseFloat(parts[0]);
-        float y = Float.parseFloat(parts[1]);
-        float z = Float.parseFloat(parts[2]);
-        return new Vector3f(x, y, z);
     }
 
     public Location stringToLocation(String locString) {
-        String[] parts = locString.split(",");
-        if (parts.length < 4) {
-            throw new IllegalArgumentException("Invalid location string: " + locString);
+        try {
+            String[] parts = locString.split(",");
+            if (parts.length < 4) {
+                throw new IllegalArgumentException("Invalid location string: " + locString);
+            }
+
+            World world = Bukkit.getWorld(parts[0]);
+            if (world == null) {
+                throw new IllegalArgumentException("World not found: " + parts[0]);
+            }
+
+            double x = Double.parseDouble(parts[1]);
+            double y = Double.parseDouble(parts[2]);
+            double z = Double.parseDouble(parts[3]);
+
+            float yaw = parts.length > 4 ? Float.parseFloat(parts[4]) : 0.0f;
+            float pitch = parts.length > 5 ? Float.parseFloat(parts[5]) : 0.0f;
+
+            return new Location(world, x, y, z, yaw, pitch);
+        } catch (Exception e) {
+            System.err.println("There is some errors during deserialize this line: " + locString);
+            throw new RuntimeException(e);
         }
-
-        World world = Bukkit.getWorld(parts[0]);
-        if (world == null) {
-            throw new IllegalArgumentException("World not found: " + parts[0]);
-        }
-
-        double x = Double.parseDouble(parts[1]);
-        double y = Double.parseDouble(parts[2]);
-        double z = Double.parseDouble(parts[3]);
-
-        float yaw = parts.length > 4 ? Float.parseFloat(parts[4]) : 0.0f;
-        float pitch = parts.length > 5 ? Float.parseFloat(parts[5]) : 0.0f;
-
-        return new Location(world, x, y, z, yaw, pitch);
     }
 
     public static void rotate(EntityArmorStand armorStand, TConfigManager config, String path) {
