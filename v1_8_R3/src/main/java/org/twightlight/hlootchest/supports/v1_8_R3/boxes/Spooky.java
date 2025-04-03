@@ -3,8 +3,13 @@ package org.twightlight.hlootchest.supports.v1_8_R3.boxes;
 import com.cryptomorin.xseries.XSound;
 import fr.mrmicky.fastparticles.ParticleData;
 import fr.mrmicky.fastparticles.ParticleType;
+import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.*;
+import org.bukkit.Material;
+import org.bukkit.World;
 import org.bukkit.block.BlockFace;
+import org.bukkit.craftbukkit.v1_8_R3.CraftWorld;
+import org.bukkit.craftbukkit.v1_8_R3.entity.CraftPlayer;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
@@ -77,6 +82,7 @@ public class Spooky extends BoxManager {
 
     private void playOpeningAnimation() {
         Main.nmsUtil.lockAngle(getOwner(), getPlayerLocation(), 112);
+        summonMeteorStorm(getOwner(), 100);
 
         new BukkitRunnable() {
             long startTime = System.currentTimeMillis();
@@ -202,5 +208,112 @@ public class Spooky extends BoxManager {
     public void remove() {
         super.remove();
         task.cancel();
+    }
+
+    public void summonMeteorStorm(Player player, int durationTicks) {
+        new BukkitRunnable() {
+            int elapsedTicks = 0;
+
+            @Override
+            public void run() {
+                if (elapsedTicks >= durationTicks) {
+                    cancel();
+                    return;
+                }
+
+                int fireballCount = 2 + random.nextInt(2);
+                Location targetLoc = player.getLocation();
+
+                for (int i = 0; i < fireballCount; i++) {
+                    double xOffset = (random.nextDouble() * 20 - 10);
+                    double zOffset = (random.nextDouble() * 20 - 10);
+                    Location spawnLoc = targetLoc.clone().add(xOffset, 25, zOffset);
+
+                    double dX = 0;
+                    double dY = -2.5;
+                    double dZ = 0;
+
+                    FakeFireball fireball = new FakeFireball(player, spawnLoc.getWorld(), spawnLoc, dX, dY, dZ);
+                    fireball.spawn();
+                }
+
+                elapsedTicks += 3;
+            }
+        }.runTaskTimer(Main.handler.plugin, 0L, 3L);
+    }
+
+    private static class FakeFireball {
+        private final net.minecraft.server.v1_8_R3.World world;
+        private Player player;
+        private Location loc;
+        private double motionX, motionY, motionZ;
+        private boolean exploded = false;
+        private EntityFireball fireball;
+
+        public FakeFireball(Player p, World world, Location loc, double motionX, double motionY, double motionZ) {
+            this.world = ((CraftWorld)world).getHandle();
+            this.loc = loc;
+            this.motionX = motionX;
+            this.motionY = motionY;
+            this.motionZ = motionZ;
+            this.player = p;
+        }
+
+        public void spawn() {
+            EntityLargeFireball fireball = new EntityLargeFireball(world);
+            this.fireball = fireball;
+            fireball.setPosition(loc.getX(), loc.getY(), loc.getZ());
+            fireball.shooter = ((CraftPlayer) player).getHandle();
+
+            int fireballId = fireball.getId();
+            PlayerConnection connection = ((CraftPlayer) player).getHandle().playerConnection;
+
+            connection.sendPacket(new PacketPlayOutSpawnEntity(fireball, 63));
+            connection.sendPacket(new PacketPlayOutEntityMetadata(fireballId, fireball.getDataWatcher(), true));
+
+            sendVelocityPacket(fireballId, motionX, motionY, motionZ);
+
+            move(fireballId);
+        }
+
+        private void move(int fireballId) {
+            new BukkitRunnable() {
+                @Override
+                public void run() {
+                    if (exploded) {
+                        cancel();
+                        return;
+                    }
+
+                    loc.add(motionX, motionY, motionZ);
+
+                    sendVelocityPacket(fireballId, motionX, motionY, motionZ);
+
+                    ParticleType.of("FLAME").spawn(player, loc, 5, 0.2, 0.2, 0.2, 0.05);
+
+                    if (loc.getBlock().getType().isSolid()) {
+                        explode();
+                        cancel();
+                    }
+                }
+            }.runTaskTimer(Main.handler.plugin, 0L, 2L);
+        }
+
+        private void sendVelocityPacket(int entityId, double x, double y, double z) {
+            PacketPlayOutEntityVelocity velocityPacket = new PacketPlayOutEntityVelocity(
+                    entityId,
+                    (int) (x * 8000),
+                    (int) (y * 8000),
+                    (int) (z * 8000)
+            );
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(velocityPacket);
+        }
+
+        private void explode() {
+            exploded = true;
+            PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(fireball.getId());
+            ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
+            ParticleType.of("EXPLOSION_LARGE").spawn(player, loc.clone().add(0, 1, 0), 3);
+        }
     }
 }

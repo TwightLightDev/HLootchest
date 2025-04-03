@@ -8,10 +8,8 @@ import org.bukkit.World;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Random;
 
 public class LocationFinder {
-    private static final Random RANDOM = new Random();
 
     public static List<Location> findSafeLocations(Location loc, int maxLocations,int INNER_RADIUS, int OUTER_RADIUS) {
         List<Location> safeLocations = new ArrayList<>();
