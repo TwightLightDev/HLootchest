@@ -16,7 +16,7 @@ import java.util.Set;
 
 public class LCSMainMenu {
 
-    public LCSMainMenu(Player p, TConfigManager templateFile) {
+    public LCSMainMenu(Player p) {
         if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
             return;
         }
@@ -32,7 +32,7 @@ public class LCSMainMenu {
         }
         Set<String> lcList = HLootchest.getAPI().getNMS().getRegistrationData().keySet();
         Inventory inv = Bukkit.createInventory(null, 54, ChatColor.translateAlternateColorCodes('&', "&7LootChest Setup"));
-        session.setInvConstructor((MenuHandler<LCSMainMenu>) () -> new LCSMainMenu(p, templateFile));
+        session.setInvConstructor((MenuHandler<LCSMainMenu>) () -> new LCSMainMenu(p));
         int i = 0;
         for (String lc : lcList) {
             MenuManager.setItem(p,
@@ -40,7 +40,7 @@ public class LCSMainMenu {
                     HLootchest.getNms().createItem(XMaterial.valueOf("CHEST").parseMaterial(), "", 0, ChatColor.GREEN + lc, Collections.emptyList(), false),
                     i,
                     (e) -> {
-                new LCMenu(p, templateFile, lc, session);
+                new LCMenu(p, HLootchest.getAPI().getConfigUtil().getBoxesConfig(lc), lc, session);
             });
             i ++;
         }
@@ -71,11 +71,16 @@ public class LCSMainMenu {
                         false),
                 53,
                 (e) -> {
-                    templateFile.save();
-                    templateFile.reload();
+
+                    Set<String> types = HLootchest.getAPI().getConfigUtil().getBoxesConfigs().keySet();
+                    for (String type : types) {
+                        TConfigManager templateFile = HLootchest.getAPI().getConfigUtil().getBoxesConfig(type);
+                        templateFile.save();
+                        templateFile.reload();
+                        p.sendMessage(ChatColor.GREEN + "You successfully saved " + type + ".yml!");
+                    }
                     p.closeInventory();
                     session.close();
-                    p.sendMessage(ChatColor.GREEN + "You successfully saved lootchests.yml!");
                 });
         p.openInventory(inv);
     }

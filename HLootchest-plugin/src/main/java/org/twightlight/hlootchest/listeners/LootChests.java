@@ -33,7 +33,7 @@ public class LootChests implements Listener {
     @EventHandler
     public void onRewardGive(PlayerRewardGiveEvent e) {
         String boxid = e.getLootChest().getBoxId();
-        TConfigManager boxConf = HLootchest.getAPI().getConfigUtil().getBoxesConfig();
+        TConfigManager boxConf = HLootchest.getAPI().getConfigUtil().getBoxesConfig(boxid);
         int maxRewards = boxConf.getInt(boxid + ".reward-amount");
         if (boxConf.getYml().getConfigurationSection(boxid + ".rewards-list") == null) {
             return;

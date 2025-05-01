@@ -124,6 +124,27 @@ public abstract class NMSHandler {
     public abstract void register(String boxid, LootChestFactory function);
 
     /**
+     * Deregisters a loot chest factory for a given box ID.
+     *
+     * @param boxid The ID of the loot chest you want to deregister.
+     */
+    public abstract void deregister(String boxid);
+    /**
+     * Registers a loot chest factory for a given effect.
+     *
+     * @param effectid The unique ID of the loot chest.
+     * @param function The {@link LootChestFactory} instance associated with the effect.
+     */
+    public abstract void registerAnimation(String effectid, LootChestFactory function);
+
+    /**
+     * Retrieves all registered effect data.
+     *
+     * @return A {@link Map} mapping effect IDs to their respective {@link LootChestFactory} instances.
+     */
+    public abstract Map<String, LootChestFactory> getAnimationsRegistrationData();
+
+    /**
      * Retrieves all registered loot chest data.
      *
      * @return A {@link Map} mapping loot chest IDs to their respective {@link LootChestFactory} instances.

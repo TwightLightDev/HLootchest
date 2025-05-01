@@ -18,6 +18,7 @@ import org.twightlight.hlootchest.utils.Utility;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.Set;
 
 public class AdminCommand implements CommandExecutor {
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -36,7 +37,11 @@ public class AdminCommand implements CommandExecutor {
                 switch (args[0].toLowerCase()) {
                     case "reload":
                         HLootchest.getAPI().getConfigUtil().getTemplateConfig().reload();
-                        HLootchest.getAPI().getConfigUtil().getBoxesConfig().reload();
+
+                        Set<String> types = HLootchest.getAPI().getConfigUtil().getBoxesConfigs().keySet();
+                        for (String type : types) {
+                            HLootchest.getAPI().getConfigUtil().getBoxesConfig(type).reload();
+                        }
                         HLootchest.getAPI().getConfigUtil().getMessageConfig().reload();
                         HLootchest.getAPI().getConfigUtil().getMainConfig().reload();
                         p.sendMessage(Utility.getMsg(p, "reload"));
@@ -112,7 +117,7 @@ public class AdminCommand implements CommandExecutor {
                     case "lootchestssetup":
                         SetupSession session = null;
                         if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
-                            session = new SetupSession(p, HLootchest.getAPI().getConfigUtil().getBoxesConfig());
+                            session = new SetupSession(p, null);
                         } else {
                             if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof SetupSession) {
                                 session = (SetupSession) HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
@@ -122,7 +127,7 @@ public class AdminCommand implements CommandExecutor {
                             if (session.getInvConstructor() != null) {
                                 session.getInvConstructor().createNew();
                             } else {
-                                new LCSMainMenu(p, HLootchest.getAPI().getConfigUtil().getBoxesConfig());
+                                new LCSMainMenu(p);
                                 p.getInventory().addItem(HLootchest.getNms().createItem(Material.DIAMOND, "", 0, "&bSetup Item", new ArrayList<>(), false));
 
                             }

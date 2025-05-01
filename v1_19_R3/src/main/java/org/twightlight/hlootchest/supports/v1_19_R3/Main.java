@@ -42,6 +42,7 @@ public class Main extends NMSHandler {
     public static HLootchest api;
     public static NMSUtil nmsUtil;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
+    private static final Map<String, LootChestFactory> effectsList = new HashMap<>();
     private static boolean haspacketService = false;
     private static PacketEventsSupport packetService;
 
@@ -217,6 +218,25 @@ public class Main extends NMSHandler {
             throw new IllegalArgumentException("LootChest with id " + boxid + " is already registered!");
         tboxdata.put(boxid, function);
     }
+
+    public void deregister(String boxid) {
+        if (!tboxdata.containsKey(boxid)) {
+            throw new IllegalArgumentException("LootChest with id " + boxid + " not found!");
+        }
+        tboxdata.remove(boxid);
+    }
+
+    public void registerAnimation(String effectid, LootChestFactory function) {
+        if (effectsList.containsKey(effectid)) {
+            throw new IllegalArgumentException("Effect with id " + effectid + " is already registered!");
+        }
+        effectsList.put(effectid, function);
+    }
+
+    public Map<String, LootChestFactory> getAnimationsRegistrationData() {
+        return effectsList;
+    }
+
 
     public Map<String, LootChestFactory> getRegistrationData() {
         return tboxdata;

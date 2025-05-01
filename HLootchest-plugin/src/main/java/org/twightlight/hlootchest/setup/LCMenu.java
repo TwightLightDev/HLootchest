@@ -46,7 +46,7 @@ public class LCMenu {
                 inv,
                 HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
-                (e) -> new LCSMainMenu(p, templateFile));
+                (e) -> new LCSMainMenu(p));
 
         MenuManager.setItem(p,
                 inv,

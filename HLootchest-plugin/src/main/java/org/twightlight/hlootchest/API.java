@@ -20,6 +20,7 @@ public class API implements HLootchest {
     private final HLootchest.Debug debug = new Debug();
     private final HLootchest.Support supports = new Supports();
 
+
     private static class ConfigUtil implements HLootchest.ConfigUtil {
 
         public TConfigManager getTemplateConfig() {
@@ -28,10 +29,16 @@ public class API implements HLootchest {
         public TConfigManager getMainConfig() {
             return org.twightlight.hlootchest.HLootchest.mainConfig;
         }
-        public TConfigManager getBoxesConfig() {
-            return org.twightlight.hlootchest.HLootchest.boxesConfig;
+        public TConfigManager getBoxesConfig(String id) {
+            return org.twightlight.hlootchest.HLootchest.boxesConfigMap.get(id);
+        }
+        public Map<String, TConfigManager> getBoxesConfigs() {
+            return org.twightlight.hlootchest.HLootchest.boxesConfigMap;
         }
         public TConfigManager getMessageConfig() { return org.twightlight.hlootchest.HLootchest.messagesConfig; }
+        public void registerConfig(String id, TConfigManager config) {
+            org.twightlight.hlootchest.HLootchest.boxesConfigMap.put(id, config);
+        }
     }
 
     private static class SessionUtil implements HLootchest.SessionUtil {

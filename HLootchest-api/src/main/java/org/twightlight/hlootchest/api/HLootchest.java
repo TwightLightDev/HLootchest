@@ -1,6 +1,7 @@
 package org.twightlight.hlootchest.api;
 
 import org.bukkit.entity.Player;
+import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
@@ -83,14 +84,27 @@ public interface HLootchest {
          *
          * @return The {@link TConfigManager} instance for the box configuration.
          */
-        TConfigManager getBoxesConfig();
+        TConfigManager getBoxesConfig(String id);
 
+        /**
+         * Retrieves the boxes configuration file.
+         *
+         * @return The {@link Map} instance for the box configuration.
+         */
+        Map<String, TConfigManager> getBoxesConfigs();
         /**
          * Retrieves the messages configuration file.
          *
          * @return The {@link TConfigManager} instance for the message configuration.
          */
         TConfigManager getMessageConfig();
+        /**
+         * Registers a config file for a given box ID.
+         *
+         * @param id The unique ID of the loot chest.
+         * @param config The {@link TConfigManager} you want to link with.
+         */
+        void registerConfig(String id, TConfigManager config);
     }
 
     /**

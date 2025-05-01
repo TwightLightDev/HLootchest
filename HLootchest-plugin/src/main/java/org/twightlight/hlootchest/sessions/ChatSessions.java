@@ -29,8 +29,7 @@ public class ChatSessions {
     }
 
     public void handleInput(String input) {
-        if (inputHandler != null) {
-            inputHandler.accept(input);
+        if (inputHandler != null) {inputHandler.accept(input);
         }
     }
 

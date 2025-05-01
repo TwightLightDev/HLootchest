@@ -1,0 +1,6 @@
+#Registration format: <boxid>: <effectid>
+#Available effect id: regular, mystic, spooky
+
+regular: regular
+mystic: mystic
+spooky: spooky

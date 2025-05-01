@@ -1,0 +1,168 @@
+mystic:
+  icon:
+    material: PLAYER_HEAD
+    data: 3
+    head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvMTliOTkyMzhkOWY4MTM0MDE1ZDc0MzQxYjE3MTE1YmUzMGYxMjVhMzdlYTQ5MDMyYjhjOWUzYjc2OWNmN2VlMSJ9fX0=
+  reward-amount: 3
+  rewards-list:
+    '1':
+      icon:
+        material: DIRT
+        data: 0
+        slot: HEAD
+      holding-icon: false
+      rotations:
+        '1':
+          position: RIGHT_ARM
+          value: -90, 0, 90
+      click-sound:
+        sound: UI_BUTTON_CLICK
+        yaw: 10
+        pitch: 10
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
+      move-forward: true
+      name:
+        enable: false
+        name: ''
+      chance: 30
+      rewards:
+        - '[console] give {player} dirt 1'
+      actions:
+        - '[message] Congrats, it works!'
+      children:
+        '1':
+          location-offset: 0, -1.3, 0
+          name:
+            enable: true
+            display-name: '&aDirt x1'
+        '2':
+          small: true
+          location-offset: 0, 0.65, 0
+          icon:
+            material: DIRT
+            slot: HEAD
+      small: false
+    '2':
+      icon:
+        material: STONE
+        data: 0
+        slot: HEAD
+      holding-icon: false
+      rotations:
+        '1':
+          position: RIGHT_ARM
+          value: -90, 0, 90
+      click-sound:
+        sound: UI_BUTTON_CLICK
+        yaw: 10
+        pitch: 10
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
+      move-forward: true
+      name:
+        enable: false
+        name: ''
+      chance: 30
+      rewards:
+        - '[console] give {player} stone 1'
+      actions:
+        - '[message] Congrats, it works!'
+      children:
+        '1':
+          location-offset: 0, -1.3, 0
+          name:
+            enable: true
+            display-name: '&7Stone x1'
+        '2':
+          location-offset: 0, 0.65, 0
+          icon:
+            material: STONE
+          small: true
+      small: false
+    '3':
+      icon:
+        material: DIAMOND_BLOCK
+        data: 0
+        slot: HEAD
+      holding-icon: false
+      rotations:
+        '1':
+          position: RIGHT_ARM
+          value: -90, 0, 90
+      click-sound:
+        sound: UI_BUTTON_CLICK
+        yaw: 10
+        pitch: 10
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
+      move-forward: true
+      name:
+        enable: false
+        name: ''
+      chance: 30
+      rewards:
+        - '[console] give {player} diamond_block 1'
+      actions:
+        - '[message] Congrats, it works!'
+      children:
+        '1':
+          location-offset: 0, -1.3, 0
+          name:
+            enable: true
+            display-name: '&bDiamond Block x1'
+        '2':
+          small: true
+          location-offset: 0, 0.65, 0
+          icon:
+            material: DIAMOND_BLOCK
+      small: false
+    '4':
+      icon:
+        material: DIAMOND
+        data: 0
+        glowing: true
+      holding-icon: false
+      rotations:
+        '1':
+          position: RIGHT_ARM
+          value: -90, 0, 0
+      click-sound:
+        sound: UI_BUTTON_CLICK
+        yaw: 10
+        pitch: 10
+      hover-sound:
+        sound: ENTITY_CHICKEN_EGG
+        yaw: 5
+        pitch: 5
+      chance: 30
+      name:
+        enable: false
+        name: ''
+      rewards:
+        - '[console] give {player} diamond 1'
+      actions:
+        - '[message] Congrats, it works!'
+      children:
+        '1':
+          location-offset: 0, -1.3, 0
+          name:
+            enable: true
+            display-name: '&bDiamond x1'
+        '2':
+          location-offset: (0.37 * cos(yaw)) - (0.5 * VectorX), -0.1, (0.37 * sin(yaw)) - (0.5 * VectorZ)
+          rotations:
+            '1':
+              position: RIGHT_ARM
+              value: -90, 0, 0
+          icon:
+            material: DIAMOND
+            data: 0
+            glowing: true
+            slot: MAIN_HAND

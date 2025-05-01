@@ -28,6 +28,9 @@ import org.twightlight.hlootchest.utils.Utility;
 import org.twightlight.hlootchest.utils.VersionChecker;
 
 import java.io.File;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
 public final class HLootchest extends JavaPlugin {
 
@@ -39,8 +42,9 @@ public final class HLootchest extends JavaPlugin {
     public static HeadDatabase headDb;
     public static TConfigManager mainConfig;
     public static TConfigManager templateConfig;
-    public static TConfigManager boxesConfig;
+    public static Map<String, TConfigManager> boxesConfigMap = new HashMap<>();
     public static TConfigManager messagesConfig;
+    private static TConfigManager registration;
     public static TDatabase db;
     public static boolean hex_gradient = false;
     public static ColorUtils colorUtils;
@@ -50,10 +54,11 @@ public final class HLootchest extends JavaPlugin {
     public void onEnable() {
         api = new API();
         Bukkit.getServicesManager().register(org.twightlight.hlootchest.api.HLootchest.class, api, this, ServicePriority.Normal);
+        loadConf();
         loadNMS();
+        loadLootchests();
         loadCommands();
         loadListeners();
-        loadConf();
         loadDatabase();
         loadDependencies();
         loadCredit();
@@ -83,44 +88,40 @@ public final class HLootchest extends JavaPlugin {
         switch (version) {
             case "8":
                 nms = new org.twightlight.hlootchest.supports.v1_8_R3.Main(this, version, api);
-                nms.register("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
-                nms.register("mystic", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Mystic::new);
-                nms.register("spooky", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Spooky::new);
+                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
+                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Mystic::new);
+                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Spooky::new);
 
                 break;
             case "12":
                 nms = new org.twightlight.hlootchest.supports.v1_12_R1.Main(this, version, api);
-                nms.register("regular", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Regular::new);
-                nms.register("mystic", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Mystic::new);
-                nms.register("spooky", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Spooky::new);
+                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Regular::new);
+                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Mystic::new);
+                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Spooky::new);
 
                 break;
             case "19":
                 nms = new org.twightlight.hlootchest.supports.v1_19_R3.Main(this, version, api);
-                nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
-                nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
-                nms.register("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
+                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
+                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
                 break;
             case "20":
                 String minor = Bukkit.getBukkitVersion().split("-")[0].split("\\.").length > 2 ? Bukkit.getBukkitVersion().split("-")[0].split("\\.")[2] : "0";
                 if (Integer.parseInt(minor) <= 4) {
                     nms = new org.twightlight.hlootchest.supports.v1_20_R3.Main(this, version, api);
-                    nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
-                    nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
-                    nms.register("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
-                    break;
                 } else {
                     nms = new org.twightlight.hlootchest.supports.v1_20_R4.Main(this, version, api);
-                    nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
-                    nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
-                    nms.register("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
-                    break;
                 }
+                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
+                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
+                break;
             case "21":
                 nms = new org.twightlight.hlootchest.supports.v1_21_R3.Main(this, version, api);
-                nms.register("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
-                nms.register("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
-                nms.register("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
+                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
+                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
+                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
                 break;
             default:
                 Utility.info("Sorry, this version is unsupported! HLootChest will be disable!");
@@ -130,6 +131,29 @@ public final class HLootchest extends JavaPlugin {
         if (Integer.parseInt(version) >= 16) {
             hex_gradient = true;
             colorUtils = new ColorUtils();
+        }
+    }
+
+    private void loadLootchests() {
+        Set<String> types = registration.getYml().getConfigurationSection("").getKeys(false);
+        for (String type : types) {
+            Utility.info("Registering type: " + type + ".");
+            String animation = registration.getString(type, "regular");
+            nms.register(type, api.getNMS().getAnimationsRegistrationData().get(animation));
+            try {
+                File file = new File((getDataFolder().getPath()+ "/lootchests"), type + ".yml");
+                if (!file.exists()) {
+                    saveResource("lootchests/" + type + ".yml", false);
+                }
+                TConfigManager boxConfig = new ConfigManager(this, type, getDataFolder().getPath()+ "/lootchests");
+                api.getConfigUtil().registerConfig(type, boxConfig);
+                Utility.info("Matched " + type + " with " + type + ".yml");
+            } catch (Exception e) {
+                nms.deregister(type);
+                Utility.info("Something went wrong while matching " + type + " to its config");
+                Utility.info("You should rename the file you want to match to " + type + ".yml");
+                Utility.info("Deregistering: " + type);
+            }
         }
     }
     private void loadCommands() {
@@ -159,13 +183,6 @@ public final class HLootchest extends JavaPlugin {
         }
         templateConfig = new ConfigManager(this, mainConfig.getString("template"), getDataFolder().getPath()+ "/templates");
 
-        Utility.info("Loading lootchests...");
-        File file2 = new File(getDataFolder().getPath(), "lootchests.yml");
-        if (!file2.exists()) {
-            saveResource("lootchests.yml", false);
-        }
-        boxesConfig = new ConfigManager(this, "lootchests", path);
-
         Utility.info("Loading messages.yml...");
         File file4 = new File(getDataFolder().getPath(), "messages.yml");
         if (!file4.exists()) {
@@ -173,6 +190,12 @@ public final class HLootchest extends JavaPlugin {
         }
         messagesConfig = new ConfigManager(this, "messages", path);
 
+        Utility.info("Loading registrations.yml...");
+        File file5 = new File(getDataFolder().getPath(), "registrations.yml");
+        if (!file5.exists()) {
+            saveResource("registrations.yml", false);
+        }
+        registration = new ConfigManager(this, "registrations", path);
     }
 
     private void loadDatabase() {
@@ -251,7 +274,7 @@ public final class HLootchest extends JavaPlugin {
     }
 
     public static String getVersion() {
-        return "1.0.9";
+        return "1.1.3";
     }
 
     public static String getAPIVersion() {
