@@ -36,9 +36,7 @@ public class LootChestSession extends SessionsManager implements TSession {
     public LootChestSession(Player p, String identifier) {
         if (HLootchest.getNms().getBoxFromPlayer(p) == null) {
             player = p;
-            SessionsManager.sessions.putIfAbsent(p, this);
             TConfigManager conf = HLootchest.getAPI().getConfigUtil().getBoxesConfig(identifier);
-
             ItemStack icon = HLootchest.getNms().createItem(
                     XMaterial.valueOf(conf.getString(identifier + ".icon.material")).parseMaterial(),
                     conf.getString(identifier + ".icon.head_value"),
@@ -145,6 +143,7 @@ public class LootChestSession extends SessionsManager implements TSession {
             }.runTaskLater(HLootchest.getInstance(), 1L);
             SessionStartEvent event = new SessionStartEvent(player, this);
             Bukkit.getPluginManager().callEvent(event);
+            SessionsManager.sessions.putIfAbsent(p, this);
         }
     }
 

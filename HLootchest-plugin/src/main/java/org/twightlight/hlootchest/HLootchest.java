@@ -138,7 +138,7 @@ public final class HLootchest extends JavaPlugin {
         Set<String> types = registration.getYml().getConfigurationSection("").getKeys(false);
         for (String type : types) {
             Utility.info("Registering type: " + type + ".");
-            String animation = registration.getString(type, "regular");
+            String animation = registration.getString(type + ".animation", "regular");
             nms.register(type, api.getNMS().getAnimationsRegistrationData().get(animation));
             try {
                 File file = new File((getDataFolder().getPath()+ "/lootchests"), type + ".yml");
