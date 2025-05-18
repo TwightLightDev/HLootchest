@@ -8,6 +8,7 @@ import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
+import org.twightlight.hlootchest.setup.Preview;
 
 
 public class SetupSession extends SessionsManager implements TSession {
@@ -29,6 +30,9 @@ public class SetupSession extends SessionsManager implements TSession {
 
     public void close() {
         SessionsManager.sessions.remove(player);
+        if (Preview.previewList.containsKey(player)) {
+            Preview.previewList.get(player).remove();
+        }
         player.closeInventory();
         SessionCloseEvent event = new SessionCloseEvent(player, this);
         Bukkit.getPluginManager().callEvent(event);

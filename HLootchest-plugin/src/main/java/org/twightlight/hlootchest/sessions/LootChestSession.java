@@ -102,28 +102,8 @@ public class LootChestSession extends SessionsManager implements TSession {
                                             ButtonTask task = taskQueue.poll();
                                             String path = task.getPath();
 
-                                            boolean dynamicIcon = templateconfig.getYml().getBoolean(path + ".icon.dynamic", false);
-                                            String iconMaterial, iconHeadValue;
-                                            int iconData;
-
-                                            if (!dynamicIcon) {
-                                                iconMaterial = templateconfig.getString(path + ".icon.material");
-                                                iconHeadValue = templateconfig.getString(path + ".icon.head_value");
-                                                iconData = templateconfig.getYml().getInt(path + ".icon.data", 0);
-                                            } else {
-                                                List<String> iconPaths = new ArrayList<>(templateconfig.getYml().getConfigurationSection(path + ".icon.dynamic-icons").getKeys(false));
-                                                String thisIconPath = path + ".icon.dynamic-icons." + iconPaths.get(0);
-                                                iconMaterial = templateconfig.getString(thisIconPath + ".material");
-                                                iconHeadValue = templateconfig.getString(thisIconPath + ".head_value");
-                                                iconData = templateconfig.getYml().getInt(thisIconPath + ".data", 0);
-                                            }
-
-                                            ItemStack buttonIcon = HLootchest.getNms().createItem(
-                                                    XMaterial.valueOf(iconMaterial).parseMaterial(), iconHeadValue, iconData, "", new ArrayList<>(), false
-                                            );
-
                                             Location location = HLootchest.getNms().stringToLocation(templateconfig.getString(path + ".location"));
-                                            HLootchest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, buttonIcon, path, templateconfig);
+                                            HLootchest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, path, templateconfig);
                                         }
 
                                         if (currentTick >= finalHighestDelay || taskQueue.isEmpty()) {

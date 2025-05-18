@@ -91,6 +91,7 @@ public final class HLootchest extends JavaPlugin {
                 nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
                 nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Mystic::new);
                 nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Spooky::new);
+                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Aeternus::new);
 
                 break;
             case "12":
@@ -98,6 +99,7 @@ public final class HLootchest extends JavaPlugin {
                 nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Regular::new);
                 nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Mystic::new);
                 nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Spooky::new);
+                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Aeternus::new);
 
                 break;
             case "19":
@@ -105,6 +107,7 @@ public final class HLootchest extends JavaPlugin {
                 nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                 nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
                 nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
+                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Aeternus::new);
                 break;
             case "20":
                 String minor = Bukkit.getBukkitVersion().split("-")[0].split("\\.").length > 2 ? Bukkit.getBukkitVersion().split("-")[0].split("\\.")[2] : "0";
@@ -116,12 +119,15 @@ public final class HLootchest extends JavaPlugin {
                 nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                 nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
                 nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
+                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Aeternus::new);
+
                 break;
             case "21":
                 nms = new org.twightlight.hlootchest.supports.v1_21_R3.Main(this, version, api);
                 nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
                 nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
                 nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
+                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Aeternus::new);
                 break;
             default:
                 Utility.info("Sorry, this version is unsupported! HLootChest will be disable!");
@@ -139,12 +145,13 @@ public final class HLootchest extends JavaPlugin {
         for (String type : types) {
             Utility.info("Registering type: " + type + ".");
             String animation = registration.getString(type + ".animation", "regular");
-            nms.register(type, api.getNMS().getAnimationsRegistrationData().get(animation));
             try {
-                File file = new File((getDataFolder().getPath()+ "/lootchests"), type + ".yml");
-                if (!file.exists()) {
-                    saveResource("lootchests/" + type + ".yml", false);
-                }
+                nms.register(type, api.getNMS().getAnimationsRegistrationData().get(animation));
+            } catch (Exception e) {
+                Utility.info("Something went wrong while registering the " + type + " box type");
+                Utility.info("Diagnostic: the animation cannot be found!");
+            }
+            try {
                 TConfigManager boxConfig = new ConfigManager(this, type, getDataFolder().getPath()+ "/lootchests");
                 api.getConfigUtil().registerConfig(type, boxConfig);
                 Utility.info("Matched " + type + " with " + type + ".yml");
@@ -196,6 +203,23 @@ public final class HLootchest extends JavaPlugin {
             saveResource("registrations.yml", false);
         }
         registration = new ConfigManager(this, "registrations", path);
+
+        File file6 = new File((getDataFolder().getPath()+ "/lootchests"), "regular.yml");
+        if (!file6.exists()) {
+            saveResource("lootchests/" + "regular.yml", false);
+        }
+        File file7 = new File((getDataFolder().getPath()+ "/lootchests"), "mystic.yml");
+        if (!file7.exists()) {
+            saveResource("lootchests/" + "mystic.yml", false);
+        }
+        File file8 = new File((getDataFolder().getPath()+ "/lootchests"), "spooky.yml");
+        if (!file8.exists()) {
+            saveResource("lootchests/" + "spooky.yml", false);
+        }
+        File file9 = new File((getDataFolder().getPath()+ "/lootchests"), "aeternus.yml");
+        if (!file9.exists()) {
+            saveResource("lootchests/" + "aeternus.yml", false);
+        }
     }
 
     private void loadDatabase() {
@@ -274,7 +298,7 @@ public final class HLootchest extends JavaPlugin {
     }
 
     public static String getVersion() {
-        return "1.1.3";
+        return "1.1.4";
     }
 
     public static String getAPIVersion() {

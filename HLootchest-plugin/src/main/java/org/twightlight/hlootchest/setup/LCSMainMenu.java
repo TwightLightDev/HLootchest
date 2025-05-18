@@ -6,10 +6,12 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.sessions.SetupSession;
+import org.twightlight.hlootchest.utils.DyeColor;
 
 import java.util.Collections;
 import java.util.Set;
@@ -50,7 +52,7 @@ public class LCSMainMenu {
                 HLootchest.getNms().createItem(
                         XMaterial.RED_WOOL.parseMaterial(),
                         "",
-                        0,
+                        DyeColor.RED.getColorData(),
                         ChatColor.RED + "Exit",
                         Collections.emptyList(),
                         false),
@@ -63,9 +65,9 @@ public class LCSMainMenu {
         MenuManager.setItem(p,
                 inv,
                 HLootchest.getNms().createItem(
-                        XMaterial.GREEN_WOOL.parseMaterial(),
+                        XMaterial.LIME_WOOL.parseMaterial(),
                         "",
-                        0,
+                        DyeColor.LIME.getColorData(),
                         ChatColor.GREEN + "Save",
                         Collections.emptyList(),
                         false),

@@ -17,6 +17,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.util.EulerAngle;
 import org.twightlight.hlootchest.api.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
@@ -79,11 +80,21 @@ public class Main extends NMSHandler {
         return colorUtils.colorize(PlaceholderAPI.setPlaceholders(p, value));
     }
 
+    public static String replaceCommand(Player p, String command) {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
+            return command.replace("{player}", p.getName());
+        return PlaceholderAPI.setPlaceholders(p, command);
+    }
+
     public void registerButtonClick(Player player) {
     }
 
-    public void spawnButton(Location location, ButtonType type, Player player, ItemStack icon, String path, TConfigManager config) {
-        new Button(location, type, player, icon, path, config);
+    public TButton spawnButton(Location location, ButtonType type, Player player, String path, TConfigManager config) {
+        return new Button(location, type, player, path, config, false);
+    }
+
+    public TButton spawnPreviewButton(Location location, ButtonType type, Player player, String path, TConfigManager config) {
+        return new Button(location, type, player, path, config, true);
     }
 
     public TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config) {
@@ -313,5 +324,9 @@ public class Main extends NMSHandler {
         if (hasPacketService()) {
             getPacketService().setGameMode(p, gamemode);
         }
+    }
+
+    public ProtocolVersion getProtocolVersion() {
+        return ProtocolVersion.v1_19_R3;
     }
 }

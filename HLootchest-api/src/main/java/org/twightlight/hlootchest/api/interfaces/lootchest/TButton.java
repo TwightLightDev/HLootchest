@@ -76,7 +76,7 @@ public interface TButton {
     /**
      * Gets the list of actions assigned to the button.
      *
-     * @return A list of action strings.
+     * @return A list of actions as string.
      */
     List<String> getActions();
 
@@ -212,4 +212,6 @@ public interface TButton {
      * @return The {@link TConfigManager} associated with this button.
      */
     TConfigManager getConfig();
+
+    boolean isPreview();
 }

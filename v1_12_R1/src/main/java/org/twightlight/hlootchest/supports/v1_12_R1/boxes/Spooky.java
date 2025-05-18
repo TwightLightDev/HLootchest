@@ -179,6 +179,7 @@ public class Spooky extends BoxManager {
         else {
             Main.nmsUtil.setNmsBlock(getOwner(), loc, Material.PUMPKIN, randomFace());
         }
+        getOwner().playSound(getOwner().getLocation(), XSound.ENTITY_CHICKEN_EGG.get(), 20, 5);
         Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
             Main.nmsUtil.setNmsBlock(getOwner(), loc, Material.AIR, BlockFace.NORTH);
         }, duration);

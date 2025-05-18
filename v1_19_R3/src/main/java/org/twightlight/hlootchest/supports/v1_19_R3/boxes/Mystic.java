@@ -44,7 +44,7 @@ public class Mystic extends BoxManager {
 
 
         ItemStack orbItem = Main.handler.createItem(XMaterial.IRON_SWORD.parseMaterial(),
-                "eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvNjNkYjM1M2QzYzAyODg3MWMwZmFlMGNkMGU3NmE2NWIzOTU3OTU5YmNhMThkMDY1YjY3ZjkxMTdiYWQxOWQ4NCJ9fX0=",
+                "",
                 0,
                 "",
                 Collections.emptyList(),
@@ -200,6 +200,7 @@ public class Mystic extends BoxManager {
                 for (double y = 0; y <= 10; y += 0.5) {
                     ParticleType.of("ENCHANTMENT_TABLE")
                             .spawn(getOwner(), location.clone().add(0, y, 0), 3, 0.2, 0.2, 0.2, 0.1);
+                    getOwner().playSound(getOwner().getLocation(), XSound.BLOCK_BEACON_ACTIVATE.get(), 10, 3);
                 }
 
                 ticks += 4;

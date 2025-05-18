@@ -35,6 +35,12 @@ public class Utility {
         return p(p, HLootchest.messagesConfig.getString("Messages." + path).replace("{prefix}", HLootchest.messagesConfig.getString("Messages.prefix")));
     }
 
+    public static String replaceCommand(Player p, String command) {
+        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") == null)
+            return command.replace("{player}", p.getName());
+        return PlaceholderAPI.setPlaceholders(p, command);
+    }
+
     public static void sendHelp(Player p, String target) {
         List<String> helps = HLootchest.messagesConfig.getList("Messages." + target + "-help");
         if (helps == null) {

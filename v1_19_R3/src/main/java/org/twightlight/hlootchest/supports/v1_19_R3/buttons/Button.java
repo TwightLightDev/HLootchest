@@ -65,6 +65,8 @@ public class Button implements TButton {
 
     private boolean dynamicIcon;
 
+    private boolean isPreview;
+
     private String nameVisibleMode = "always";
 
     private boolean removed = false;
@@ -79,10 +81,11 @@ public class Button implements TButton {
 
     public static final Map<ArmorStand, TIcon> linkedStandsIcon = new HashMap<>();
 
-    public Button(final Location location, ButtonType type, Player player, ItemStack icon, final String path, final TConfigManager config) {
+    public Button(final Location location, ButtonType type, Player player, final String path, final TConfigManager config, boolean isPreview) {
         this.owner = player;
         this.config = config;
         this.pathToButton = path;
+        this.isPreview = isPreview;
         ButtonSpawnEvent event = new ButtonSpawnEvent(this.owner, this);
         Bukkit.getPluginManager().callEvent((Event)event);
         this.actions = (config.getList(path + ".actions") != null) ? config.getList(path + ".actions") : new ArrayList<>();
@@ -167,9 +170,25 @@ public class Button implements TButton {
 
         dynamicIcon = (config.getYml().contains(path + ".icon.dynamic")) ? config.getBoolean(path + ".icon.dynamic") : false;
         if (isHoldingIcon && !dynamicIcon) {
-            ItemSlot slot = ItemSlot.valueOf(config.getString(path + ".icon.slot", "HEAD"));
+            String thisIconPath = pathToButton + ".icon";
+            String iconMaterial = config.getString(thisIconPath + ".material");
+            String iconHeadValue = config.getString(thisIconPath + ".head_value");
+            int iconData = config.getYml().contains(thisIconPath + ".data") ?
+                    config.getInt(thisIconPath + ".data") : 0;
+            boolean isGlowing = config.getBoolean(thisIconPath + ".glowing", false);
+            ItemSlot slot = ItemSlot.valueOf(config.getString(thisIconPath + ".slot", "HEAD"));
+
+            ItemStack icon = Main.handler.createItem(
+                    XMaterial.valueOf(iconMaterial).get(),
+                    iconHeadValue,
+                    iconData,
+                    "",
+                    new ArrayList<>(),
+                    isGlowing
+            );
+
             TIcon ticon = new Icon(icon, slot);
-            equipIcon(armorStand, ticon);
+            equipIcon(armorstand, ticon);
             this.icon = ticon;
         }
         if (isHoldingIcon && dynamicIcon && config.getYml().contains(path + ".icon.refresh-interval")) {
@@ -642,4 +661,7 @@ public class Button implements TButton {
         return config;
     }
 
+    public boolean isPreview() {
+        return isPreview;
+    }
 }

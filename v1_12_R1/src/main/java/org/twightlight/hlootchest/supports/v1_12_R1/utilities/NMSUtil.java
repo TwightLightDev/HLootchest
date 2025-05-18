@@ -52,7 +52,6 @@ public class NMSUtil implements NMSService {
     }
 
     public void sendDespawnPacket(Player player, Entity entityLiving) {
-
         net.minecraft.server.v1_12_R1.Entity nmsEntity = ((CraftEntity) entityLiving).getHandle();
         if (nmsEntity instanceof EntityLiving) {
             PacketPlayOutEntityDestroy packet = new PacketPlayOutEntityDestroy(nmsEntity.getId());

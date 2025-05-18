@@ -13,6 +13,7 @@ import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 import org.twightlight.hlootchest.api.HLootchest;
+import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -88,6 +89,10 @@ public class Main extends org.twightlight.hlootchest.supports.v1_19_R3.Main {
         }
 
         return new URL(decoded.substring(prefix.length(), decoded.length() - suffix.length()));
+    }
+
+    public ProtocolVersion getProtocolVersion() {
+        return ProtocolVersion.v1_21_R3;
     }
 
 }

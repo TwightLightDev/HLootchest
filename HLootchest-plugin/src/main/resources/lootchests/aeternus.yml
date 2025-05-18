@@ -1,8 +1,8 @@
-spooky:
+aeternus:
   icon:
     material: PLAYER_HEAD
     data: 3
-    head_value: hdb:40395
+    head_value: eyJ0ZXh0dXJlcyI6eyJTS0lOIjp7InVybCI6Imh0dHA6Ly90ZXh0dXJlcy5taW5lY3JhZnQubmV0L3RleHR1cmUvY2Y1YjFkYzdhZjExZWJiNDAyNTJjN2I4NDhkNGM1Njc0ZTY0ODdkMzgzMzE5MmE1ZTYyNGFlZjU3ZjQ3YWYwZCJ9fX0=
   reward-amount: 3
   rewards-list:
     '1':

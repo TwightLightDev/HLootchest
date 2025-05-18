@@ -45,6 +45,7 @@ public class Regular extends BoxManager {
             @Override
             public void run() {
                 if (getBox().locY < loc.clone().getY() - 5.2) {
+                    getOwner().playSound(getOwner().getLocation(), XSound.BLOCK_ANVIL_LAND.get(), 10, 5);
                     cancel();
                 }
                 Animations.MoveUp(getOwner(), sword, (float) -0.2);
@@ -120,7 +121,6 @@ public class Regular extends BoxManager {
                     setClickable(true);
 
                     ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -3.2, 0), 2, 0.5, 0.5, 0.5, 0);
-
                     Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_GENERIC_EXPLODE.name(), 20, 5);
 
                     new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId());

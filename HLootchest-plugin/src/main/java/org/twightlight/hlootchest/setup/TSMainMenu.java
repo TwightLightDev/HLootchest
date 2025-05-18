@@ -10,6 +10,7 @@ import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.sessions.SetupSession;
+import org.twightlight.hlootchest.utils.DyeColor;
 
 import java.util.Collections;
 import java.util.Set;
@@ -50,7 +51,7 @@ public class TSMainMenu {
                 HLootchest.getNms().createItem(
                         XMaterial.RED_WOOL.parseMaterial(),
                         "",
-                        0,
+                        DyeColor.RED.getColorData(),
                         ChatColor.RED + "Exit",
                         Collections.emptyList(),
                         false),
@@ -63,9 +64,9 @@ public class TSMainMenu {
         MenuManager.setItem(p,
                 inv,
                 HLootchest.getNms().createItem(
-                        XMaterial.GREEN_WOOL.parseMaterial(),
+                        XMaterial.LIME_WOOL.parseMaterial(),
                         "",
-                        0,
+                        DyeColor.LIME.getColorData(),
                         ChatColor.GREEN + "Save",
                         Collections.emptyList(),
                         false),

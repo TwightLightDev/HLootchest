@@ -7,6 +7,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
@@ -47,11 +48,13 @@ public abstract class NMSHandler {
      * @param location The {@link Location} where the button should be spawned.
      * @param typePlayer The {@link ButtonType} of the button.
      * @param player The {@link Player} associated with the button.
-     * @param icon The {@link ItemStack} representing the button's appearance.
      * @param path The configuration path related to the button.
      * @param config The {@link TConfigManager} instance managing configurations.
      */
-    public abstract void spawnButton(Location location, ButtonType typePlayer, Player player, ItemStack icon, String path, TConfigManager config);
+    public abstract TButton spawnButton(Location location, ButtonType typePlayer, Player player, String path, TConfigManager config);
+
+
+    public abstract TButton spawnPreviewButton(Location location, ButtonType typePlayer, Player player, String path, TConfigManager config);
 
     /**
      * Spawns a loot box at the given location.
@@ -124,13 +127,13 @@ public abstract class NMSHandler {
     public abstract void register(String boxid, LootChestFactory function);
 
     /**
-     * Deregisters a loot chest factory for a given box ID.
+     * Deregisters a given box ID.
      *
      * @param boxid The ID of the loot chest you want to deregister.
      */
     public abstract void deregister(String boxid);
     /**
-     * Registers a loot chest factory for a given effect.
+     * Registers a factory for a given animation.
      *
      * @param effectid The unique ID of the loot chest.
      * @param function The {@link LootChestFactory} instance associated with the effect.
@@ -138,9 +141,9 @@ public abstract class NMSHandler {
     public abstract void registerAnimation(String effectid, LootChestFactory function);
 
     /**
-     * Retrieves all registered effect data.
+     * Retrieves all registered animation data.
      *
-     * @return A {@link Map} mapping effect IDs to their respective {@link LootChestFactory} instances.
+     * @return A {@link Map} mapping animation IDs to their respective {@link LootChestFactory} instances.
      */
     public abstract Map<String, LootChestFactory> getAnimationsRegistrationData();
 
@@ -190,4 +193,6 @@ public abstract class NMSHandler {
      * @return The created {@link ItemStack}.
      */
     public abstract ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted);
+
+    public abstract ProtocolVersion getProtocolVersion();
 }

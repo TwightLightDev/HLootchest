@@ -36,6 +36,9 @@ public class ClickEvent extends PlayerConnection {
 
         PacketPlayInUseEntity.EnumEntityUseAction action = packet.a();
         if (button != null && button.isClickable()) {
+            if (button.isPreview()) {
+                return;
+            }
             handleButtonInteraction(action, button);
         }
         TBox box = BoxManager.boxlists.get(entityId);
@@ -48,7 +51,7 @@ public class ClickEvent extends PlayerConnection {
         PlayerButtonClickEvent event = new PlayerButtonClickEvent(this.player.getBukkitEntity(), button);
         Bukkit.getPluginManager().callEvent(event);
 
-        if (event.isCancelled() || button.isHiding()) {
+        if (event.isCancelled() || button.isHiding() || button.isPreview()) {
             return;
         }
 
@@ -60,10 +63,10 @@ public class ClickEvent extends PlayerConnection {
             for (String stringAction : actions) {
                 String[] dataset = stringAction.split(" ", 2);
                 if (dataset[0].equals("[player]")) {
-                    player.getBukkitEntity().performCommand(dataset[1].replace("{player}", this.player.getBukkitEntity().getName()));
+                    player.getBukkitEntity().performCommand(Main.replaceCommand(this.player.getBukkitEntity(), dataset[1]));
                 } else if (dataset[0].equals("[console]")) {
                     ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-                    Bukkit.getServer().dispatchCommand(console, dataset[1].replace("{player}", this.player.getBukkitEntity().getName()));
+                    Bukkit.getServer().dispatchCommand(console, Main.replaceCommand(this.player.getBukkitEntity(), dataset[1]));
                 } else if (dataset[0].equals("[message]")) {
                     player.getBukkitEntity().sendMessage(
                             ChatColor.translateAlternateColorCodes('&',

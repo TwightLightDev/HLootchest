@@ -185,6 +185,7 @@ public class Spooky extends BoxManager {
         else {
             Main.nmsUtil.setNmsBlock(getOwner(), loc, Material.PUMPKIN, randomFace());
         }
+        getOwner().playSound(getOwner().getLocation(), XSound.ENTITY_CHICKEN_EGG.get(), 20, 5);
         Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
             Main.nmsUtil.setNmsBlock(getOwner(), loc, Material.AIR, BlockFace.NORTH);
         }, duration);
@@ -232,6 +233,7 @@ public class Spooky extends BoxManager {
                     double dX = 0;
                     double dY = -2.5;
                     double dZ = 0;
+                    player.playSound(spawnLoc, XSound.ENTITY_BLAZE_SHOOT.get(), 10, 3);
 
                     FakeFireball fireball = new FakeFireball(player, spawnLoc.getWorld(), spawnLoc, dX, dY, dZ);
                     fireball.spawn();

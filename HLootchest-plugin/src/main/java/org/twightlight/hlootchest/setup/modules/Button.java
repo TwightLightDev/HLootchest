@@ -6,11 +6,13 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.MenuManager;
+import org.twightlight.hlootchest.setup.Preview;
 import org.twightlight.hlootchest.setup.elements.ButtonsMenu;
 import org.twightlight.hlootchest.setup.elements.ChildrenMenu;
 import org.twightlight.hlootchest.setup.elements.RequirementsMenu;
@@ -271,6 +273,17 @@ public class Button {
                         templateFile.setNotSave(name + path + ".small", !templateFile.getBoolean(name + path + ".small", false));
                         p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".small")));
                         setItems(inv);
+                    });
+            MenuManager.setItem(p,
+                    inv,
+                    HLootchest.getNms().createItem(XMaterial.GLASS.parseMaterial(), "", 0,
+                            "&bPreview",
+                            Arrays.asList(new String[] {"&eClick to preview!"}),
+                            false),
+                    53,
+                    (e) -> {
+                        new Preview(HLootchest.getNms().stringToLocation(templateFile.getString(name + path + ".location")), ButtonType.FUNCTIONAL, p, name + path, templateFile);
+                        p.closeInventory();
                     });
             List<String> actions = Collections.emptyList();
             if (templateFile.getYml().contains(name + path + ".actions")) {

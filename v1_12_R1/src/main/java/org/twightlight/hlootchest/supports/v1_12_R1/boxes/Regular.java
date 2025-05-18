@@ -46,6 +46,7 @@ public class Regular extends BoxManager {
             @Override
             public void run() {
                 if (getBox().locY < loc.clone().getY() - 5.2) {
+                    getOwner().playSound(getOwner().getLocation(), XSound.BLOCK_ANVIL_LAND.get(), 10, 5);
                     cancel();
                 }
                 Animations.MoveUp(getOwner(), sword, (float) -0.2);

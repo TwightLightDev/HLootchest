@@ -71,7 +71,7 @@ public class ClickEvent implements Listener {
     private void handleButtonInteraction(Player player, TButton button) {
         PlayerButtonClickEvent event = new PlayerButtonClickEvent(player, button);
         Bukkit.getPluginManager().callEvent(event);
-        if (event.isCancelled() || button.isHiding()) {
+        if (event.isCancelled() || button.isHiding() || button.isPreview()) {
             return;
         }
         if (((Button)button).getSound() != null) {
@@ -81,10 +81,10 @@ public class ClickEvent implements Listener {
         for (String stringAction : actions) {
             String[] dataset = stringAction.split(" ", 2);
             if (dataset[0].equals("[player]")) {
-                player.performCommand(dataset[1].replace("{player}", player.getName()));
+                player.performCommand(Main.replaceCommand(player, dataset[1]));
             } else if (dataset[0].equals("[console]")) {
                 ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-                Bukkit.getServer().dispatchCommand(console, dataset[1].replace("{player}", player.getName()));
+                Bukkit.getServer().dispatchCommand(console, Main.replaceCommand(player, dataset[1]));
             } else if (dataset[0].equals("[message]")) {
                 player.sendMessage(ChatColor.translateAlternateColorCodes('&', PlaceholderAPI.setPlaceholders(player, (String)dataset[1])));
             } else if (dataset[0].equals("[open]")) {

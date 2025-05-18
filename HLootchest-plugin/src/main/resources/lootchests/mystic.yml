@@ -29,7 +29,7 @@ mystic:
         name: ''
       chance: 30
       rewards:
-        - '[console] give {player} dirt 1'
+        - '[console] give %player_name% dirt 1'
       actions:
         - '[message] Congrats, it works!'
       children:
@@ -69,7 +69,7 @@ mystic:
         name: ''
       chance: 30
       rewards:
-        - '[console] give {player} stone 1'
+        - '[console] give %player_name% stone 1'
       actions:
         - '[message] Congrats, it works!'
       children:
@@ -108,7 +108,7 @@ mystic:
         name: ''
       chance: 30
       rewards:
-        - '[console] give {player} diamond_block 1'
+        - '[console] give %player_name% diamond_block 1'
       actions:
         - '[message] Congrats, it works!'
       children:
@@ -146,7 +146,7 @@ mystic:
         enable: false
         name: ''
       rewards:
-        - '[console] give {player} diamond 1'
+        - '[console] give %player_name% diamond 1'
       actions:
         - '[message] Congrats, it works!'
       children:

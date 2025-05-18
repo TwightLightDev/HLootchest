@@ -2,6 +2,7 @@ package org.twightlight.hlootchest.supports.v1_19_R3.boxes;
 
 import com.cryptomorin.xseries.XMaterial;
 import com.cryptomorin.xseries.XSound;
+import com.cryptomorin.xseries.particles.XParticle;
 import fr.mrmicky.fastparticles.ParticleType;
 import org.bukkit.*;
 import org.bukkit.entity.ArmorStand;
@@ -23,10 +24,10 @@ public class Regular extends BoxManager {
         super(location, player, icon, config, boxid);
         final Location loc = Main.handler.stringToLocation(config.getString(boxid + ".settings.decoration.location"));
 
-        this.sword = createArmorStand(loc, "", false);
+        sword = createArmorStand(loc, "", false);
 
-        Main.rotate(this.sword, config, boxid + ".settings.decoration");
-        sendSpawnPacket(getOwner(), this.sword);
+        Main.rotate(sword, config, boxid + ".settings.decoration");
+        sendSpawnPacket(getOwner(), sword);
         ItemStack icon1 = new ItemStack(XMaterial.DIAMOND_SWORD.parseMaterial());
         sword.getEquipment().setItem(EquipmentSlot.HAND, icon1);
         new BukkitRunnable() {
@@ -40,6 +41,7 @@ public class Regular extends BoxManager {
             public void run() {
                 if (currentTick >= totalTicks) {
                     cancel();
+                    getOwner().playSound(getOwner().getLocation(), XSound.BLOCK_ANVIL_LAND.get(), 10, 5);
                     return;
                 }
 

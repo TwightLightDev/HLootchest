@@ -7,6 +7,8 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.block.BlockBreakEvent;
+import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
@@ -56,15 +58,12 @@ public class LootChests implements Listener {
             List<String> rewardactions = boxConf.getList(path + ".rewards");
 
             if (e.getPlayer().isOnline()) {
-                ItemStack buttonicon = HLootchest.getNms().createItem(Material.valueOf(boxConf.getString(path + ".icon.material")), boxConf.getString(path + ".icon.head_value"), boxConf.getInt(path + ".icon.data"), "", new ArrayList<>(), false);
-
                 Reward reward1 = new Reward(rewardactions);
                 reward1.accept(e.getPlayer());
                 int randint = random.nextInt(locs.size());
                 Location loc = locs.get(randint);
                 locs.remove(randint);
-                HLootchest.getNms().spawnButton(loc, ButtonType.REWARD, e.getPlayer(), buttonicon, path, boxConf);
-
+                HLootchest.getNms().spawnButton(loc, ButtonType.REWARD, e.getPlayer(), path, boxConf);
             } else {
                 awaiting_rewards.add(new Reward(rewardactions));
             }
@@ -139,7 +138,6 @@ public class LootChests implements Listener {
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent e) {
         Player p = e.getPlayer();
-        String cmd = e.getMessage();
         if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
             if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
                 List<String> allowed_commands = HLootchest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.opening");
@@ -159,6 +157,24 @@ public class LootChests implements Listener {
                 }
                 e.setCancelled(true);
                 p.sendMessage(Utility.getMsg(p, "noCommand"));
+            }
+        }
+    }
+    @EventHandler
+    public void onBlockInteraction(BlockBreakEvent e) {
+        Player p = e.getPlayer();
+        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
+            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
+                e.setCancelled(true);
+            }
+        }
+    }
+    @EventHandler
+    public void onBlockInteraction(BlockPlaceEvent e) {
+        Player p = e.getPlayer();
+        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
+            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
+                e.setCancelled(true);
             }
         }
     }
