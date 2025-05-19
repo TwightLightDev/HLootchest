@@ -22,7 +22,7 @@ Messages:
   - '&8═══════════════════════════════════'
   admin-help:
   - '&8══════════════HLootChest═══════════════'
-  - '&6/lca add <player> <type> <amount> &7- Show lootchest list.'
+  - '&6/lca add/give <player> <type> <amount> &7- Give lootchest with a specific type to a player.'
   - '&6/lca help &7- Show the help messages.'
   - '&6/lca lootchestsSetup &7- Manage lootchests.yml.'  
   - '&6/lca reload &7- Reload the plugin.'

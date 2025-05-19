@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.api.interfaces.internal;
 
+import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.block.BlockFace;
@@ -156,4 +157,14 @@ public interface NMSService {
      * @param facing The {@link BlockFace} direction the block should face.
      */
     void setNmsBlock(Player p, Location loc, Material to, BlockFace facing);
+
+    /**
+     * Sets a player's game mode without actually changing it server-side.
+     *
+     * @param p The {@link Player} whose fake game mode is being set.
+     * @param gamemode The {@link GameMode} to set.
+     */
+    void setFakeGameMode(Player p, GameMode gamemode);
+
+    void rotate(ArmorStand armorStandbukkit, TConfigManager config, String path);
 }

@@ -20,13 +20,13 @@ public class MainCommands implements CommandExecutor {
         if (sender instanceof Player) {
             Player p = (Player) sender;
             if (args.length < 1) {
-                Utility.sendHelp(p, "player");
+                HLootchest.getAPI().getLanguageUtil().sendHelp(p, "player");
                 return true;
             } else {
                 switch (args[0].toLowerCase()) {
                     case "leave":
                         if (!p.hasPermission("hlc."+args[0])) {
-                            p.sendMessage(Utility.getMsg(p, "noPerms"));
+                            p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noPerms"));
                         }
                         if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
                             HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p).close();
@@ -39,17 +39,17 @@ public class MainCommands implements CommandExecutor {
                         }
                         String type = args[1].toLowerCase();
                         if (!HLootchest.getNms().getRegistrationData().containsKey(type)) {
-                            p.sendMessage(Utility.getMsg(p, "lootchestNotFound"));
+                            p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "lootchestNotFound"));
                             return true;
                         }
                         if (!p.hasPermission("hlc." + args[0] + "." + args[1])) {
-                            p.sendMessage(Utility.getMsg(p, "noPerms"));
+                            p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noPerms"));
                         }
                         new LootChestSession(p, type);
                         return true;
                     case "list":
                         if (!p.hasPermission("hlc."+args[0])) {
-                            p.sendMessage(Utility.getMsg(p, "noPerms"));
+                            p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noPerms"));
                         }
                         Set<String> types = HLootchest.getNms().getRegistrationData().keySet();
                         p.sendMessage(ChatColor.GREEN + "Available lootchest types:");
@@ -58,7 +58,7 @@ public class MainCommands implements CommandExecutor {
                         }
                         return true;
                     default:
-                        Utility.sendHelp(p, "player");
+                        HLootchest.getAPI().getLanguageUtil().sendHelp(p, "player");
                         return true;
                 }
             }

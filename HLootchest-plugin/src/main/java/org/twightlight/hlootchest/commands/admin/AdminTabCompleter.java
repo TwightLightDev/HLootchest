@@ -15,7 +15,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 public class AdminTabCompleter implements TabCompleter {
-    private final List<String> SUBCOMMANDS = Arrays.asList("add", "help", "reload", "template", "templateslist", "lootchestsSetup");
+    private final List<String> SUBCOMMANDS = Arrays.asList("add", "give", "help", "reload", "template", "templateslist", "lootchestsSetup");
     private final List<String> TemplateActions = Arrays.asList("delete", "select", "edit", "create");
     private final List<Integer> idealNums = Arrays.asList(1, 2, 3, 4, 5, 10, 20, 50, 100);
 
@@ -64,7 +64,7 @@ public class AdminTabCompleter implements TabCompleter {
                 }
             }
         } else if (args.length == 4) {
-            if (args[0].equalsIgnoreCase("add")) {
+            if (args[0].equalsIgnoreCase("add") || args[0].equalsIgnoreCase("give")) {
                 for (Integer num : idealNums) {
                     if (String.valueOf(num).startsWith(args[3].toLowerCase())) {
                         completions.add(String.valueOf(num));

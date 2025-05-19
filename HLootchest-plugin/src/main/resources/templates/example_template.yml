@@ -507,6 +507,6 @@ aeternus:
       actions:
         - '[player] dm open shop'
   rewards-location:
-    - world, 182.5, 71.1, 193.2, 0, 0
+    - world, 182.5, 71.3, 193.2, 0, 0
     - world, 180, 71.1, 194.5, -55, 0
     - world, 185, 71.1, 194.5, 55, 0

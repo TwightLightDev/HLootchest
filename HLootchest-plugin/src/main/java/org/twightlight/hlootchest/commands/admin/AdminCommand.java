@@ -28,10 +28,10 @@ public class AdminCommand implements CommandExecutor {
         if (sender instanceof Player) {
             Player p = (Player) sender;
             if (!p.hasPermission("hlc.admin")) {
-                p.sendMessage(Utility.getMsg(p, "noPerms"));
+                p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noPerms"));
             }
             if (args.length < 1) {
-                Utility.sendHelp(p, "admin");
+                HLootchest.getAPI().getLanguageUtil().sendHelp(p, "admin");
                 return true;
             } else {
                 switch (args[0].toLowerCase()) {
@@ -44,7 +44,7 @@ public class AdminCommand implements CommandExecutor {
                         }
                         HLootchest.getAPI().getConfigUtil().getMessageConfig().reload();
                         HLootchest.getAPI().getConfigUtil().getMainConfig().reload();
-                        p.sendMessage(Utility.getMsg(p, "reload"));
+                        p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "reload"));
                         return true;
                     case "template":
                         if (args.length > 2) {
@@ -54,17 +54,17 @@ public class AdminCommand implements CommandExecutor {
                                 case "delete":
                                     boolean isDeleted = file.delete();
                                     if (!isDeleted) {
-                                        p.sendMessage(Utility.getMsg(p, "templateNotFound"));
+                                        p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "templateNotFound"));
                                         return true;
                                     }
                                 case "select":
                                     if (file.exists()) {
                                         HLootchest.getAPI().getConfigUtil().getMainConfig().set("template", name);
                                         HLootchest.templateConfig = new ConfigManager(HLootchest.getInstance(), HLootchest.getAPI().getConfigUtil().getMainConfig().getString("template"), HLootchest.getFilePath() + "/templates");
-                                        p.sendMessage(Utility.getMsg(p, "templateSelected").replace("{template}", name));
+                                        p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "templateSelected").replace("{template}", name));
                                         return true;
                                     } else {
-                                        p.sendMessage(Utility.getMsg(p, "templateNotFound"));
+                                        p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "templateNotFound"));
                                         return true;
                                     }
                                 case "edit":
@@ -89,16 +89,16 @@ public class AdminCommand implements CommandExecutor {
                                         }
                                         return true;
                                     } else {
-                                        p.sendMessage(Utility.getMsg(p, "templateNotFound"));
+                                        p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "templateNotFound"));
                                         return true;
                                     }
                                 case "create":
                                     if (file.exists()) {
-                                        p.sendMessage(Utility.getMsg(p, "templateExist"));
+                                        p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "templateExist"));
                                         return true;
                                     } else {
                                         new ConfigManager(HLootchest.getInstance(), name, HLootchest.getFilePath() + "/templates");
-                                        p.sendMessage(Utility.getMsg(p, "createTemplate").replace("{template}", name));
+                                        p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "createTemplate").replace("{template}", name));
                                         return true;
                                     }
                                 default:
@@ -111,7 +111,7 @@ public class AdminCommand implements CommandExecutor {
 
                             }
                         } else {
-                            p.sendMessage(Utility.getMsg(p, "invalidArguments"));
+                            p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "invalidArguments"));
                             return true;
                         }
                     case "lootchestssetup":
@@ -134,34 +134,35 @@ public class AdminCommand implements CommandExecutor {
                         }
                         return true;
                     case "add":
+                    case "give":
                         if (args.length > 3) {
                             Player player = Bukkit.getPlayer(args[1]);
                             if (player == null) {
-                                p.sendMessage(Utility.getMsg(p, "invalidArguments"));
+                                p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "invalidArguments"));
                                 return true;
                             }
                             if (!HLootchest.getNms().getRegistrationData().containsKey(args[2])) {
-                                p.sendMessage(Utility.getMsg(p, "lootchestNotFound"));
+                                p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "lootchestNotFound"));
                                 return true;
                             }
                             int amount = Integer.valueOf(args[3]);
                             if (amount == 0) {
-                                p.sendMessage(Utility.getMsg(p, "invalidArguments"));
+                                p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "invalidArguments"));
                                 return true;
                             }
                             boolean completed = HLootchest.getAPI().getDatabaseUtil().getDb().addLootchest(player, args[2], amount, "lootchests");
                             if (!completed) {
-                                p.sendMessage(Utility.getMsg(p, "invalidArguments"));
+                                p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "invalidArguments"));
                                 return true;
                             } else {
                                 if (amount > 0) {
-                                    p.sendMessage(Utility.getMsg(p, "addLootChest")
+                                    p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "addLootChest")
                                             .replace("{amount}", String.valueOf(amount))
                                             .replace("{player}", player.getName())
                                             .replace("{type}", args[2]));
                                     return true;
                                 } else {
-                                    p.sendMessage(Utility.getMsg(p, "removeLootChest")
+                                    p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "removeLootChest")
                                             .replace("{amount}", String.valueOf(amount))
                                             .replace("{player}", player.getName())
                                             .replace("{type}", args[2]));
@@ -169,10 +170,9 @@ public class AdminCommand implements CommandExecutor {
                                 }
                             }
                         } else {
-                            p.sendMessage(Utility.getMsg(p, "invalidArguments"));
+                            p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "invalidArguments"));
                             return true;
                         }
-
                     case "templateslist":
                         try {
                             File[] files = new File((HLootchest.getFilePath() + "/templates")).listFiles();
@@ -185,7 +185,7 @@ public class AdminCommand implements CommandExecutor {
                             throw new NullPointerException(ex.getMessage());
                         }
                     case "clean-debug":
-                        if (Utility.isDebug()) {
+                        if (HLootchest.getAPI().getDebugService().isDebug()) {
                             Utility.clean(p.getLocation().getChunk(), "LootchestVehicle");
                             Utility.clean(p.getLocation().getChunk(), "removeOnRestart");
                         } else {
@@ -193,7 +193,7 @@ public class AdminCommand implements CommandExecutor {
                         }
                         return true;
                     default:
-                        Utility.sendHelp(p, "admin");
+                        HLootchest.getAPI().getLanguageUtil().sendHelp(p, "admin");
                         return true;
                 }
             }

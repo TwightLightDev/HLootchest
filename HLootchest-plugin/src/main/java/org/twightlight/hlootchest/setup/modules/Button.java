@@ -282,7 +282,7 @@ public class Button {
                             false),
                     53,
                     (e) -> {
-                        new Preview(HLootchest.getNms().stringToLocation(templateFile.getString(name + path + ".location")), ButtonType.FUNCTIONAL, p, name + path, templateFile);
+                        new Preview(Utility.stringToLocation(templateFile.getString(name + path + ".location")), ButtonType.FUNCTIONAL, p, name + path, templateFile);
                         p.closeInventory();
                     });
             List<String> actions = Collections.emptyList();

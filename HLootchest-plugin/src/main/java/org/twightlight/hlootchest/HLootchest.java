@@ -20,10 +20,14 @@ import org.twightlight.hlootchest.listeners.LootChests;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
 import org.twightlight.hlootchest.listeners.Setup;
-import org.twightlight.hlootchest.supports.HeadDatabase;
-import org.twightlight.hlootchest.supports.PlaceholdersAPI;
+import org.twightlight.hlootchest.supports.HooksLoader;
+import org.twightlight.hlootchest.supports.bstats.bStats;
+import org.twightlight.hlootchest.supports.protocol.v1_8_R3.Main;
+import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Aeternus;
+import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Mystic;
+import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Regular;
+import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Spooky;
 import org.twightlight.hlootchest.utils.ColorUtils;
-import org.twightlight.hlootchest.utils.Metrics;
 import org.twightlight.hlootchest.utils.Utility;
 import org.twightlight.hlootchest.utils.VersionChecker;
 
@@ -37,9 +41,7 @@ public final class HLootchest extends JavaPlugin {
     private static NMSHandler nms;
     private static API api;
     private String path = getDataFolder().getPath();
-    private boolean papi = false;
-    private boolean hasHeadDb = false;
-    public static HeadDatabase headDb;
+    private org.twightlight.hlootchest.supports.interfaces.HooksLoader hooksLoader;
     public static TConfigManager mainConfig;
     public static TConfigManager templateConfig;
     public static Map<String, TConfigManager> boxesConfigMap = new HashMap<>();
@@ -60,7 +62,7 @@ public final class HLootchest extends JavaPlugin {
         loadCommands();
         loadListeners();
         loadDatabase();
-        loadDependencies();
+        hooksLoader = new HooksLoader();
         loadCredit();
         if (Bukkit.getPluginManager().getPlugin("packetevents") != null) {
             PacketEvents.setAPI(SpigotPacketEventsBuilder.build(this));
@@ -68,9 +70,10 @@ public final class HLootchest extends JavaPlugin {
             PacketEvents.getAPI().init();
         }
         if (mainConfig.getBoolean("metrics")) {
-            loadMetrics();
+            bStats.init();
         }
         new VersionChecker(this, "122671").checkForUpdates();
+        Utility.info("§aHLootChest has successfully been enabled!");
     }
 
     @Override
@@ -87,47 +90,47 @@ public final class HLootchest extends JavaPlugin {
     private void loadNMS() {
         switch (version) {
             case "8":
-                nms = new org.twightlight.hlootchest.supports.v1_8_R3.Main(this, version, api);
-                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Regular::new);
-                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Mystic::new);
-                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Spooky::new);
-                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_8_R3.boxes.Aeternus::new);
+                nms = new Main(this, version, api);
+                nms.registerAnimation("regular", Regular::new);
+                nms.registerAnimation("mystic", Mystic::new);
+                nms.registerAnimation("spooky", Spooky::new);
+                nms.registerAnimation("aeternus", Aeternus::new);
 
                 break;
             case "12":
-                nms = new org.twightlight.hlootchest.supports.v1_12_R1.Main(this, version, api);
-                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Regular::new);
-                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Mystic::new);
-                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Spooky::new);
-                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_12_R1.boxes.Aeternus::new);
+                nms = new org.twightlight.hlootchest.supports.protocol.v1_12_R1.Main(this, version, api);
+                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes.Regular::new);
+                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes.Mystic::new);
+                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes.Spooky::new);
+                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes.Aeternus::new);
 
                 break;
             case "19":
-                nms = new org.twightlight.hlootchest.supports.v1_19_R3.Main(this, version, api);
-                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
-                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
-                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
-                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Aeternus::new);
+                nms = new org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main(this, version, api);
+                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Regular::new);
+                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Mystic::new);
+                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Spooky::new);
+                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Aeternus::new);
                 break;
             case "20":
                 String minor = Bukkit.getBukkitVersion().split("-")[0].split("\\.").length > 2 ? Bukkit.getBukkitVersion().split("-")[0].split("\\.")[2] : "0";
                 if (Integer.parseInt(minor) <= 4) {
-                    nms = new org.twightlight.hlootchest.supports.v1_20_R3.Main(this, version, api);
+                    nms = new org.twightlight.hlootchest.supports.protocol.v1_20_R3.Main(this, version, api);
                 } else {
-                    nms = new org.twightlight.hlootchest.supports.v1_20_R4.Main(this, version, api);
+                    nms = new org.twightlight.hlootchest.supports.protocol.v1_20_R4.Main(this, version, api);
                 }
-                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
-                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
-                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
-                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Aeternus::new);
+                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Regular::new);
+                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Mystic::new);
+                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Spooky::new);
+                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Aeternus::new);
 
                 break;
             case "21":
-                nms = new org.twightlight.hlootchest.supports.v1_21_R3.Main(this, version, api);
-                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Regular::new);
-                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Mystic::new);
-                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Spooky::new);
-                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.v1_19_R3.boxes.Aeternus::new);
+                nms = new org.twightlight.hlootchest.supports.protocol.v1_21_R3.Main(this, version, api);
+                nms.registerAnimation("regular", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Regular::new);
+                nms.registerAnimation("mystic", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Mystic::new);
+                nms.registerAnimation("spooky", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Spooky::new);
+                nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Aeternus::new);
                 break;
             default:
                 Utility.info("Sorry, this version is unsupported! HLootChest will be disable!");
@@ -240,8 +243,6 @@ public final class HLootchest extends JavaPlugin {
         Utility.info("  §7Minecraft Version: §a" + Bukkit.getBukkitVersion());
         Utility.info("  §7Plugin Version: §a" + getVersion());
         Utility.info("  §7Author: §a" + String.join(", ", getDescription().getAuthors()));
-        Utility.info("  §7PlaceholderAPI: " + (isPlaceholderAPI() ? "§aEnabled" : "§cDisabled"));
-        Utility.info("  §7HeadDatabase: " + (hasHeadDb() ? "§aEnabled" : "§cDisabled"));
         if (version.equals("19") || version.equals("20") || version.equals("21")) {
             Utility.info("  §7PacketEvents: " + (Bukkit.getPluginManager().getPlugin("packetevents") != null ? "§aEnabled" : "§cDisabled"));
         }
@@ -249,25 +250,6 @@ public final class HLootchest extends JavaPlugin {
         Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
     }
 
-    private void loadDependencies() {
-        if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-            new PlaceholdersAPI(this).register();
-            papi = true;
-        }
-        if (Bukkit.getPluginManager().getPlugin("HeadDatabase") != null) {
-            headDb = new HeadDatabase();
-            hasHeadDb = true;
-        }
-    }
-
-    private void loadMetrics() {
-        int pluginId = 24836;
-        Metrics metrics = new Metrics(this, pluginId);
-
-        metrics.addCustomChart(new Metrics.SingleLineChart("players_online", () -> Bukkit.getOnlinePlayers().size()));
-
-        metrics.addCustomChart(new Metrics.SingleLineChart("servers", () -> 1));
-    }
 
     public static NMSHandler getNms() {
         return nms;
@@ -285,24 +267,19 @@ public final class HLootchest extends JavaPlugin {
         return getInstance().getDataFolder().getPath();
     }
 
-    public boolean isPlaceholderAPI() {
-        return papi;
-    }
-
     public boolean isHexGradient() {
         return hex_gradient;
     }
 
-    public boolean hasHeadDb() {
-        return hasHeadDb;
-    }
-
     public static String getVersion() {
-        return "1.1.4";
+        return "1.2.0";
     }
 
     public static String getAPIVersion() {
         return version;
     }
 
+    public org.twightlight.hlootchest.supports.interfaces.HooksLoader getHooksLoader() {
+        return hooksLoader;
+    }
 }

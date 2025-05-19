@@ -104,7 +104,7 @@ public class LootChests implements Listener {
                 throw new RuntimeException(ex.getMessage());
             }
         } else {
-            p.sendMessage(Utility.getMsg(p, "noLootchest"));
+            p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noLootchest"));
             e.setCancelled(true);
         }
     }
@@ -147,7 +147,7 @@ public class LootChests implements Listener {
                     }
                 }
                 e.setCancelled(true);
-                p.sendMessage(Utility.getMsg(p, "noCommand"));
+                p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noCommand"));
             } else {
                 List<String> allowed_commands = HLootchest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.setup");
                 for (String command : allowed_commands) {
@@ -156,7 +156,7 @@ public class LootChests implements Listener {
                     }
                 }
                 e.setCancelled(true);
-                p.sendMessage(Utility.getMsg(p, "noCommand"));
+                p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noCommand"));
             }
         }
     }

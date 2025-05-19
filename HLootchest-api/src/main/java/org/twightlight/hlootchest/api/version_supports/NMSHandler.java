@@ -155,22 +155,6 @@ public abstract class NMSHandler {
     public abstract Map<String, LootChestFactory> getRegistrationData();
 
     /**
-     * Converts a string representation of a location into a {@link Location} instance.
-     *
-     * @param locString The string representation of the location.
-     * @return The corresponding {@link Location} instance.
-     */
-    public abstract Location stringToLocation(String locString);
-
-    /**
-     * Sets a player's game mode without actually changing it server-side.
-     *
-     * @param p The {@link Player} whose fake game mode is being set.
-     * @param gamemode The {@link GameMode} to set.
-     */
-    public abstract void setFakeGameMode(Player p, GameMode gamemode);
-
-    /**
      * Plays a sound at a specific location for a player.
      *
      * @param player The {@link Player} who will hear the sound.

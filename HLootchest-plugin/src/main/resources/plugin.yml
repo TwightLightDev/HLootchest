@@ -1,8 +1,8 @@
 name: HLootchest
-version: 1.1.4
+version: 1.2.0
 api-version: "1.13"
 main: org.twightlight.hlootchest.HLootchest
-softdepend: [PlacholderAPI, PacketEvents, HeadDatabase]
+softdepend: [PlaceholderAPI, PacketEvents, HeadDatabase, BedWars1058, BedWars2023]
 author: TwightLight
 load: POSTWORLD
 commands:

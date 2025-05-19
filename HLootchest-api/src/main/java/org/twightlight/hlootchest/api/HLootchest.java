@@ -1,12 +1,12 @@
 package org.twightlight.hlootchest.api;
 
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.supports.HeadDatabase;
+import org.twightlight.hlootchest.supports.hooks.HeadDatabase;
+import org.twightlight.hlootchest.supports.interfaces.HooksLoader;
 
 import java.util.Map;
 
@@ -55,12 +55,27 @@ public interface HLootchest {
     Debug getDebugService();
 
     /**
-     * Retrieves the support utility.
+     * Retrieves the language utility.
      *
-     * @return The {@link Support} instance.
+     * @return The {@link LanguageUtil} instance.
      */
-    Support getSupportsUtil();
+    LanguageUtil getLanguageUtil();
 
+    HooksLoader getHooksLoader();
+
+    interface LanguageUtil {
+        String getMsg(Player p, String path);
+
+        String pC(Player p, String value);
+
+        String p(Player p, String value);
+
+        String c(String value);
+
+        void sendHelp(Player p, String target);
+
+        String replaceCommand(Player p, String command);
+    }
     /**
      * Manages configuration files.
      */
@@ -155,6 +170,8 @@ public interface HLootchest {
          * @param msg The debug message to send.
          */
         void sendDebugMsg(Player p, String msg);
+
+        boolean isDebug();
     }
 
     /**
@@ -194,24 +211,5 @@ public interface HLootchest {
          * @return {@code true} if the conditions are met, otherwise {@code false}.
          */
         boolean checkConditions(Player p, TConfigManager config, String path);
-    }
-
-    /**
-     * Provides support utilities for third-party integrations.
-     */
-    interface Support {
-        /**
-         * Checks if the Head Database plugin is available.
-         *
-         * @return {@code true} if Head Database is present, otherwise {@code false}.
-         */
-        boolean hasHeadDatabase();
-
-        /**
-         * Retrieves the Head Database service instance.
-         *
-         * @return The {@link HeadDatabase} instance.
-         */
-        HeadDatabase getHeadDatabaseService();
     }
 }
