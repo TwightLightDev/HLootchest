@@ -1,6 +1,6 @@
 package org.twightlight.hlootchest.supports.protocol.v1_19_R3.supports;
 
-import com.cryptomorin.xseries.XSound;
+import org.twightlight.libs.xseries.XSound;
 import com.github.retrooper.packetevents.PacketEvents;
 import com.github.retrooper.packetevents.protocol.entity.EntityPositionData;
 import com.github.retrooper.packetevents.protocol.entity.data.EntityData;

@@ -1,9 +1,9 @@
 package org.twightlight.hlootchest.supports.protocol.v1_19_R3.buttons;
 
-import com.cryptomorin.xseries.XMaterial;
-import com.cryptomorin.xseries.XSound;
-import net.objecthunter.exp4j.Expression;
-import net.objecthunter.exp4j.ExpressionBuilder;
+import org.twightlight.libs.xseries.XMaterial;
+import org.twightlight.libs.xseries.XSound;
+import org.twightlight.libs.exp4j.Expression;
+import org.twightlight.libs.exp4j.ExpressionBuilder;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;

@@ -1,6 +1,6 @@
 package org.twightlight.hlootchest.sessions;
 
-import com.cryptomorin.xseries.XMaterial;
+import org.twightlight.libs.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.GameMode;

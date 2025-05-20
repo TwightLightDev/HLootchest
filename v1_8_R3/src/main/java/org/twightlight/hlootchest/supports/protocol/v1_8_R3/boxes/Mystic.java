@@ -1,8 +1,8 @@
 package org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes;
 
-import com.cryptomorin.xseries.XMaterial;
-import com.cryptomorin.xseries.XSound;
-import fr.mrmicky.fastparticles.ParticleType;
+import org.twightlight.libs.xseries.XMaterial;
+import org.twightlight.libs.xseries.XSound;
+import org.twightlight.libs.fastparticles.ParticleType;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.Bukkit;
 import org.bukkit.GameMode;

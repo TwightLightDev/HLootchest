@@ -1,6 +1,6 @@
 package org.twightlight.hlootchest.setup;
 
-import com.cryptomorin.xseries.XMaterial;
+import org.twightlight.libs.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

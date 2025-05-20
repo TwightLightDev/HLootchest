@@ -1,7 +1,7 @@
 package org.twightlight.hlootchest.supports.protocol.v1_12_R1;
 
-import com.cryptomorin.xseries.XMaterial;
-import com.cryptomorin.xseries.XSound;
+import org.twightlight.libs.xseries.XMaterial;
+import org.twightlight.libs.xseries.XSound;
 import com.mojang.authlib.GameProfile;
 import com.mojang.authlib.properties.Property;
 import net.minecraft.server.v1_12_R1.EntityPlayer;

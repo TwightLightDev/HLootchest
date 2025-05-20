@@ -1,6 +1,6 @@
 package org.twightlight.hlootchest.supports.protocol.v1_8_R3.utilities;
 
-import com.cryptomorin.xseries.XPotion;
+import org.twightlight.libs.xseries.XPotion;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.ChatColor;
 import org.bukkit.GameMode;

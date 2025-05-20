@@ -1,6 +1,6 @@
 package org.twightlight.hlootchest.utils;
 
-import com.cryptomorin.xseries.XMaterial;
+import org.twightlight.libs.xseries.XMaterial;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;

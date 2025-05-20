@@ -1,6 +1,6 @@
 package org.twightlight.hlootchest.objects;
 
-import com.cryptomorin.xseries.XSound;
+import org.twightlight.libs.xseries.XSound;
 import org.bukkit.Sound;
 
 public class ButtonSound {

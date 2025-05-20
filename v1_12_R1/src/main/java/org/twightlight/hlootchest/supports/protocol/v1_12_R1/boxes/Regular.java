@@ -1,8 +1,8 @@
 package org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes;
 
-import com.cryptomorin.xseries.XMaterial;
-import com.cryptomorin.xseries.XSound;
-import fr.mrmicky.fastparticles.ParticleType;
+import org.twightlight.libs.xseries.XMaterial;
+import org.twightlight.libs.xseries.XSound;
+import org.twightlight.libs.fastparticles.ParticleType;
 import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.*;
 import org.bukkit.craftbukkit.v1_12_R1.entity.CraftPlayer;

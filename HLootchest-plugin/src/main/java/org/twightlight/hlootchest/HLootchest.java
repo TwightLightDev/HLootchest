@@ -54,6 +54,11 @@ public final class HLootchest extends JavaPlugin {
 
     @Override
     public void onEnable() {
+        if (Bukkit.getPluginManager().getPlugin("TwightLightCore") == null) {
+            Utility.info("TwightLightCore not found, disabling...");
+            Bukkit.getPluginManager().disablePlugin(this);
+            return;
+        }
         api = new API();
         Bukkit.getServicesManager().register(org.twightlight.hlootchest.api.HLootchest.class, api, this, ServicePriority.Normal);
         loadConf();
@@ -272,7 +277,7 @@ public final class HLootchest extends JavaPlugin {
     }
 
     public static String getVersion() {
-        return "1.2.0";
+        return "1.2.1";
     }
 
     public static String getAPIVersion() {

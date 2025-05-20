@@ -1,6 +1,6 @@
 package org.twightlight.hlootchest.supports.protocol.v1_21_R3;
 
-import com.cryptomorin.xseries.XMaterial;
+import org.twightlight.libs.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Material;

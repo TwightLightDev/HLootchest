@@ -12,7 +12,6 @@ import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.Main;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.BoxManager;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.buttons.Button;
-import org.twightlight.hlootchest.utils.Utility;
 
 import java.lang.reflect.Field;
 import java.util.List;

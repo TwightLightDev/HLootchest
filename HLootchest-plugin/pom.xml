@@ -107,6 +107,9 @@
           <version>3.0.1</version>
           <scope>provided</scope>
       </dependency>
-
+      <dependency>
+          <groupId>org.twightlight</groupId>
+          <artifactId>TwightLightCore</artifactId>
+      </dependency>
   </dependencies>
 </project>
