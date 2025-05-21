@@ -7,6 +7,7 @@ import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.supports.hooks.HeadDatabase;
 import org.twightlight.hlootchest.supports.interfaces.HooksLoader;
+import org.twightlight.hlootchest.utils.ActionHandler;
 
 import java.util.Map;
 
@@ -211,5 +212,7 @@ public interface HLootchest {
          * @return {@code true} if the conditions are met, otherwise {@code false}.
          */
         boolean checkConditions(Player p, TConfigManager config, String path);
+
+        ActionHandler getActionHandler();
     }
 }

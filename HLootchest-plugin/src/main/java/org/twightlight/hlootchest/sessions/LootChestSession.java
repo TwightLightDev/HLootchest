@@ -42,7 +42,7 @@ public class LootChestSession extends SessionsManager implements TSession {
             player = p;
             TConfigManager conf = HLootchest.getAPI().getConfigUtil().getBoxesConfig(identifier);
             ItemStack icon = HLootchest.getNms().createItem(
-                    XMaterial.valueOf(conf.getString(identifier + ".icon.material")).parseMaterial(),
+                    XMaterial.valueOf(conf.getString(identifier + ".icon.material")).get(),
                     conf.getString(identifier + ".icon.head_value"),
                     (conf.getYml().contains(identifier + ".icon.data")) ? conf.getInt(identifier + ".icon.data") : 0,
                     "",

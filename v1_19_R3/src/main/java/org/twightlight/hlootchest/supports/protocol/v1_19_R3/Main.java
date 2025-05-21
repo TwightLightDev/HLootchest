@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.supports.protocol.v1_19_R3;
 
+import org.twightlight.libs.xseries.XItemStack;
 import org.twightlight.libs.xseries.XMaterial;
 import org.twightlight.libs.xseries.XSound;
 import com.mojang.authlib.GameProfile;
@@ -146,6 +147,7 @@ public class Main extends NMSHandler {
             if (Xmaterial == null)
                 return XMaterial.BEDROCK.parseItem();
             i = new ItemStack(Xmaterial, amount);
+
         } catch (Exception ex) {
             i = XMaterial.BEDROCK.parseItem();
         }
@@ -153,7 +155,7 @@ public class Main extends NMSHandler {
     }
 
     public ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted) {
-        ItemStack i = handler.createItemStack(XMaterial.matchXMaterial(material).name(), 1, (short) data);
+        ItemStack i = handler.createItemStack(XMaterial.matchXMaterial(material.name()).get().name(), 1, Short.valueOf("0"));
         if (i == null)
             return null;
 
@@ -173,6 +175,7 @@ public class Main extends NMSHandler {
         }
 
         itemMeta.addItemFlags(ItemFlag.HIDE_ATTRIBUTES, ItemFlag.HIDE_ENCHANTS);
+        itemMeta.setCustomModelData(data);
         i.setItemMeta(itemMeta);
 
         if (material == XMaterial.PLAYER_HEAD.get() && headUrl != null && !headUrl.trim().isEmpty()) {

@@ -55,6 +55,8 @@ public class Button implements TButton {
     private String nameVisibleMode = "always";
     private boolean removed = false;
 
+    private boolean better_check_algorithm;
+
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
 
@@ -67,6 +69,9 @@ public class Button implements TButton {
         this.config = config;
         this.pathToButton = path;
         this.isPreview = isPreview;
+
+        this.better_check_algorithm = Main.api.getConfigUtil().getMainConfig().
+                getBoolean("performance.modern-check-algorithm", false);
         callSpawnEvent();
         loadButtonSettings();
         initializeArmorStand(location);
@@ -543,7 +548,7 @@ public class Button implements TButton {
             return;
         }
 
-        if (isPlayerLookingAtButton()) {
+        if (isPlayerLookingAtButton(better_check_algorithm)) {
             if (!isMoved && moveable) {
                 moveButtonForward(hoverSound);
             }
@@ -554,16 +559,79 @@ public class Button implements TButton {
         }
     }
 
-    private boolean isPlayerLookingAtButton() {
-        Location playerEye = owner.getEyeLocation();
-        Vector playerDirection = playerEye.getDirection().normalize();
-        Vector playerPosition = playerEye.toVector();
-        Vector armorStandPosition = new Vector(armorstand.locX, armorstand.locY + 1.6, armorstand.locZ);
-        Vector toArmorStand = armorStandPosition.subtract(playerPosition).normalize();
+    private boolean isPlayerLookingAtButton(boolean better_check_algorithm) {
+        if (better_check_algorithm) {
+            double maxDistance = 5.0;
 
-        return playerDirection.dot(toArmorStand) > 0.98;
+            Location eyeLoc = owner.getEyeLocation();
+            Vector rayOrigin = eyeLoc.toVector();
+            Vector rayDirection = eyeLoc.getDirection().normalize();
+
+            double x = armorstand.locX;
+            double y = armorstand.locY;
+            double z = armorstand.locZ;
+
+            Vector min = new Vector(x - 0.3, y + 1.6 - 0.1875, z - 0.3);
+            Vector max = new Vector(x + 0.3, y + 2.05, z + 0.3);
+
+            return rayIntersectsAABB(rayOrigin, rayDirection, min, max, maxDistance);
+        } else {
+            Location playerEye = owner.getEyeLocation();
+            Vector playerDirection = playerEye.getDirection().normalize();
+            Vector playerPosition = playerEye.toVector();
+            Vector armorStandPosition = new Vector(armorstand.locX, armorstand.locY + 1.6, armorstand.locZ);
+            Vector toArmorStand = armorStandPosition.subtract(playerPosition).normalize();
+
+            return playerDirection.dot(toArmorStand) > 0.98;
+        }
+
     }
 
+    private boolean rayIntersectsAABB(Vector rayOrigin, Vector rayDir, Vector min, Vector max, double maxDistance) {
+        double tMin = 0.0;
+        double tMax = maxDistance;
+
+        for (int i = 0; i < 3; i++) {
+            double origin = 0, direction = 0, minVal = 0, maxVal = 0;
+
+            switch (i) {
+                case 0:
+                    origin = rayOrigin.getX();
+                    direction = rayDir.getX();
+                    minVal = min.getX();
+                    maxVal = max.getX();
+                    break;
+                case 1:
+                    origin = rayOrigin.getY();
+                    direction = rayDir.getY();
+                    minVal = min.getY();
+                    maxVal = max.getY();
+                    break;
+                case 2:
+                    origin = rayOrigin.getZ();
+                    direction = rayDir.getZ();
+                    minVal = min.getZ();
+                    maxVal = max.getZ();
+                    break;
+            }
+
+            double invD = 1.0 / direction;
+            double t0 = (minVal - origin) * invD;
+            double t1 = (maxVal - origin) * invD;
+
+            if (invD < 0.0) {
+                double temp = t0;
+                t0 = t1;
+                t1 = temp;
+            }
+
+            tMin = Math.max(tMin, t0);
+            tMax = Math.min(tMax, t1);
+
+            if (tMax < tMin) return false;
+        }
+        return true;
+    }
     private void moveButtonForward(ButtonSound hoverSound) {
         moveForward();
         if (hoverSound != null) {

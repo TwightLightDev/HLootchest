@@ -12,8 +12,10 @@ import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.sessions.LootChestSession;
 import org.twightlight.hlootchest.supports.hooks.HeadDatabase;
 import org.twightlight.hlootchest.supports.interfaces.HooksLoader;
+import org.twightlight.hlootchest.utils.ActionHandler;
 import org.twightlight.hlootchest.utils.Utility;
 
+import javax.swing.*;
 import java.util.List;
 import java.util.Map;
 
@@ -21,9 +23,9 @@ public class API implements HLootchest {
     private final HLootchest.ConfigUtil configUtil = new ConfigUtil();
     private final HLootchest.SessionUtil sessionUtil = new SessionUtil();
     private final HLootchest.DatabaseUtil dbUtil = new DatabaseUtil();
-    private final HLootchest.PlayerUtil playerUtil = new PlayerUtil();
     private final HLootchest.Debug debug = new Debug();
     private final HLootchest.LanguageUtil languageUtil = new LanguageUtil();
+    private final HLootchest.PlayerUtil playerUtil = new PlayerUtil();
 
 
     private static class LanguageUtil implements HLootchest.LanguageUtil {
@@ -110,6 +112,8 @@ public class API implements HLootchest {
     }
 
     private static class PlayerUtil implements HLootchest.PlayerUtil {
+
+
         public void addLootChest(Player p, String lc, int amount) {
             org.twightlight.hlootchest.HLootchest.getAPI().getDatabaseUtil().getDb().addLootchest(p, lc, amount, "lootchests");
         }
@@ -124,6 +128,10 @@ public class API implements HLootchest {
         }
         public boolean checkConditions(Player p, TConfigManager config, String path) {
             return Utility.checkConditions(p, config, path);
+        }
+
+        public ActionHandler getActionHandler() {
+            return org.twightlight.hlootchest.HLootchest.getInstance().getActionHandler();
         }
     }
 

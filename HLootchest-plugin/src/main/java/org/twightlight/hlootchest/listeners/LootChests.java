@@ -49,9 +49,15 @@ public class LootChests implements Listener {
             }
             chances.add(chance);
         }
+        List<Location> locs = e.getLootChest().getRewardsLocation();
+        if (maxRewards > locs.size()) {
+            maxRewards = locs.size();
+            Utility.error("Detect an illegal value at " + boxid + ".reward-amount" + ".");
+            Utility.error("It should be lower or equal " + locs.size());
+            Utility.error("We are trying to fix it, but this cannot be guaranteed");
+        }
         Set<String> rewards = Utility.getRandomElements(prerewards, chances, maxRewards);
         List<Reward> awaiting_rewards = new ArrayList<>();
-        List<Location> locs = e.getLootChest().getRewardsLocation();
         Random random = new Random();
         for (String reward : rewards) {
             String path = boxid + ".rewards-list" + "." + reward;

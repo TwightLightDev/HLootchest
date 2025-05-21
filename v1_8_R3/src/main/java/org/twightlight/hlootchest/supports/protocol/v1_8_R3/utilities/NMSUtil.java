@@ -43,6 +43,7 @@ public class NMSUtil implements NMSService {
         armorStand.setGravity(false);
         armorStand.setSmall(isSmall);
 
+
         armorStand.yaw = location.getYaw();
         armorStand.pitch = location.getPitch();
 

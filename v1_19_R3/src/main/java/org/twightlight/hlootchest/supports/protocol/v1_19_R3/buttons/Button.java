@@ -1,5 +1,7 @@
 package org.twightlight.hlootchest.supports.protocol.v1_19_R3.buttons;
 
+import org.bukkit.util.BoundingBox;
+import org.bukkit.util.RayTraceResult;
 import org.twightlight.libs.xseries.XMaterial;
 import org.twightlight.libs.xseries.XSound;
 import org.twightlight.libs.exp4j.Expression;
@@ -72,6 +74,8 @@ public class Button implements TButton {
 
     private boolean removed = false;
 
+    private boolean better_check_algorithm;
+
     public static final ConcurrentHashMap<Integer, TButton> buttonIdMap = new ConcurrentHashMap<>();
 
     public static final ConcurrentHashMap<Player, List<TButton>> playerButtonMap = new ConcurrentHashMap<>();
@@ -87,6 +91,10 @@ public class Button implements TButton {
         this.config = config;
         this.pathToButton = path;
         this.isPreview = isPreview;
+
+        this.better_check_algorithm = Main.api.getConfigUtil().getMainConfig().
+                getBoolean("performance.modern-check-algorithm", false);
+
         ButtonSpawnEvent event = new ButtonSpawnEvent(this.owner, this);
         Bukkit.getPluginManager().callEvent((Event)event);
         this.actions = (config.getList(path + ".actions") != null) ? config.getList(path + ".actions") : new ArrayList<>();
@@ -422,13 +430,7 @@ public class Button implements TButton {
                     }
                     return;
                 }
-                Location playerEye = this.owner.getEyeLocation();
-                Vector playerDirection = playerEye.getDirection().normalize();
-                Vector playerPosition = playerEye.toVector();
-                Vector armorStandPosition = new Vector(armorstand.getLocation().getX(), armorstand.getLocation().getY() + 1.6D, armorstand.getLocation().getZ());
-                Vector toArmorStand = armorStandPosition.subtract(playerPosition).normalize();
-                double dotProduct = playerDirection.dot(toArmorStand);
-                if (dotProduct > 0.98D) {
+                if (isPlayerLookingAtButton(better_check_algorithm)) {
                     if (!this.isMoved && this.moveable) {
                         if (hoverSound != null)
                             Main.handler.playSound(getOwner(), getOwner().getLocation(), hoverSound.getSoundString(), hoverSound.getYaw(), hoverSound.getPitch());
@@ -458,6 +460,80 @@ public class Button implements TButton {
         } else {
             this.task = null;
         }
+    }
+
+    private boolean isPlayerLookingAtButton(boolean better_check_algorithm) {
+        if (better_check_algorithm) {
+            double maxDistance = 5.0;
+
+            Location eyeLoc = owner.getEyeLocation();
+            Vector rayOrigin = eyeLoc.toVector();
+            Vector rayDirection = eyeLoc.getDirection().normalize();
+
+            double x = armorstand.getLocation().getX();
+            double y = armorstand.getLocation().getY();
+            double z = armorstand.getLocation().getZ();
+
+            Vector min = new Vector(x - 0.3, y + 1.6 - 0.1875, z - 0.3);
+            Vector max = new Vector(x + 0.3, y + 2.05, z + 0.3);
+
+            return rayIntersectsAABB(rayOrigin, rayDirection, min, max, maxDistance);
+        } else {
+            Location playerEye = owner.getEyeLocation();
+            Vector playerDirection = playerEye.getDirection().normalize();
+            Vector playerPosition = playerEye.toVector();
+            Vector armorStandPosition = new Vector(armorstand.getLocation().getX(), armorstand.getLocation().getY() + 1.6, armorstand.getLocation().getZ());
+            Vector toArmorStand = armorStandPosition.subtract(playerPosition).normalize();
+
+            return playerDirection.dot(toArmorStand) > 0.98;
+        }
+
+    }
+
+    private boolean rayIntersectsAABB(Vector rayOrigin, Vector rayDir, Vector min, Vector max, double maxDistance) {
+        double tMin = 0.0;
+        double tMax = maxDistance;
+
+        for (int i = 0; i < 3; i++) {
+            double origin = 0, direction = 0, minVal = 0, maxVal = 0;
+
+            switch (i) {
+                case 0:
+                    origin = rayOrigin.getX();
+                    direction = rayDir.getX();
+                    minVal = min.getX();
+                    maxVal = max.getX();
+                    break;
+                case 1:
+                    origin = rayOrigin.getY();
+                    direction = rayDir.getY();
+                    minVal = min.getY();
+                    maxVal = max.getY();
+                    break;
+                case 2:
+                    origin = rayOrigin.getZ();
+                    direction = rayDir.getZ();
+                    minVal = min.getZ();
+                    maxVal = max.getZ();
+                    break;
+            }
+
+            double invD = 1.0 / direction;
+            double t0 = (minVal - origin) * invD;
+            double t1 = (maxVal - origin) * invD;
+
+            if (invD < 0.0) {
+                double temp = t0;
+                t0 = t1;
+                t1 = temp;
+            }
+
+            tMin = Math.max(tMin, t0);
+            tMax = Math.min(tMax, t1);
+
+            if (tMax < tMin) return false;
+        }
+        return true;
     }
 
     private ArmorStand createArmorStand(Location location, String name, boolean isSmall, boolean isNameEnable) {

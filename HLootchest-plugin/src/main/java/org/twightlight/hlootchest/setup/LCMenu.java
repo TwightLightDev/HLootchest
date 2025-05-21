@@ -51,7 +51,7 @@ public class LCMenu {
         MenuManager.setItem(p,
                 inv,
                 HLootchest.getNms().createItem(
-                        XMaterial.valueOf(templateFile.getString(name + ".icon.material", "BEDROCK")).parseMaterial(),
+                        XMaterial.valueOf(templateFile.getString(name + ".icon.material", "BEDROCK")).get(),
                         templateFile.getString(name + ".icon.head_value", ""),
                         templateFile.getInt(name + ".icon.data", 0),
                         "&bIcon",

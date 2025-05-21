@@ -19,6 +19,8 @@ public class MainConfig extends ConfigManager {
         yml.addDefault("allowed-commands.opening", Arrays.asList("lc leave"));
         yml.addDefault("allowed-commands.setup", Arrays.asList("lc edit", "lc leave"));
 
+        yml.addDefault("performance.modern-check-algorithm", false);
+
         yml.options().copyDefaults(true);
         save();
     }

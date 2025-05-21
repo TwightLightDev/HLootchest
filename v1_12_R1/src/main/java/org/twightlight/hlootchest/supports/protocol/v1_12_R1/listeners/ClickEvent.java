@@ -8,6 +8,7 @@ import net.minecraft.server.v1_12_R1.PlayerConnection;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
+import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
@@ -61,93 +62,7 @@ public class ClickEvent extends PlayerConnection {
             }
             List<String> actions = button.getActions();
             for (String stringAction : actions) {
-                String[] dataset = stringAction.split(" ", 2);
-                if (dataset[0].equals("[player]")) {
-                    player.getBukkitEntity().performCommand(Main.api.getLanguageUtil().replaceCommand(this.player.getBukkitEntity(), dataset[1]));
-                } else if (dataset[0].equals("[console]")) {
-                    ConsoleCommandSender console = Bukkit.getServer().getConsoleSender();
-                    Bukkit.getServer().dispatchCommand(console, Main.api.getLanguageUtil().replaceCommand(this.player.getBukkitEntity(), dataset[1]));
-                } else if (dataset[0].equals("[message]")) {
-                    player.getBukkitEntity().sendMessage(
-                            ChatColor.translateAlternateColorCodes('&',
-                                    PlaceholderAPI.setPlaceholders(player.getBukkitEntity(), dataset[1])));
-                } else if ((dataset[0].equals("[open]"))) {
-                    Main.handler.getBoxFromPlayer(player.getBukkitEntity()).open();
-                } else if ((dataset[0].equals("[close]"))) {
-                    Main.api.getSessionUtil().getSessionFromPlayer(player.getBukkitEntity()).close();
-                }  else if ((dataset[0].equals("[xp_set]"))) {
-                    if (Main.api.getHooksLoader().getBedWars1058Hook().hasBedWars()) {
-                        int amount;
-                        try {
-                            amount = Integer.parseInt(dataset[1]);
-                        } catch (NumberFormatException e) {
-                            amount = 0;
-                        }
-                        Main.api.getHooksLoader().getBedWars1058Hook().getBedWarsService().getLevelsUtil().setXp(player.getBukkitEntity(), amount);
-                    } else if (Main.api.getHooksLoader().getBedWars2023Hook().hasBedWars()) {
-                        int amount;
-                        try {
-                            amount = Integer.parseInt(dataset[1]);
-                        } catch (NumberFormatException e) {
-                            amount = 0;
-                        }
-                        Main.api.getHooksLoader().getBedWars2023Hook().getBedWarsService().getLevelsUtil().setXp(player.getBukkitEntity(), amount);
-                    }
-                } else if ((dataset[0].equals("[xp_add]"))) {
-                    if (Main.api.getHooksLoader().getBedWars1058Hook().hasBedWars()) {
-                        int amount;
-                        try {
-                            amount = Integer.parseInt(dataset[1]);
-                        } catch (NumberFormatException e) {
-                            amount = 0;
-                        }
-                        Main.api.getHooksLoader().getBedWars1058Hook().getBedWarsService().getLevelsUtil().addXp(player.getBukkitEntity(), amount);
-                    } else if (Main.api.getHooksLoader().getBedWars2023Hook().hasBedWars()) {
-                        int amount;
-                        try {
-                            amount = Integer.parseInt(dataset[1]);
-                        } catch (NumberFormatException e) {
-                            amount = 0;
-                        }
-                        Main.api.getHooksLoader().getBedWars2023Hook().getBedWarsService().getLevelsUtil().addXp(player.getBukkitEntity(), amount);
-                    }
-                } else if ((dataset[0].equals("[level_set]"))) {
-                    if (Main.api.getHooksLoader().getBedWars1058Hook().hasBedWars()) {
-                        int amount;
-                        try {
-                            amount = Integer.parseInt(dataset[1]);
-                        } catch (NumberFormatException e) {
-                            amount = 0;
-                        }
-                        Main.api.getHooksLoader().getBedWars1058Hook().getBedWarsService().getLevelsUtil().setLevel(player.getBukkitEntity(), amount);
-                    } else if (Main.api.getHooksLoader().getBedWars2023Hook().hasBedWars()) {
-                        int amount;
-                        try {
-                            amount = Integer.parseInt(dataset[1]);
-                        } catch (NumberFormatException e) {
-                            amount = 0;
-                        }
-                        Main.api.getHooksLoader().getBedWars2023Hook().getBedWarsService().getLevelsUtil().setLevel(player.getBukkitEntity(), amount);
-                    }
-                } else if ((dataset[0].equals("[level_add]"))) {
-                    if (Main.api.getHooksLoader().getBedWars1058Hook().hasBedWars()) {
-                        int amount;
-                        try {
-                            amount = Integer.parseInt(dataset[1]);
-                        } catch (NumberFormatException e) {
-                            amount = 0;
-                        }
-                        Main.api.getHooksLoader().getBedWars1058Hook().getBedWarsService().getLevelsUtil().addLevel(player.getBukkitEntity(), amount);
-                    } else if (Main.api.getHooksLoader().getBedWars2023Hook().hasBedWars()) {
-                        int amount;
-                        try {
-                            amount = Integer.parseInt(dataset[1]);
-                        } catch (NumberFormatException e) {
-                            amount = 0;
-                        }
-                        Main.api.getHooksLoader().getBedWars2023Hook().getBedWarsService().getLevelsUtil().addLevel(player.getBukkitEntity(), amount);
-                    }
-                }
+                Main.api.getPlayerUtil().getActionHandler().handle(stringAction, player.getBukkitEntity(), ButtonType.REWARD);
             }
         }
     }

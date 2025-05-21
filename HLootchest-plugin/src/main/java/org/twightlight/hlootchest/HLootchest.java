@@ -27,6 +27,7 @@ import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Aeternus;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Mystic;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Regular;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Spooky;
+import org.twightlight.hlootchest.utils.ActionHandler;
 import org.twightlight.hlootchest.utils.ColorUtils;
 import org.twightlight.hlootchest.utils.Utility;
 import org.twightlight.hlootchest.utils.VersionChecker;
@@ -51,6 +52,7 @@ public final class HLootchest extends JavaPlugin {
     public static boolean hex_gradient = false;
     public static ColorUtils colorUtils;
     private static final String version = Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1];
+    private ActionHandler actionHandler;
 
     @Override
     public void onEnable() {
@@ -79,6 +81,7 @@ public final class HLootchest extends JavaPlugin {
         }
         new VersionChecker(this, "122671").checkForUpdates();
         Utility.info("§aHLootChest has successfully been enabled!");
+        actionHandler = new ActionHandler(org.twightlight.hlootchest.HLootchest.getAPI());
     }
 
     @Override
@@ -286,5 +289,9 @@ public final class HLootchest extends JavaPlugin {
 
     public org.twightlight.hlootchest.supports.interfaces.HooksLoader getHooksLoader() {
         return hooksLoader;
+    }
+
+    public ActionHandler getActionHandler() {
+        return actionHandler;
     }
 }

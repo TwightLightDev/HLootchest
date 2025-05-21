@@ -30,7 +30,7 @@ public class Main extends org.twightlight.hlootchest.supports.protocol.v1_19_R3.
 
     @Override
     public ItemStack createItem(Material material, String headUrl, int data, String displayName, List<String> lore, boolean enchanted) {
-        ItemStack i = handler.createItemStack(XMaterial.matchXMaterial(material).name(), 1, (short)data);
+        ItemStack i = handler.createItemStack(XMaterial.matchXMaterial(material.name()).get().name(), 1, (short)data);
         ItemMeta itemMeta = i.getItemMeta();
         itemMeta.setDisplayName(ChatColor.translateAlternateColorCodes('&', displayName));
         if (!lore.isEmpty()) {
