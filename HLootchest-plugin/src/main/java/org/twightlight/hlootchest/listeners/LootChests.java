@@ -16,17 +16,16 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
+import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.objects.Reward;
 import org.twightlight.hlootchest.sessions.LootChestSession;
+import org.twightlight.hlootchest.utils.FoliaScheduler;
 import org.twightlight.hlootchest.utils.Utility;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-import java.util.Set;
+import java.util.*;
 
 public class LootChests implements Listener {
 
@@ -34,6 +33,8 @@ public class LootChests implements Listener {
     public void onRewardGive(PlayerRewardGiveEvent e) {
         String boxid = e.getLootChest().getBoxId();
         TYamlWrapper boxConf = HLootChest.getAPI().getConfigUtil().getBoxesConfig(boxid);
+        if (boxConf == null) return;
+
         int maxRewards = boxConf.getInt(boxid + ".reward-amount");
         if (boxConf.getYml().getConfigurationSection(boxid + ".rewards-list") == null) {
             return;
@@ -50,7 +51,7 @@ public class LootChests implements Listener {
         List<Location> locs = e.getLootChest().getRewardsLocation();
         if (maxRewards > locs.size()) {
             maxRewards = locs.size();
-            Utility.error("Detect an illegal value at " + boxid + ".reward-amount" + ".");
+            Utility.error("Detect an illegal value at " + boxid + ".reward-amount.");
             Utility.error("It should be lower or equal " + locs.size());
             Utility.error("We are trying to fix it, but this cannot be guaranteed");
         }
@@ -58,7 +59,7 @@ public class LootChests implements Listener {
         List<Reward> awaiting_rewards = new ArrayList<>();
         Random random = new Random();
         for (String reward : rewards) {
-            String path = boxid + ".rewards-list" + "." + reward;
+            String path = boxid + ".rewards-list." + reward;
             List<String> rewardactions = boxConf.getList(path + ".rewards");
 
             if (e.getPlayer().isOnline()) {
@@ -73,25 +74,21 @@ public class LootChests implements Listener {
             }
         }
         if (!e.getPlayer().isOnline()) {
-            HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(e.getPlayer(), awaiting_rewards, "awaiting_rewards");
+            TDatabase db = HLootChest.getAPI().getDatabaseUtil().getDatabase();
+            if (db != null) {
+                db.updateDataAsync(e.getPlayer(), awaiting_rewards, "awaiting_rewards");
+            }
         }
-
     }
 
     @EventHandler
     public void onDismountEvent(VehicleExitEvent e) {
         Entity exited = e.getExited();
-        Player player = null;
-
-        if (exited instanceof Player) {
-            player = (Player) exited;
-        }
+        if (!(exited instanceof Player)) return;
+        Player player = (Player) exited;
 
         TSession session = HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(player);
-
-        if (session == null) {
-            return;
-        }
+        if (session == null) return;
         e.setCancelled(true);
     }
 
@@ -99,13 +96,21 @@ public class LootChests implements Listener {
     public void onLcOpen(PlayerOpenLCEvent e) {
         Player p = e.getPlayer();
         String boxid = e.getLootChest().getBoxId();
-        org.twightlight.hlootchest.api.HLootchest.DatabaseUtil api = HLootChest.getAPI().getDatabaseUtil();
-        if (api.getDatabase().getLootChestData(p, "lootchests").get(boxid) > 0) {
-            try {
-                api.getDatabase().addLootchest(p, boxid, -1, "lootchests");
-                api.getDatabase().addLootchest(p, boxid, 1, "opened");
-            } catch (Exception ex) {
-                throw new RuntimeException(ex.getMessage());
+        TDatabase db = HLootChest.getAPI().getDatabaseUtil().getDatabase();
+        if (db == null) {
+            e.setCancelled(true);
+            return;
+        }
+
+        Map<String, Integer> data = db.getLootChestData(p, "lootchests");
+        Integer count = data.get(boxid);
+        if (count != null && count > 0) {
+            boolean removed = db.addLootchest(p, boxid, -1, "lootchests");
+            if (removed) {
+                db.addLootchestAsync(p, boxid, 1, "opened");
+            } else {
+                p.sendMessage(HLootChest.getAPI().getLanguageUtil().getMsg(p, "noLootchest"));
+                e.setCancelled(true);
             }
         } else {
             p.sendMessage(HLootChest.getAPI().getLanguageUtil().getMsg(p, "noLootchest"));
@@ -116,7 +121,6 @@ public class LootChests implements Listener {
     @EventHandler
     public void onEntityDamage(EntityDamageEvent e) {
         Entity entity = e.getEntity();
-
         if (entity instanceof Pig) {
             Pig vehicle = (Pig) entity;
             if ("LootchestVehicle".equals(vehicle.getCustomName())) {
@@ -142,44 +146,37 @@ public class LootChests implements Listener {
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent e) {
         Player p = e.getPlayer();
-        if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
-            if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
-                List<String> allowed_commands = HLootChest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.opening");
-                for (String command : allowed_commands) {
-                    if (e.getMessage().contains(command)) {
-                        return;
-                    }
+        TSession session = HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+        if (session == null) return;
+
+        String listKey = (session instanceof LootChestSession) ? "allowed-commands.opening" : "allowed-commands.setup";
+        List<String> allowed_commands = HLootChest.getAPI().getConfigUtil().getMainConfig().getList(listKey);
+        if (allowed_commands != null) {
+            for (String command : allowed_commands) {
+                if (e.getMessage().contains(command)) {
+                    return;
                 }
-                e.setCancelled(true);
-                p.sendMessage(HLootChest.getAPI().getLanguageUtil().getMsg(p, "noCommand"));
-            } else {
-                List<String> allowed_commands = HLootChest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.setup");
-                for (String command : allowed_commands) {
-                    if (e.getMessage().contains(command)) {
-                        return;
-                    }
-                }
-                e.setCancelled(true);
-                p.sendMessage(HLootChest.getAPI().getLanguageUtil().getMsg(p, "noCommand"));
             }
         }
+        e.setCancelled(true);
+        p.sendMessage(HLootChest.getAPI().getLanguageUtil().getMsg(p, "noCommand"));
     }
+
     @EventHandler
-    public void onBlockInteraction(BlockBreakEvent e) {
+    public void onBlockBreak(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
-            if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
-                e.setCancelled(true);
-            }
+        TSession session = HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+        if (session instanceof LootChestSession) {
+            e.setCancelled(true);
         }
     }
+
     @EventHandler
-    public void onBlockInteraction(BlockPlaceEvent e) {
+    public void onBlockPlace(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
-            if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
-                e.setCancelled(true);
-            }
+        TSession session = HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+        if (session instanceof LootChestSession) {
+            e.setCancelled(true);
         }
     }
 }

@@ -9,64 +9,40 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class MariaDB extends SQLDatabase {
+
     public MariaDB(Classloader classloader, String host, int port, String database,
                    String username, String password, boolean ssl) {
         super(DatabaseType.MARIADB, createDataSource(classloader, host, port, database, username, password, ssl));
     }
 
-    private static Object createDataSource(
-            ClassLoader libLoader,
-            String host,
-            int port,
-            String database,
-            String username,
-            String password,
-            boolean useSSL
-    ) {
-
+    private static Object createDataSource(ClassLoader libLoader, String host, int port,
+                                           String database, String username, String password, boolean useSSL) {
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
-
         try {
             Thread.currentThread().setContextClassLoader(libLoader);
-
             Class.forName("org.mariadb.jdbc.Driver", true, libLoader);
 
-            Class<?> hikariConfigClass =
-                    Class.forName("com.zaxxer.hikari.HikariConfig", true, libLoader);
-
-            Class<?> hikariDataSourceClass =
-                    Class.forName("com.zaxxer.hikari.HikariDataSource", true, libLoader);
+            Class<?> hikariConfigClass = Class.forName("com.zaxxer.hikari.HikariConfig", true, libLoader);
+            Class<?> hikariDataSourceClass = Class.forName("com.zaxxer.hikari.HikariDataSource", true, libLoader);
 
             Object config = hikariConfigClass.getDeclaredConstructor().newInstance();
 
-            hikariConfigClass.getMethod("setDriverClassName", String.class)
-                    .invoke(config, "org.mariadb.jdbc.Driver");
-
+            hikariConfigClass.getMethod("setDriverClassName", String.class).invoke(config, "org.mariadb.jdbc.Driver");
             hikariConfigClass.getMethod("setJdbcUrl", String.class)
-                    .invoke(config,
-                            String.format("jdbc:mariadb://%s:%d/%s", host, port, database));
-
-            hikariConfigClass.getMethod("setUsername", String.class)
-                    .invoke(config, username);
-
-            hikariConfigClass.getMethod("setPassword", String.class)
-                    .invoke(config, password);
-
-            hikariConfigClass.getMethod("setPoolName", String.class)
-                    .invoke(config, "HLootChest-MariaDB-Pool");
+                    .invoke(config, String.format("jdbc:mariadb://%s:%d/%s", host, port, database));
+            hikariConfigClass.getMethod("setUsername", String.class).invoke(config, username);
+            hikariConfigClass.getMethod("setPassword", String.class).invoke(config, password);
+            hikariConfigClass.getMethod("setPoolName", String.class).invoke(config, "HLootChest-MariaDB-Pool");
+            hikariConfigClass.getMethod("setMaximumPoolSize", int.class).invoke(config, 10);
 
             if (useSSL) {
-                hikariConfigClass
-                        .getMethod("addDataSourceProperty", String.class, Object.class)
+                hikariConfigClass.getMethod("addDataSourceProperty", String.class, Object.class)
                         .invoke(config, "sslMode", "REQUIRED");
             }
 
-            return hikariDataSourceClass
-                    .getConstructor(hikariConfigClass)
-                    .newInstance(config);
-
+            return hikariDataSourceClass.getConstructor(hikariConfigClass).newInstance(config);
         } catch (Exception e) {
-            throw new RuntimeException("Failed to init MariaDB", e);
+            throw new RuntimeException("Failed to init MariaDB datasource", e);
         } finally {
             Thread.currentThread().setContextClassLoader(previous);
         }
@@ -78,9 +54,9 @@ public class MariaDB extends SQLDatabase {
              Statement stmt = conn.createStatement()) {
             stmt.executeUpdate("CREATE TABLE IF NOT EXISTS hlootchest (" +
                     "player VARCHAR(36) PRIMARY KEY, " +
-                    "lootchests TEXT DEFAULT '{}', " +
-                    "opened TEXT DEFAULT '{}', " +
-                    "fallback_loc TEXT DEFAULT '', " +
+                    "lootchests TEXT DEFAULT NULL, " +
+                    "opened TEXT DEFAULT NULL, " +
+                    "fallback_loc TEXT DEFAULT NULL, " +
                     "awaiting_rewards TEXT DEFAULT NULL) " +
                     "ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci");
         } catch (SQLException e) {

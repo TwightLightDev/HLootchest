@@ -11,8 +11,6 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.session.SessionCloseEvent;
@@ -20,10 +18,12 @@ import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
+import org.twightlight.hlootchest.utils.FoliaScheduler;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.atomic.AtomicReference;
 
 public class LootChestSession extends SessionsManager implements TSession {
 
@@ -32,7 +32,6 @@ public class LootChestSession extends SessionsManager implements TSession {
     private GameMode gm;
     private Location initialLocation;
     private Collection<PotionEffect> potionEffects;
-    private BukkitTask vehicleTask;
     private CompletableFuture<Boolean> isloaded;
 
     public LootChestSession(Player p, String identifier) {
@@ -53,98 +52,95 @@ public class LootChestSession extends SessionsManager implements TSession {
             if (!chunk.isLoaded()) {
                 chunk.load();
             }
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    potionEffects = p.getActivePotionEffects();
-                    potionEffects.forEach(effect ->
-                            p.removePotionEffect(effect.getType())
-                    );
-                    initialLocation = p.getLocation();
-                    p.teleport(Plocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    for (Player online : Bukkit.getOnlinePlayers()) {
-                        if (!online.equals(p)) {
-                            online.hidePlayer(p);
-                        }
+
+            FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), p, () -> {
+                potionEffects = p.getActivePotionEffects();
+                potionEffects.forEach(effect -> p.removePotionEffect(effect.getType()));
+                initialLocation = p.getLocation();
+                p.teleport(Plocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+
+                for (Player online : Bukkit.getOnlinePlayers()) {
+                    if (!online.equals(p)) {
+                        online.hidePlayer(p);
+                    }
+                }
+
+                FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), p, () -> {
+                    if (!p.isOnline()) return;
+
+                    if (p.getLocation().getWorld() != Plocation.getWorld()
+                            || p.getLocation().distance(Plocation) > 10) {
+                        p.teleport(Plocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
                     }
 
-                    Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
-                        if (!p.isOnline()) return;
+                    Location location = Utility.stringToLocation(templateconfig.getString(identifier + ".settings.location"));
+                    box = HLootChest.getNms().spawnBox(location, identifier, p, icon, templateconfig);
+                    gm = p.getGameMode();
+                    HLootChest.getNms().getNMSService().setFakeGameMode(p, GameMode.SURVIVAL);
 
-                        if (p.getLocation().getWorld() != Plocation.getWorld()
-                                || p.getLocation().distance(Plocation) > 10) {
-                            p.teleport(Plocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    startVehicleTask();
+
+                    if (templateconfig.getYml().getConfigurationSection(identifier + ".buttons") != null) {
+                        Set<String> buttons = templateconfig.getYml().getConfigurationSection(identifier + ".buttons").getKeys(false);
+
+                        PriorityQueue<ButtonTask> taskQueue = new PriorityQueue<>(Comparator.comparingInt(ButtonTask::getDelay));
+                        int highestDelay = 0;
+
+                        for (String button : buttons) {
+                            String path = identifier + ".buttons." + button;
+                            if (Utility.checkConditions(p, conf, path + ".spawn-requirements")) {
+                                int delay = templateconfig.getYml().getInt(path + ".delay", 0);
+                                highestDelay = Math.max(highestDelay, delay);
+                                taskQueue.add(new ButtonTask(path, delay));
+                            }
                         }
 
-                        Location location = Utility.stringToLocation(templateconfig.getString(identifier + ".settings.location"));
+                        if (!taskQueue.isEmpty()) {
+                            final int finalHighestDelay = highestDelay;
+                            final int[] currentTick = {0};
+                            FoliaScheduler.runTaskTimer(HLootChest.getInstance(), new Runnable() {
+                                @Override
+                                public void run() {
+                                    if (!player.isOnline()) return;
 
-                        box = HLootChest.getNms().spawnBox(location, identifier, p, icon, templateconfig);
-                        gm = p.getGameMode();
-                        HLootChest.getNms().getNMSService().setFakeGameMode(p, GameMode.SURVIVAL);
+                                    while (!taskQueue.isEmpty() && taskQueue.peek().getDelay() <= currentTick[0]) {
+                                        ButtonTask task = taskQueue.poll();
+                                        String path = task.getPath();
 
-                        startVehicleTask();
+                                        Location loc = Utility.stringToLocation(templateconfig.getString(path + ".location"));
+                                        TButton button = HLootChest.getNms().spawnButton(loc, ButtonType.FUNCTIONAL, p, path, templateconfig);
+                                        boolean initialClickable = button.isClickable();
+                                        boolean initialMoveable = button.isMoveable();
 
-                        if (templateconfig.getYml().getConfigurationSection(identifier + ".buttons") != null) {
-                            Set<String> buttons = templateconfig.getYml().getConfigurationSection(identifier + ".buttons").getKeys(false);
+                                        button.setClickable(false);
+                                        button.setMoveable(false);
 
-                            PriorityQueue<ButtonTask> taskQueue = new PriorityQueue<>(Comparator.comparingInt(ButtonTask::getDelay));
-                            int highestDelay = 0;
-
-                            for (String button : buttons) {
-                                String path = identifier + ".buttons." + button;
-                                if (Utility.checkConditions(p, conf, path + ".spawn-requirements")) {
-                                    int delay = templateconfig.getYml().getInt(path + ".delay", 0);
-                                    highestDelay = Math.max(highestDelay, delay);
-                                    taskQueue.add(new ButtonTask(path, delay));
-                                }
-                            }
-
-                            if (!taskQueue.isEmpty()) {
-
-                                int finalHighestDelay = highestDelay;
-                                new BukkitRunnable() {
-                                    int currentTick = 0;
-                                    @Override
-                                    public void run() {
-                                        if (!player.isOnline()) {
-                                            this.cancel();
-                                        }
-
-                                        while (!taskQueue.isEmpty() && taskQueue.peek().getDelay() <= currentTick) {
-                                            ButtonTask task = taskQueue.poll();
-                                            String path = task.getPath();
-
-                                            Location location = Utility.stringToLocation(templateconfig.getString(path + ".location"));
-                                            TButton button = HLootChest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, path, templateconfig);
-                                            boolean initialClickable = button.isClickable();
-                                            boolean initialMoveable = button.isMoveable();
-
-                                            button.setClickable(false);
-                                            button.setMoveable(false);
-
-                                            isloaded = isloaded.thenApply((bool) -> {
-                                                button.setMoveable(initialMoveable);
-                                                button.setClickable(initialClickable);
-                                                return bool;
-                                            });
-                                        }
-
-                                        if (currentTick >= finalHighestDelay || taskQueue.isEmpty()) {
-                                            this.cancel();
-                                            isloaded.complete(true);
-                                        }
-
-                                        currentTick++;
+                                        isloaded = isloaded.thenApply((bool) -> {
+                                            button.setMoveable(initialMoveable);
+                                            button.setClickable(initialClickable);
+                                            return bool;
+                                        });
                                     }
-                                }.runTaskTimer(HLootChest.getInstance(), 0L, 1L);
-                            }
-                        }
 
-                        String initialLoc = Utility.locationToString(initialLocation);
-                        HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(p, initialLoc, "fallback_loc");
-                    }, 5L);
-                }
-            }.runTaskLater(HLootChest.getInstance(), 1L);
+                                    if (currentTick[0] >= finalHighestDelay || taskQueue.isEmpty()) {
+                                        isloaded.complete(true);
+                                    }
+
+                                    currentTick[0]++;
+                                }
+                            }, 0L, 1L);
+                        } else {
+                            isloaded.complete(true);
+                        }
+                    } else {
+                        isloaded.complete(true);
+                    }
+
+                    String initialLoc = Utility.locationToString(initialLocation);
+                    HLootChest.getAPI().getDatabaseUtil().getDatabase()
+                            .updateDataAsync(p, initialLoc, "fallback_loc");
+                }, 5L);
+            }, 1L);
 
             SessionStartEvent event = new SessionStartEvent(player, this);
             Bukkit.getPluginManager().callEvent(event);
@@ -153,57 +149,48 @@ public class LootChestSession extends SessionsManager implements TSession {
     }
 
     private void startVehicleTask() {
-        vehicleTask = new BukkitRunnable() {
-            @Override
-            public void run() {
-                if (box == null || player == null || !player.isOnline()) {
-                    cancel();
-                    return;
-                }
-                Entity vehicle = box.getVehiclesList().get(player);
-                if (vehicle == null || vehicle.isDead()) {
-                    return;
-                }
+        FoliaScheduler.runTaskTimer(HLootChest.getInstance(), () -> {
+            if (box == null || player == null || !player.isOnline()) return;
+            Entity vehicle = box.getVehiclesList().get(player);
+            if (vehicle == null || vehicle.isDead()) return;
 
-                if (vehicle.getPassenger() != player) {
-                    if (player.getLocation().distance(vehicle.getLocation()) > 5) {
-                        player.teleport(vehicle.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                        Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
-                            if (player.isOnline() && vehicle.isValid()) {
-                                vehicle.eject();
-                                vehicle.setPassenger(player);
-                            }
-                        }, 2L);
-                    } else {
-                        vehicle.eject();
-                        vehicle.setPassenger(player);
-                    }
+            if (vehicle.getPassenger() != player) {
+                if (player.getLocation().distance(vehicle.getLocation()) > 5) {
+                    player.teleport(vehicle.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                    FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), player, () -> {
+                        if (player.isOnline() && vehicle.isValid()) {
+                            vehicle.eject();
+                            vehicle.setPassenger(player);
+                        }
+                    }, 2L);
+                } else {
+                    vehicle.eject();
+                    vehicle.setPassenger(player);
                 }
             }
-        }.runTaskTimer(HLootChest.getInstance(), 10L, 20L);
+        }, 10L, 20L);
     }
 
     public void close() {
         box.removeVehicle(player);
 
-        HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(box.getOwner(), "", "fallback_loc");
+        HLootChest.getAPI().getDatabaseUtil().getDatabase()
+                .updateDataAsync(box.getOwner(), "", "fallback_loc");
         box.remove();
         HLootChest.getNms().removeButtonsFromPlayer(player, ButtonType.FUNCTIONAL);
         HLootChest.getNms().removeButtonsFromPlayer(player, ButtonType.REWARD);
         player.setGameMode(GameMode.SPECTATOR);
         player.setGameMode(gm);
         SessionsManager.sessions.remove(player);
-        potionEffects.forEach(effect ->
-                player.addPotionEffect(effect)
-        );
+        potionEffects.forEach(effect -> player.addPotionEffect(effect));
+
         for (Player online : Bukkit.getOnlinePlayers()) {
             if (!online.equals(player)) {
                 online.showPlayer(player);
             }
         }
-        if (vehicleTask != null) vehicleTask.cancel();
 
-        Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
+        FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), player, () -> {
             box.getOwner().teleport(initialLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }, 2L);
 
@@ -219,7 +206,6 @@ public class LootChestSession extends SessionsManager implements TSession {
         this.box = box;
     }
 
-
     private static class ButtonTask {
         private final String path;
         private final int delay;
@@ -229,13 +215,8 @@ public class LootChestSession extends SessionsManager implements TSession {
             this.delay = delay;
         }
 
-        public String getPath() {
-            return path;
-        }
-
-        public int getDelay() {
-            return delay;
-        }
+        public String getPath() { return path; }
+        public int getDelay() { return delay; }
     }
 
     public CompletableFuture<Boolean> getLoadingCompletableFuture() {

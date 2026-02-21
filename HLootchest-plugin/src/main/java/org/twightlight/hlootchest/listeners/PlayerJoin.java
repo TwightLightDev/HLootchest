@@ -1,7 +1,6 @@
 package org.twightlight.hlootchest.listeners;
 
 import com.google.common.reflect.TypeToken;
-import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -10,63 +9,77 @@ import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.HLootChest;
+import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.objects.Reward;
+import org.twightlight.hlootchest.utils.FoliaScheduler;
 import org.twightlight.hlootchest.utils.Utility;
 
-import java.util.Collections;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
-public class PlayerJoin implements Listener{
+public class PlayerJoin implements Listener {
+
     @EventHandler
     public void onPlayerJoin(PlayerJoinEvent event) {
         Player player = event.getPlayer();
         HLootChest.getNms().registerButtonClick(player);
 
-        try {
-            HLootChest.getAPI().getDatabaseUtil().getDatabase().createPlayerData(player);
-        } catch (Exception ex) {
-            throw new RuntimeException(ex.getMessage());
-        }
-        Map<String, Integer> lchsData = HLootChest.getAPI().getDatabaseUtil().getDatabase().getLootChestData(player, "lootchests");
-        Map<String, Integer> lchsData1 = HLootChest.getAPI().getDatabaseUtil().getDatabase().getLootChestData(player, "opened");
-        Set<String> listLchs = HLootChest.getNms().getRegistrationData().keySet();
-        for (String lcType : listLchs) {
-            lchsData.putIfAbsent(lcType, 0);
-            lchsData1.putIfAbsent(lcType, 0);
-        }
-        HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(player, lchsData, "lootchests");
-        HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(player, lchsData1, "opened");
+        TDatabase db = HLootChest.getAPI().getDatabaseUtil().getDatabase();
+        if (db == null) return;
 
-        HLootChest.getAPI().getDatabaseUtil().getDatabase().addColumnIfNotExists("awaiting_rewards", "TEXT", "NULL");
-        Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
-            String locS = HLootChest.getAPI().getDatabaseUtil().getDatabase().getLootChestData(player, "fallback_loc", TypeToken.of(String.class), null);
-            try {
-                Chunk chunk = player.getLocation().getChunk();
-                Utility.clean(chunk, "LootchestVehicle");
-                Utility.clean(chunk, "removeOnRestart");
-
-                Location loc = Utility.stringToLocation(locS);
-
-                player.teleport(loc);
-                player.setVelocity(new Vector(0, 0, 0));
-                HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(player, "", "fallback_loc");
-            } catch (Exception ignored) {}
-        }, 3L);
-        Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
-            try {
-                List<Reward> awaiting_rewards = HLootChest.getAPI().getDatabaseUtil().getDatabase().getLootChestData(player, "awaiting_rewards", new TypeToken<List<Reward>>() {}, Collections.emptyList());
-                if (!awaiting_rewards.isEmpty()) {
-                    for (Reward reward : awaiting_rewards) {
-                        reward.accept(player);
+        db.createPlayerDataAsync(player).thenCompose(v ->
+                db.getLootChestDataAsync(player, "lootchests")
+        ).thenCombine(
+                db.getLootChestDataAsync(player, "opened"),
+                (lchsData, lchsData1) -> {
+                    Set<String> listLchs = HLootChest.getNms().getRegistrationData().keySet();
+                    for (String lcType : listLchs) {
+                        lchsData.putIfAbsent(lcType, 0);
+                        lchsData1.putIfAbsent(lcType, 0);
                     }
-
-                    HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(player, null, "awaiting_rewards");
+                    db.updateDataAsync(player, lchsData, "lootchests");
+                    db.updateDataAsync(player, lchsData1, "opened");
+                    return null;
                 }
+        ).exceptionally(ex -> {
+            HLootChest.getInstance().getLogger().warning("Failed to init player data for " + player.getName() + ": " + ex.getMessage());
+            return null;
+        });
 
-            } catch (Exception ignored) {}
+        db.addColumnIfNotExists("awaiting_rewards", "TEXT", "NULL");
+
+        FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), player, () -> {
+            if (!player.isOnline()) return;
+            db.getLootChestDataAsync(player, "fallback_loc", TypeToken.of(String.class), null)
+                    .thenAccept(locS -> {
+                        if (locS == null || locS.isEmpty()) return;
+                        FoliaScheduler.runAtEntity(HLootChest.getInstance(), player, () -> {
+                            try {
+                                Chunk chunk = player.getLocation().getChunk();
+                                Utility.clean(chunk, "LootchestVehicle");
+                                Utility.clean(chunk, "removeOnRestart");
+                                Location loc = Utility.stringToLocation(locS);
+                                if (loc != null) {
+                                    player.teleport(loc);
+                                    player.setVelocity(new Vector(0, 0, 0));
+                                }
+                                db.updateDataAsync(player, "", "fallback_loc");
+                            } catch (Exception ignored) {}
+                        });
+                    });
+        }, 3L);
+
+        FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), player, () -> {
+            if (!player.isOnline()) return;
+            db.getLootChestDataAsync(player, "awaiting_rewards", new TypeToken<List<Reward>>() {}, Collections.emptyList())
+                    .thenAccept(awaitingRewards -> {
+                        if (awaitingRewards == null || awaitingRewards.isEmpty()) return;
+                        FoliaScheduler.runAtEntity(HLootChest.getInstance(), player, () -> {
+                            for (Reward reward : awaitingRewards) {
+                                reward.accept(player);
+                            }
+                            db.updateDataAsync(player, null, "awaiting_rewards");
+                        });
+                    });
         }, 2L);
-
     }
 }

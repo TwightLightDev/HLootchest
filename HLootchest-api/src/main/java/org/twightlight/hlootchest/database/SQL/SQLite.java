@@ -19,7 +19,6 @@ public class SQLite extends SQLDatabase {
 
     private static Object createDataSource(Plugin plugin, ClassLoader libLoader) {
         File dataFile = new File(plugin.getDataFolder(), "hlootchest.db");
-
         if (!dataFile.exists()) {
             try {
                 dataFile.getParentFile().mkdirs();
@@ -30,7 +29,6 @@ public class SQLite extends SQLDatabase {
         }
 
         ClassLoader previous = Thread.currentThread().getContextClassLoader();
-
         try {
             Thread.currentThread().setContextClassLoader(libLoader);
 
@@ -41,31 +39,24 @@ public class SQLite extends SQLDatabase {
 
             hikariConfigClass.getMethod("setDriverClassName", String.class)
                     .invoke(config, "org.sqlite.JDBC");
-
             hikariConfigClass.getMethod("setJdbcUrl", String.class)
                     .invoke(config, "jdbc:sqlite:" + dataFile.getAbsolutePath());
-
             hikariConfigClass.getMethod("setPoolName", String.class)
                     .invoke(config, "HLootChest-SQLite-Pool");
-
             hikariConfigClass.getMethod("setMaximumPoolSize", int.class)
                     .invoke(config, 1);
-
             hikariConfigClass.getMethod("setConnectionTestQuery", String.class)
                     .invoke(config, "SELECT 1");
-
             hikariConfigClass.getMethod("addDataSourceProperty", String.class, Object.class)
                     .invoke(config, "journal_mode", "WAL");
-
             hikariConfigClass.getMethod("addDataSourceProperty", String.class, Object.class)
                     .invoke(config, "synchronous", "NORMAL");
 
             return hikariDataSourceClass
                     .getConstructor(hikariConfigClass)
                     .newInstance(config);
-
         } catch (Exception e) {
-            throw new RuntimeException("Failed to initialize Hikari", e);
+            throw new RuntimeException("Failed to initialize HikariCP for SQLite", e);
         } finally {
             Thread.currentThread().setContextClassLoader(previous);
         }
@@ -83,22 +74,6 @@ public class SQLite extends SQLDatabase {
                     "awaiting_rewards TEXT DEFAULT NULL)");
         } catch (SQLException e) {
             throw new RuntimeException("Failed to initialize SQLite database", e);
-        }
-    }
-
-    @Override
-    public void createPlayerData(org.bukkit.OfflinePlayer p) {
-        String query = "INSERT OR IGNORE INTO hlootchest (player, lootchests, opened, fallback_loc, awaiting_rewards) VALUES (?, ?, ?, ?, ?)";
-        try (Connection conn = getConnection();
-             java.sql.PreparedStatement ps = conn.prepareStatement(query)) {
-            ps.setString(1, p.getUniqueId().toString());
-            ps.setString(2, "{}");
-            ps.setString(3, "{}");
-            ps.setString(4, "\"\"");
-            ps.setString(5, "NULL");
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to create player data", e);
         }
     }
 }

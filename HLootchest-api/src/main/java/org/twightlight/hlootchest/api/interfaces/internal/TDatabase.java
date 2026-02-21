@@ -7,6 +7,7 @@ import org.twightlight.hlootchest.api.enums.DatabaseType;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 public interface TDatabase {
     // Connection Management
@@ -30,4 +31,15 @@ public interface TDatabase {
 
     // Utility Methods
     void shutdown();
+
+    // Async
+    CompletableFuture<Void> createPlayerDataAsync(OfflinePlayer player);
+
+    <T> CompletableFuture<T> getLootChestDataAsync(OfflinePlayer player, String column, TypeToken<T> type, T fallback);
+
+    CompletableFuture<Map<String, Integer>> getLootChestDataAsync(OfflinePlayer player, String column);
+
+    <T> CompletableFuture<Boolean> updateDataAsync(OfflinePlayer player, T data, String column);
+
+    CompletableFuture<Boolean> addLootchestAsync(OfflinePlayer player, String lootchestId, Integer amount, String column);
 }
