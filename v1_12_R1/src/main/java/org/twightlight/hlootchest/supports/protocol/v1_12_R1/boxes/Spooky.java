@@ -12,7 +12,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.Main;
 import org.twightlight.hlootchest.utils.LocationFinder;
 
@@ -24,7 +24,7 @@ public class Spooky extends BoxManager {
     private final Random random = new Random();
     BukkitTask task;
 
-    public Spooky(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+    public Spooky(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);
 
         this.location = location.clone().add(0, 1.2, 0);

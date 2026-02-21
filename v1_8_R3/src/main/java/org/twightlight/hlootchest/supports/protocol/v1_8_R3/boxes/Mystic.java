@@ -18,7 +18,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.Main;
 
 import java.util.Collections;
@@ -30,7 +30,7 @@ public class Mystic extends BoxManager {
     private ArmorStand floatingOrb2;
     private BukkitTask task;
 
-    public Mystic(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+    public Mystic(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);
 
         Location orbLocation1 = location.clone().add(1, 1.0, 0);
@@ -234,7 +234,7 @@ public class Mystic extends BoxManager {
 
 
                     EntityLightning lightning = new EntityLightning(((CraftWorld) center.getWorld()).getHandle(),
-                            strikeLoc.getX(), strikeLoc.getY(), strikeLoc.getZ(), false, false);
+                            strikeLoc.getX(), strikeLoc.getY(), strikeLoc.getZ(), false);
                     PacketPlayOutSpawnEntityWeather lightningPacket = new PacketPlayOutSpawnEntityWeather(lightning);
 
                     getOwner().playSound(getPlayerLocation(), XSound.ENTITY_LIGHTNING_BOLT_THUNDER.parseSound(), 10, 0.8f + (random.nextFloat()) * 0.4f);

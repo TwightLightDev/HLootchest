@@ -6,10 +6,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.MenuManager;
@@ -20,7 +20,7 @@ import java.util.Collections;
 
 public class Sound {
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final String path;
     private final SetupSession session;
@@ -30,7 +30,7 @@ public class Sound {
     private static final int PITCH_SLOT = 13;
     private final Executable backAction;
 
-    public Sound(Player p, TConfigManager templateFile, String name, String path, SetupSession session, Executable backAction) {
+    public Sound(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, Executable backAction) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -49,7 +49,7 @@ public class Sound {
 
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
                 backAction);
         addConfigurableItem(SOUND_SLOT, "sound", "&bSound Type", (input) -> XSound.matchXSound(input).isPresent());
@@ -63,7 +63,7 @@ public class Sound {
         MenuManager.setItem(
                 p,
                 inv,
-                HLootchest.getNms().createItem(material.parseMaterial(), "", 0, ChatColor.translateAlternateColorCodes('&', displayName), Arrays.asList("&aCurrent value: &7" + value, "","&eClick to set a new value!"), false),
+                HLootChest.getNms().createItem(material.parseMaterial(), "", 0, ChatColor.translateAlternateColorCodes('&', displayName), Arrays.asList("&aCurrent value: &7" + value, "","&eClick to set a new value!"), false),
                 slot,
                 action
         );
@@ -88,7 +88,7 @@ public class Sound {
                     p.sendMessage(ChatColor.GREEN + "Successfully set " + key + " to: " + ChatColor.YELLOW + input);
                 }
                 chatSession.end();
-                Bukkit.getScheduler().runTask(HLootchest.getInstance(), () -> setItems(inv));
+                Bukkit.getScheduler().runTask(HLootChest.getInstance(), () -> setItems(inv));
             });
         });
     }

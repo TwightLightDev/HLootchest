@@ -1,6 +1,5 @@
 package org.twightlight.hlootchest.supports.protocol.v1_19_R3;
 
-import org.twightlight.libs.xseries.XItemStack;
 import org.twightlight.libs.xseries.XMaterial;
 import org.twightlight.libs.xseries.XSound;
 import com.mojang.authlib.GameProfile;
@@ -19,7 +18,7 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
@@ -76,15 +75,15 @@ public class Main extends NMSHandler {
     public void registerButtonClick(Player player) {
     }
 
-    public TButton spawnButton(Location location, ButtonType type, Player player, String path, TConfigManager config) {
+    public TButton spawnButton(Location location, ButtonType type, Player player, String path, TYamlWrapper config) {
         return new Button(location, type, player, path, config, false);
     }
 
-    public TButton spawnPreviewButton(Location location, ButtonType type, Player player, String path, TConfigManager config) {
+    public TButton spawnPreviewButton(Location location, ButtonType type, Player player, String path, TYamlWrapper config) {
         return new Button(location, type, player, path, config, true);
     }
 
-    public TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config) {
+    public TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TYamlWrapper config) {
         LootChestFactory factory = tboxdata.get(boxid);
         if (factory == null) {
             player.sendMessage(ChatColor.RED + "Unknow lootchest type!");

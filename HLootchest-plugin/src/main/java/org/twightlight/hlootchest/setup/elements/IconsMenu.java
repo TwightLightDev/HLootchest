@@ -5,10 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.MenuManager;
@@ -21,13 +21,13 @@ import java.util.Set;
 public class IconsMenu {
 
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final String path;
     private final SetupSession session;
     private boolean isChild;
     private Executable backAction;
-    public IconsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSession session, boolean isChild, Executable backAction) {
+    public IconsMenu(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, boolean isChild, Executable backAction) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -49,12 +49,12 @@ public class IconsMenu {
         inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
                 backAction);
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Icon", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Icon", Collections.emptyList(), false),
                 26,
                 (e) -> {
                     p.closeInventory();
@@ -62,7 +62,7 @@ public class IconsMenu {
                     sessions.prompt(Arrays.asList(new String[] {"&aType the name of the new button: ", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {
                             sessions.end();
-                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                     () -> {
                                         setItems(inv);
                                     });
@@ -73,7 +73,7 @@ public class IconsMenu {
                             if (buttonList.contains(input)) {
                                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis icon name already exist! Cancel the action!"));
                                 sessions.end();
-                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                         () -> {
                                             setItems(inv);
                                         });
@@ -81,7 +81,7 @@ public class IconsMenu {
                             }
                         }
                         sessions.end();
-                        Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                        Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                 () -> {
                                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou successfully created new icon: &e"+ input));
                                     new IconSettings(p, templateFile, name, path + "." + input, session, (ev) -> new IconsMenu(p, templateFile, name, path, session, isChild, backAction));
@@ -96,7 +96,7 @@ public class IconsMenu {
             for (String icon : iconsList) {
                 MenuManager.setItem(p,
                         inv,
-                        HLootchest.getNms().createItem(XMaterial.valueOf(templateFile.getString(name + path + "." + icon + ".material", "BEDROCK")).parseMaterial(),
+                        HLootChest.getNms().createItem(XMaterial.valueOf(templateFile.getString(name + path + "." + icon + ".material", "BEDROCK")).parseMaterial(),
                                 templateFile.getString(name + path + "." + icon + ".head_value", ""),
                                 templateFile.getInt(name + path + "." + icon + ".data", 0),
                                 "&eName: " + ChatColor.AQUA + icon,

@@ -4,7 +4,7 @@ import org.bukkit.Location;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 
 import java.util.List;
 import java.util.Map;
@@ -123,9 +123,9 @@ public interface TBox {
     /**
      * Gets the configuration manager of the box.
      *
-     * @return The {@link TConfigManager} instance associated with this box.
+     * @return The {@link TYamlWrapper} instance associated with this box.
      */
-    TConfigManager getConfig();
+    TYamlWrapper getConfig();
 
     /**
      * Gets the possible locations where rewards can appear.

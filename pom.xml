@@ -93,7 +93,7 @@
           <dependency>
               <groupId>org.xerial</groupId>
               <artifactId>sqlite-jdbc</artifactId>
-              <version>3.7.2</version>
+              <version>3.45.1.0</version>
           </dependency>
           <dependency>
               <groupId>me.clip</groupId>
@@ -102,14 +102,15 @@
               <scope>provided</scope>
           </dependency>
           <dependency>
-              <groupId>org.twightlight</groupId>
-              <artifactId>TwightLightCore</artifactId>
-              <version>1.0</version>
-          </dependency>
-          <dependency>
               <groupId>com.github.retrooper</groupId>
               <artifactId>packetevents-spigot</artifactId>
               <version>2.7.0</version>
+          </dependency>
+
+          <dependency>
+              <groupId>org.twightlight</groupId>
+              <artifactId>TwightLightCore</artifactId>
+              <version>1.0</version>
           </dependency>
       </dependencies>
     </dependencyManagement>

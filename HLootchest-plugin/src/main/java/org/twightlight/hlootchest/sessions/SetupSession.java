@@ -5,7 +5,7 @@ import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.events.session.SessionCloseEvent;
 import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.setup.Preview;
@@ -17,9 +17,9 @@ public class SetupSession extends SessionsManager implements TSession {
 
     private MenuHandler<?> inv;
 
-    private TConfigManager conf;
+    private TYamlWrapper conf;
 
-    public SetupSession(Player p, TConfigManager configManager) {
+    public SetupSession(Player p, TYamlWrapper configManager) {
         player = p;
         SessionsManager.sessions.putIfAbsent(p, this);
         conf = configManager;
@@ -53,11 +53,11 @@ public class SetupSession extends SessionsManager implements TSession {
         return inv;
     }
 
-    public void setConfigManager(TConfigManager config) {
+    public void setConfigManager(TYamlWrapper config) {
         conf = config;
     }
 
-    public TConfigManager getConfigManager() {
+    public TYamlWrapper getConfigManager() {
         return conf;
     }
 }

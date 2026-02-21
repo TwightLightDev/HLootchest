@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.sessions;
 
+import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.libs.xseries.XMaterial;
 import org.bukkit.Bukkit;
 import org.bukkit.Chunk;
@@ -12,16 +13,17 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.scheduler.BukkitTask;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.session.SessionCloseEvent;
 import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;
+import java.util.concurrent.CompletableFuture;
 
 public class LootChestSession extends SessionsManager implements TSession {
 
@@ -37,18 +39,21 @@ public class LootChestSession extends SessionsManager implements TSession {
 
     private BukkitTask vehicleTask;
 
+    private CompletableFuture<Boolean> isloaded;
+
     public LootChestSession(Player p, String identifier) {
-        if (HLootchest.getNms().getBoxFromPlayer(p) == null) {
+        if (HLootChest.getNms().getBoxFromPlayer(p) == null) {
             player = p;
-            TConfigManager conf = HLootchest.getAPI().getConfigUtil().getBoxesConfig(identifier);
-            ItemStack icon = HLootchest.getNms().createItem(
+            isloaded = new CompletableFuture<>();
+            TYamlWrapper conf = HLootChest.getAPI().getConfigUtil().getBoxesConfig(identifier);
+            ItemStack icon = HLootChest.getNms().createItem(
                     XMaterial.valueOf(conf.getString(identifier + ".icon.material")).get(),
                     conf.getString(identifier + ".icon.head_value"),
                     (conf.getYml().contains(identifier + ".icon.data")) ? conf.getInt(identifier + ".icon.data") : 0,
                     "",
                     new ArrayList<>(),
                     false);
-            TConfigManager templateconfig = HLootchest.getAPI().getConfigUtil().getTemplateConfig();
+            TYamlWrapper templateconfig = HLootChest.getAPI().getConfigUtil().getTemplateConfig();
             Location Plocation = Utility.stringToLocation(templateconfig.getString(identifier + ".settings.player-location"));
             Chunk chunk = Plocation.getChunk();
             if (!chunk.isLoaded()) {
@@ -69,12 +74,12 @@ public class LootChestSession extends SessionsManager implements TSession {
                         }
                     }
 
-                    Bukkit.getScheduler().runTaskLater(HLootchest.getInstance(), () -> {
+                    Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
                         Location location = Utility.stringToLocation(templateconfig.getString(identifier + ".settings.location"));
 
-                        box = HLootchest.getNms().spawnBox(location, identifier, p, icon, templateconfig);
+                        box = HLootChest.getNms().spawnBox(location, identifier, p, icon, templateconfig);
                         gm = p.getGameMode();
-                        HLootchest.getNms().getNMSService().setFakeGameMode(p, GameMode.SURVIVAL);
+                        HLootChest.getNms().getNMSService().setFakeGameMode(p, GameMode.SURVIVAL);
 
                         if (templateconfig.getYml().getConfigurationSection(identifier + ".buttons") != null) {
                             Set<String> buttons = templateconfig.getYml().getConfigurationSection(identifier + ".buttons").getKeys(false);
@@ -107,24 +112,36 @@ public class LootChestSession extends SessionsManager implements TSession {
                                             String path = task.getPath();
 
                                             Location location = Utility.stringToLocation(templateconfig.getString(path + ".location"));
-                                            HLootchest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, path, templateconfig);
+                                            TButton button = HLootChest.getNms().spawnButton(location, ButtonType.FUNCTIONAL, p, path, templateconfig);
+                                            boolean initialClickable = button.isClickable();
+                                            boolean initialMoveable = button.isMoveable();
+
+                                            button.setClickable(false);
+                                            button.setMoveable(false);
+
+                                            isloaded = isloaded.thenApply((bool) -> {
+                                                button.setMoveable(initialMoveable);
+                                                button.setClickable(initialClickable);
+                                                return bool;
+                                            });
                                         }
 
                                         if (currentTick >= finalHighestDelay || taskQueue.isEmpty()) {
                                             this.cancel();
+                                            isloaded.complete(true);
                                         }
 
                                         currentTick++;
                                     }
-                                }.runTaskTimer(HLootchest.getInstance(), 0L, 1L);
+                                }.runTaskTimer(HLootChest.getInstance(), 0L, 1L);
                             }
                         }
 
                         String initialLoc = Utility.locationToString(initialLocation);
-                        HLootchest.getAPI().getDatabaseUtil().getDb().pullData(p, initialLoc, "fallback_loc");
+                        HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(p, initialLoc, "fallback_loc");
                     }, 1L);
                 }
-            }.runTaskLater(HLootchest.getInstance(), 1L);
+            }.runTaskLater(HLootChest.getInstance(), 1L);
 
             vehicleTask = new BukkitRunnable() {
                 @Override
@@ -136,7 +153,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                         vehicle.setPassenger(player);
                     }
                 }
-            }.runTaskTimer(HLootchest.getInstance(), 20L, 20L);
+            }.runTaskTimer(HLootChest.getInstance(), 20L, 20L);
 
             SessionStartEvent event = new SessionStartEvent(player, this);
             Bukkit.getPluginManager().callEvent(event);
@@ -147,11 +164,11 @@ public class LootChestSession extends SessionsManager implements TSession {
 
     public void close() {
         box.removeVehicle(player);
-        box.getOwner().teleport(initialLocation);
-        HLootchest.getAPI().getDatabaseUtil().getDb().pullData(box.getOwner(), "", "fallback_loc");
+
+        HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(box.getOwner(), "", "fallback_loc");
         box.remove();
-        HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.FUNCTIONAL);
-        HLootchest.getNms().removeButtonsFromPlayer(player, ButtonType.REWARD);
+        HLootChest.getNms().removeButtonsFromPlayer(player, ButtonType.FUNCTIONAL);
+        HLootChest.getNms().removeButtonsFromPlayer(player, ButtonType.REWARD);
         player.setGameMode(GameMode.SPECTATOR);
         player.setGameMode(gm);
         SessionsManager.sessions.remove(player);
@@ -164,6 +181,11 @@ public class LootChestSession extends SessionsManager implements TSession {
             }
         }
         vehicleTask.cancel();
+
+        Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
+            box.getOwner().teleport(initialLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+        }, 2L);
+
         SessionCloseEvent event = new SessionCloseEvent(player, this);
         Bukkit.getPluginManager().callEvent(event);
     }
@@ -193,5 +215,13 @@ public class LootChestSession extends SessionsManager implements TSession {
         public int getDelay() {
             return delay;
         }
+    }
+
+    public CompletableFuture<Boolean> getLoadingCompletableFuture() {
+        return isloaded;
+    }
+
+    public void forceOpen() {
+        box.open();
     }
 }

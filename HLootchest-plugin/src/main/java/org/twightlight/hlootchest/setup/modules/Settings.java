@@ -5,9 +5,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.MenuManager;
 import org.twightlight.hlootchest.setup.TemplateMenu;
@@ -19,12 +19,12 @@ import java.util.Collections;
 
 public class Settings {
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final String path;
     private final SetupSession session;
 
-    public Settings(Player p, TConfigManager templateFile, String name, String path, SetupSession session) {
+    public Settings(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -44,12 +44,12 @@ public class Settings {
         inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
                 (e) -> new TemplateMenu(p, templateFile, name, session));
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
+                HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
                         "&bPlayer's location",
                         Arrays.asList(new String[] {"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".player-location", "null"),
                                 "", "&eClick to set to your current location!"}),
@@ -62,7 +62,7 @@ public class Settings {
                 });
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
+                HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
                         "&bLocation",
                         Arrays.asList(new String[] {"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".location", "null"),
                                 "", "&eClick to set to your current location!"}),
@@ -75,7 +75,7 @@ public class Settings {
                 });
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.LEVER.parseMaterial(), "", 0,
+                HLootChest.getNms().createItem(XMaterial.LEVER.parseMaterial(), "", 0,
                         "&bClick-to-open",
                         Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".click-to-open", false)),
                                 "", "&eClick to change!"}),
@@ -88,7 +88,7 @@ public class Settings {
                 });
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.COMPASS.parseMaterial(), "", 0,
+                HLootChest.getNms().createItem(XMaterial.COMPASS.parseMaterial(), "", 0,
                         "&bRotations",
                         Arrays.asList(new String[] {"&eClick to browse!"}),
                         false),

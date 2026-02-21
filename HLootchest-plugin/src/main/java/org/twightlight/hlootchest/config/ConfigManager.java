@@ -1,121 +1,62 @@
 package org.twightlight.hlootchest.config;
 
-import org.bukkit.configuration.file.YamlConfiguration;
-import org.bukkit.plugin.Plugin;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.HLootChest;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
+import org.twightlight.hlootchest.config.configs.MainConfig;
+import org.twightlight.hlootchest.utils.Utility;
 
 import java.io.File;
-import java.io.IOException;
-import java.util.List;
-import java.util.logging.Level;
-import java.util.stream.Collectors;
+import java.util.HashMap;
+import java.util.Map;
 
-    public class ConfigManager implements TConfigManager {
-        private YamlConfiguration yml;
+public class ConfigManager {
+    public static TYamlWrapper mainConfig;
+    public static TYamlWrapper templateConfig;
+    public static Map<String, TYamlWrapper> boxesConfigMap = new HashMap<>();
+    public static TYamlWrapper messagesConfig;
+    private static String path = HLootChest.getInstance().getDataFolder().getPath();
+    public static TYamlWrapper registration;
 
-        private File config;
+    public static void init() {
+        Utility.info("Loading config.yml...");
+        mainConfig = new MainConfig(HLootChest.getInstance(), "config", path);
 
-        private String name;
-
-        private boolean firstTime = false;
-
-        public ConfigManager(Plugin plugin, String name, String dir) {
-            File d = new File(dir);
-            if (!d.exists() &&
-                    !d.mkdirs()) {
-                plugin.getLogger().log(Level.SEVERE, "Could not create " + d.getPath());
-                return;
-            }
-            this.config = new File(dir, name + ".yml");
-            if (!this.config.exists()) {
-                this.firstTime = true;
-                plugin.getLogger().log(Level.INFO, "Creating " + this.config.getPath());
-                try {
-                    if (!this.config.createNewFile()) {
-                        plugin.getLogger().log(Level.SEVERE, "Could not create " + this.config.getPath());
-                        return;
-                    }
-                } catch (IOException e) {
-                    throw new RuntimeException(e);
-                }
-            }
-            this.yml = YamlConfiguration.loadConfiguration(this.config);
-            this.yml.options().copyDefaults(true);
-            this.name = name;
+        Utility.info("Loading templates...");
+        File file = new File((HLootChest.getInstance().getDataFolder().getPath()+ "/templates"), "example_template.yml");
+        if (!file.exists()) {
+            HLootChest.getInstance().saveResource("templates/example_template.yml", false);
         }
+        templateConfig = new YamlWrapper(HLootChest.getInstance(), mainConfig.getString("template"), HLootChest.getInstance().getDataFolder().getPath()+ "/templates");
 
-        public void reload() {
-            if (!this.config.exists()) {
-                System.err.println("Config file does not exist: " + this.config.getPath());
-                return;
-            }
-            this.yml = YamlConfiguration.loadConfiguration(this.config);
+        Utility.info("Loading messages.yml...");
+        File file4 = new File(HLootChest.getInstance().getDataFolder().getPath(), "messages.yml");
+        if (!file4.exists()) {
+            HLootChest.getInstance().saveResource("messages.yml", false);
         }
+        messagesConfig = new YamlWrapper(HLootChest.getInstance(), "messages", path);
 
-        public void set(String path, Object value) {
-            this.yml.set(path, value);
-            save();
+        Utility.info("Loading registrations.yml...");
+        File file5 = new File(HLootChest.getInstance().getDataFolder().getPath(), "registrations.yml");
+        if (!file5.exists()) {
+            HLootChest.getInstance().saveResource("registrations.yml", false);
         }
+        registration = new YamlWrapper(HLootChest.getInstance(), "registrations", path);
 
-        public void setNotSave(String path, Object value) {
-            this.yml.set(path, value);
+        File file6 = new File((HLootChest.getInstance().getDataFolder().getPath()+ "/lootchests"), "regular.yml");
+        if (!file6.exists()) {
+            HLootChest.getInstance().saveResource("lootchests/" + "regular.yml", false);
         }
-
-        public YamlConfiguration getYml() {
-            return this.yml;
+        File file7 = new File((HLootChest.getInstance().getDataFolder().getPath()+ "/lootchests"), "mystic.yml");
+        if (!file7.exists()) {
+            HLootChest.getInstance().saveResource("lootchests/" + "mystic.yml", false);
         }
-
-        public void save() {
-            try {
-                this.yml.save(this.config);
-            } catch (IOException e) {
-                throw new RuntimeException(e);
-            }
+        File file8 = new File((HLootChest.getInstance().getDataFolder().getPath()+ "/lootchests"), "spooky.yml");
+        if (!file8.exists()) {
+            HLootChest.getInstance().saveResource("lootchests/" + "spooky.yml", false);
         }
-
-        public List<String> getList(String path) {
-            return this.yml.getStringList(path).stream().map(s -> s.replace("&", "§")).collect(Collectors.toList());
-        }
-
-        public boolean getBoolean(String path) {
-            return this.yml.getBoolean(path);
-        }
-
-        public int getInt(String path) {
-            return this.yml.getInt(path);
-        }
-
-        public double getDouble(String path) {
-            return this.yml.getDouble(path);
-        }
-
-        public String getString(String path) {
-            return this.yml.getString(path);
-        }
-
-        public boolean getBoolean(String path, Boolean fallBack) {
-            return this.yml.getBoolean(path, fallBack);
-        }
-
-        public int getInt(String path, Integer fallBack) {
-            return this.yml.getInt(path, fallBack);
-        }
-
-        public double getDouble(String path, Double fallBack) {
-            return this.yml.getDouble(path, fallBack);
-        }
-
-        public String getString(String path, String fallBack) {
-            return this.yml.getString(path, fallBack);
-        }
-
-        @Override
-        public boolean isFirstTime(String path) {
-            return this.firstTime;
-        }
-
-        public String getName() {
-            return this.name;
+        File file9 = new File((HLootChest.getInstance().getDataFolder().getPath()+ "/lootchests"), "aeternus.yml");
+        if (!file9.exists()) {
+            HLootChest.getInstance().saveResource("lootchests/" + "aeternus.yml", false);
         }
     }
-
+}

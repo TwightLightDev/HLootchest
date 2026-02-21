@@ -1,7 +1,6 @@
 package org.twightlight.hlootchest.listeners;
 
 import org.bukkit.Location;
-import org.bukkit.Material;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
@@ -12,13 +11,12 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.event.entity.EntityDamageEvent;
 import org.bukkit.event.player.PlayerCommandPreprocessEvent;
 import org.bukkit.event.vehicle.VehicleExitEvent;
-import org.bukkit.inventory.ItemStack;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.objects.Reward;
@@ -35,7 +33,7 @@ public class LootChests implements Listener {
     @EventHandler
     public void onRewardGive(PlayerRewardGiveEvent e) {
         String boxid = e.getLootChest().getBoxId();
-        TConfigManager boxConf = HLootchest.getAPI().getConfigUtil().getBoxesConfig(boxid);
+        TYamlWrapper boxConf = HLootChest.getAPI().getConfigUtil().getBoxesConfig(boxid);
         int maxRewards = boxConf.getInt(boxid + ".reward-amount");
         if (boxConf.getYml().getConfigurationSection(boxid + ".rewards-list") == null) {
             return;
@@ -69,13 +67,13 @@ public class LootChests implements Listener {
                 int randint = random.nextInt(locs.size());
                 Location loc = locs.get(randint);
                 locs.remove(randint);
-                HLootchest.getNms().spawnButton(loc, ButtonType.REWARD, e.getPlayer(), path, boxConf);
+                HLootChest.getNms().spawnButton(loc, ButtonType.REWARD, e.getPlayer(), path, boxConf);
             } else {
                 awaiting_rewards.add(new Reward(rewardactions));
             }
         }
         if (!e.getPlayer().isOnline()) {
-            HLootchest.getAPI().getDatabaseUtil().getDb().pullData(e.getPlayer(), awaiting_rewards, "awaiting_rewards");
+            HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(e.getPlayer(), awaiting_rewards, "awaiting_rewards");
         }
 
     }
@@ -89,7 +87,7 @@ public class LootChests implements Listener {
             player = (Player) exited;
         }
 
-        TSession session = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(player);
+        TSession session = HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(player);
 
         if (session == null) {
             return;
@@ -101,16 +99,16 @@ public class LootChests implements Listener {
     public void onLcOpen(PlayerOpenLCEvent e) {
         Player p = e.getPlayer();
         String boxid = e.getLootChest().getBoxId();
-        org.twightlight.hlootchest.api.HLootchest.DatabaseUtil api = HLootchest.getAPI().getDatabaseUtil();
-        if (api.getDb().getLootChestData(p, "lootchests").get(boxid) > 0) {
+        org.twightlight.hlootchest.api.HLootchest.DatabaseUtil api = HLootChest.getAPI().getDatabaseUtil();
+        if (api.getDatabase().getLootChestData(p, "lootchests").get(boxid) > 0) {
             try {
-                api.getDb().addLootchest(p, boxid, -1, "lootchests");
-                api.getDb().addLootchest(p, boxid, 1, "opened");
+                api.getDatabase().addLootchest(p, boxid, -1, "lootchests");
+                api.getDatabase().addLootchest(p, boxid, 1, "opened");
             } catch (Exception ex) {
                 throw new RuntimeException(ex.getMessage());
             }
         } else {
-            p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noLootchest"));
+            p.sendMessage(HLootChest.getAPI().getLanguageUtil().getMsg(p, "noLootchest"));
             e.setCancelled(true);
         }
     }
@@ -131,7 +129,7 @@ public class LootChests implements Listener {
     public void onButtonClick(PlayerButtonClickEvent e) {
         TButton button = e.getButton();
         Player p = e.getPlayer();
-        TConfigManager configManager = button.getConfig();
+        TYamlWrapper configManager = button.getConfig();
         if (!configManager.getYml().contains(button.getPathToButton() + ".click-requirements")) {
             return;
         }
@@ -144,33 +142,33 @@ public class LootChests implements Listener {
     @EventHandler
     public void onCommand(PlayerCommandPreprocessEvent e) {
         Player p = e.getPlayer();
-        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
-            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
-                List<String> allowed_commands = HLootchest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.opening");
+        if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
+            if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
+                List<String> allowed_commands = HLootChest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.opening");
                 for (String command : allowed_commands) {
                     if (e.getMessage().contains(command)) {
                         return;
                     }
                 }
                 e.setCancelled(true);
-                p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noCommand"));
+                p.sendMessage(HLootChest.getAPI().getLanguageUtil().getMsg(p, "noCommand"));
             } else {
-                List<String> allowed_commands = HLootchest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.setup");
+                List<String> allowed_commands = HLootChest.getAPI().getConfigUtil().getMainConfig().getList("allowed-commands.setup");
                 for (String command : allowed_commands) {
                     if (e.getMessage().contains(command)) {
                         return;
                     }
                 }
                 e.setCancelled(true);
-                p.sendMessage(HLootchest.getAPI().getLanguageUtil().getMsg(p, "noCommand"));
+                p.sendMessage(HLootChest.getAPI().getLanguageUtil().getMsg(p, "noCommand"));
             }
         }
     }
     @EventHandler
     public void onBlockInteraction(BlockBreakEvent e) {
         Player p = e.getPlayer();
-        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
-            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
+        if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
+            if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
                 e.setCancelled(true);
             }
         }
@@ -178,8 +176,8 @@ public class LootChests implements Listener {
     @EventHandler
     public void onBlockInteraction(BlockPlaceEvent e) {
         Player p = e.getPlayer();
-        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
-            if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
+        if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
+            if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) instanceof LootChestSession) {
                 e.setCancelled(true);
             }
         }

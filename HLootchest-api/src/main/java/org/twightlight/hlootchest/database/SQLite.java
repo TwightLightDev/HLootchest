@@ -18,11 +18,10 @@ import java.util.Map;
 public class SQLite implements TDatabase {
     private Connection connection;
     private Plugin plugin;
-    private DatabaseType type;
+    private DatabaseType type = DatabaseType.SQLITE;
 
-    public SQLite(Plugin plugin, DatabaseType type) {
+    public SQLite(Plugin plugin) {
         this.plugin = plugin;
-        this.type = type;
         connect();
     }
 
@@ -58,6 +57,11 @@ public class SQLite implements TDatabase {
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    @Override
+    public boolean isConnected() {
+        return connection != null;
     }
 
     public void createPlayerData(OfflinePlayer p) {
@@ -100,7 +104,7 @@ public class SQLite implements TDatabase {
 
     public <T> T getLootChestData(OfflinePlayer player, String column, TypeToken<T> typeToken, T fallback) {
         try (Connection conn = getConnection();
-            PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM hlootchest WHERE player = ?")) {
+             PreparedStatement ps = conn.prepareStatement("SELECT " + column + " FROM hlootchest WHERE player = ?")) {
 
             ps.setString(1, player.getUniqueId().toString());
             ResultSet rs = ps.executeQuery();
@@ -130,7 +134,7 @@ public class SQLite implements TDatabase {
         return getLootChestData(player, column, new TypeToken<Map<String, Integer>>() {}, new HashMap<>());
     }
 
-    public <T> boolean pullData(OfflinePlayer player, T data, String column) {
+    public <T> boolean updateData(OfflinePlayer player, T data, String column) {
         try {
             Connection c = getConnection();
             PreparedStatement ps = c.prepareStatement("UPDATE hlootchest SET " + column + "=? WHERE player=?");
@@ -159,7 +163,7 @@ public class SQLite implements TDatabase {
             return false;
         }
         lchs.put(lootchestId, lchs.get(lootchestId) + amount);
-        return pullData(player, lchs, column);
+        return updateData(player, lchs, column);
     }
 
     public boolean addColumnIfNotExists(String columnName, String columnType, String defaultValue) {
@@ -182,11 +186,16 @@ public class SQLite implements TDatabase {
         }
     }
 
+    @Override
+    public void shutdown() {
+
+    }
+
     private boolean columnExists(String columnName) throws SQLException {
         Connection conn = getConnection();
         String query = "PRAGMA table_info(hlootchest)";
         try (PreparedStatement pstmt = conn.prepareStatement(query);
-            ResultSet rs = pstmt.executeQuery()) {
+             ResultSet rs = pstmt.executeQuery()) {
             while (rs.next()) {
                 if (columnName.equalsIgnoreCase(rs.getString("name"))) {
                     return true;

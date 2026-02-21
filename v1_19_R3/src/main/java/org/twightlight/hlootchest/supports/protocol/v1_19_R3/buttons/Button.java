@@ -1,7 +1,5 @@
 package org.twightlight.hlootchest.supports.protocol.v1_19_R3.buttons;
 
-import org.bukkit.util.BoundingBox;
-import org.bukkit.util.RayTraceResult;
 import org.twightlight.libs.xseries.XMaterial;
 import org.twightlight.libs.xseries.XSound;
 import org.twightlight.libs.exp4j.Expression;
@@ -20,7 +18,7 @@ import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.lootchest.ButtonSpawnEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 import org.twightlight.hlootchest.objects.ButtonSound;
@@ -60,7 +58,7 @@ public class Button implements TButton {
 
     private TIcon icon = null;
 
-    private TConfigManager config;
+    private TYamlWrapper config;
 
     private String pathToButton;
 
@@ -86,7 +84,7 @@ public class Button implements TButton {
 
     public static final Map<ArmorStand, TIcon> linkedStandsIcon = new HashMap<>();
 
-    public Button(final Location location, ButtonType type, Player player, final String path, final TConfigManager config, boolean isPreview) {
+    public Button(final Location location, ButtonType type, Player player, final String path, final TYamlWrapper config, boolean isPreview) {
         this.owner = player;
         this.config = config;
         this.pathToButton = path;
@@ -186,7 +184,6 @@ public class Button implements TButton {
                     config.getInt(thisIconPath + ".data") : 0;
             boolean isGlowing = config.getBoolean(thisIconPath + ".glowing", false);
             ItemSlot slot = ItemSlot.valueOf(config.getString(thisIconPath + ".slot", "HEAD"));
-
             ItemStack icon = Main.handler.createItem(
                     XMaterial.valueOf(iconMaterial).get(),
                     iconHeadValue,
@@ -214,6 +211,7 @@ public class Button implements TButton {
                 ItemStack thisIcon = Main.handler.createItem(XMaterial.valueOf(iconMaterial).get(), iconHeadValue, iconData, "", new ArrayList<>(), isGlowing);
                 icons.add(new Icon(thisIcon, slot));
             }
+
             (new BukkitRunnable() {
                 int i = 1;
                 public void run() {
@@ -710,7 +708,7 @@ public class Button implements TButton {
         return icon;
     }
 
-    public void setConfig(TConfigManager config) {
+    public void setConfig(TYamlWrapper config) {
         this.config = config;
     }
 
@@ -734,7 +732,7 @@ public class Button implements TButton {
         return nameVisibleMode;
     }
 
-    public TConfigManager getConfig() {
+    public TYamlWrapper getConfig() {
         return config;
     }
 

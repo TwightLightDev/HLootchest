@@ -13,7 +13,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 import org.twightlight.hlootchest.utils.Utility;
@@ -31,7 +31,7 @@ public class BoxManager implements TBox {
     private boolean clickable = true;
     private Location loc;
     private ItemStack icon;
-    private TConfigManager config;
+    private TYamlWrapper config;
     private String boxid;
     private TBox instance;
     private boolean clickToOpen;
@@ -43,7 +43,7 @@ public class BoxManager implements TBox {
     public static final ConcurrentHashMap<Integer, TBox> boxlists = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
 
-    public BoxManager(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+    public BoxManager(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         Main.api.getSessionUtil().getSessionFromPlayer(player).setBox(this);
         this.owner = player;
         Location Plocation = Utility.stringToLocation(config.getString(boxid + ".settings.player-location"));
@@ -164,7 +164,7 @@ public class BoxManager implements TBox {
         return this.icon;
     }
 
-    public TConfigManager getConfig() {
+    public TYamlWrapper getConfig() {
         return this.config;
     }
 

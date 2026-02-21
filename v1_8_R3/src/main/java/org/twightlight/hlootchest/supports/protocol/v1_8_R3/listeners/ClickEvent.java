@@ -59,7 +59,7 @@ public class ClickEvent extends PlayerConnection {
             }
             List<String> actions = button.getActions();
             for (String stringAction : actions) {
-                Main.api.getPlayerUtil().getActionHandler().handle(stringAction, player.getBukkitEntity(), ButtonType.REWARD);
+                Main.api.getPlayerUtil().getActionHandler().handle(stringAction, player.getBukkitEntity(), button.getType());
             }
         }
     }

@@ -4,7 +4,7 @@ import org.bukkit.configuration.file.YamlConfiguration;
 
 import java.util.List;
 
-public interface TConfigManager {
+public interface TYamlWrapper {
     /**
      * Reloads the configuration, discarding any unsaved changes.
      */

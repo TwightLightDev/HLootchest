@@ -16,7 +16,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.Main;
 
 import java.util.ArrayList;
@@ -32,7 +32,7 @@ public class Aeternus extends BoxManager {
     private final Random random = new Random();
     private final String[] numerals = {"I", "II", "III", "IV", "V", "VI", "VII", "VIII", "IX", "X", "XI", "XII"};
 
-    public Aeternus(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+    public Aeternus(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);
 
         createClockHands(location);

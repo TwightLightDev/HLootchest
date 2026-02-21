@@ -1,7 +1,7 @@
 package org.twightlight.hlootchest.supports;
 
 import org.bukkit.Bukkit;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.supports.hooks.BedWars.BedWars1058.BedWars;
 import org.twightlight.hlootchest.supports.interfaces.PlaceholderAPI;
 import org.twightlight.hlootchest.utils.Utility;
@@ -24,7 +24,7 @@ public class HooksLoader implements org.twightlight.hlootchest.supports.interfac
         } else if (bw1058.hasBedWars() && bw2023.hasBedWars()) {
             Utility.error("§cBoth BedWars1058 and BedWars2023 found! Please delete one");
             Utility.error("§cDisabling plugin due to error...");
-            Bukkit.getPluginManager().disablePlugin(HLootchest.getInstance());
+            Bukkit.getPluginManager().disablePlugin(HLootChest.getInstance());
         } else {
             Utility.info("§7BedWars: §aEnabled");
         }
@@ -37,7 +37,7 @@ public class HooksLoader implements org.twightlight.hlootchest.supports.interfac
 
         public PlaceholdersAPI() {
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
-                new org.twightlight.hlootchest.supports.hooks.PlaceholdersAPI(HLootchest.getInstance()).register();
+                new org.twightlight.hlootchest.supports.hooks.PlaceholdersAPI(HLootChest.getInstance()).register();
                 papi = true;
                 Utility.info("§aPlaceholderAPI found! Starting PlaceholderAPI integration...");
                 Utility.info("§7PlaceholderAPI: §aEnabled");

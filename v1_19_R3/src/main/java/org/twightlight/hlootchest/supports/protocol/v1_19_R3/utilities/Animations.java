@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.supports.protocol.v1_19_R3.utilities;
 
+import com.github.retrooper.packetevents.wrapper.play.server.WrapperPlayServerEntityTeleport;
 import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
@@ -62,6 +63,7 @@ public class Animations {
 
     public static void moveUp(Player player, ArmorStand armorStand, double value) {
         armorStand.teleport(armorStand.getLocation().add(0, value, 0));
+
     }
 
     public static void spin(Player player, ArmorStand armorStand, float val) {

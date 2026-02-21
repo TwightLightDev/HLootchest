@@ -3,7 +3,7 @@ package org.twightlight.hlootchest.api.interfaces.lootchest;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.objects.ButtonSound;
 
 import java.util.List;
@@ -167,9 +167,9 @@ public interface TButton {
     /**
      * Sets the configuration manager for the button.
      *
-     * @param config The {@link TConfigManager} to use for this button.
+     * @param config The {@link TYamlWrapper} to use for this button.
      */
-    void setConfig(TConfigManager config);
+    void setConfig(TYamlWrapper config);
 
     /**
      * Gets the path to the button in the configuration.
@@ -209,9 +209,9 @@ public interface TButton {
     /**
      * Gets the configuration manager of the button.
      *
-     * @return The {@link TConfigManager} associated with this button.
+     * @return The {@link TYamlWrapper} associated with this button.
      */
-    TConfigManager getConfig();
+    TYamlWrapper getConfig();
 
     boolean isPreview();
 }

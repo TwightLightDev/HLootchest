@@ -3,12 +3,12 @@ package org.twightlight.hlootchest.supports.hooks;
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.API;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 
 public class PlaceholdersAPI extends PlaceholderExpansion {
-    private final HLootchest plugin;
+    private final HLootChest plugin;
 
-    public PlaceholdersAPI(HLootchest pl) {
+    public PlaceholdersAPI(HLootChest pl) {
         this.plugin = pl;
     }
 
@@ -28,11 +28,11 @@ public class PlaceholdersAPI extends PlaceholderExpansion {
     }
 
     public String onPlaceholderRequest(Player player, String placeholder) {
-        HLootchest.getInstance();
-        API api = HLootchest.getAPI();
+        HLootChest.getInstance();
+        API api = HLootChest.getAPI();
         switch (placeholder.toLowerCase()) {
             case "total":
-                int sum = api.getDatabaseUtil().getDb().getLootChestData(player, "lootchests")
+                int sum = api.getDatabaseUtil().getDatabase().getLootChestData(player, "lootchests")
                         .values().stream().mapToInt(Integer::intValue).sum();
                 return String.valueOf(sum);
 
@@ -40,9 +40,9 @@ public class PlaceholdersAPI extends PlaceholderExpansion {
                 String[] args = placeholder.toLowerCase().split("_");
                 switch (args[0]) {
                     case "current":
-                        return String.valueOf(api.getDatabaseUtil().getDb().getLootChestData(player, "lootchests").getOrDefault(args[1], -1));
+                        return String.valueOf(api.getDatabaseUtil().getDatabase().getLootChestData(player, "lootchests").getOrDefault(args[1], -1));
                     case "opened":
-                        return String.valueOf(api.getDatabaseUtil().getDb().getLootChestData(player, "opened").getOrDefault(args[1], -1));
+                        return String.valueOf(api.getDatabaseUtil().getDatabase().getLootChestData(player, "opened").getOrDefault(args[1], -1));
                 }
         }
         return null;

@@ -5,10 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.MenuManager;
@@ -21,14 +21,14 @@ import java.util.Set;
 public class RotationsMenu {
 
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final String path;
     private final SetupSession session;
     private final Executable backAction;
 
 
-    public RotationsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSession session, Executable backAction) {
+    public RotationsMenu(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, Executable backAction) {
 
         this.p = p;
         this.templateFile = templateFile;
@@ -50,12 +50,12 @@ public class RotationsMenu {
         inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
                 backAction);
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Rotation", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Rotation", Collections.emptyList(), false),
                 26,
                 (e) -> {
                     p.closeInventory();
@@ -64,7 +64,7 @@ public class RotationsMenu {
                     sessions.prompt(Arrays.asList(new String[] {"&aType the name of new rotation: ", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {
                             sessions.end();
-                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                     () -> {
                                         setItems(inv);
                                     });
@@ -75,7 +75,7 @@ public class RotationsMenu {
                             if (rotList.contains(input)) {
                                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis rotation name already exist! Cancel the action!"));
                                 sessions.end();
-                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                         () -> {
                                             setItems(inv);
                                         });
@@ -83,7 +83,7 @@ public class RotationsMenu {
                             }
                         }
                         sessions.end();
-                        Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                        Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                 () -> {
                                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou successfully created new rotation: &e"+ input));
                                     new Rotation(p, templateFile, name, path + "." + input, session, backAction);
@@ -98,7 +98,7 @@ public class RotationsMenu {
             for (String rot : rotList) {
                 MenuManager.setItem(p,
                         inv,
-                        HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(),
+                        HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(),
                                 "",
                                 0,
                                 "&eName: " + ChatColor.LIGHT_PURPLE + rot,

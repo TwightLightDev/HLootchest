@@ -12,7 +12,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.Main;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.utilities.Animations;
 import org.twightlight.hlootchest.utils.Utility;
@@ -24,7 +24,7 @@ public class Regular extends BoxManager {
 
     private EntityArmorStand sword;
 
-    public Regular(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+    public Regular(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);
 
         Location loc = Utility.stringToLocation(config.getString(boxid+".settings.decoration.location"));

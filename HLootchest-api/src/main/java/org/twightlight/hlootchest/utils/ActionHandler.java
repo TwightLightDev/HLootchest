@@ -3,10 +3,17 @@ package org.twightlight.hlootchest.utils;
 import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.attribute.Attribute;
+import org.bukkit.attribute.AttributeInstance;
+import org.bukkit.attribute.AttributeModifier;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
+import org.twightlight.hlootchest.api.enums.ProtocolVersion;
+import org.twightlight.libs.xseries.XAttribute;
+
+import java.util.UUID;
 
 public class ActionHandler {
 
@@ -19,7 +26,6 @@ public class ActionHandler {
 
     public void handle(String action, Player p, ButtonType type) {
         String[] dataset = action.split(" ", 2);
-
         if (dataset[0].equals("[player]")) {
             p.performCommand(api.getLanguageUtil().replaceCommand(p, dataset[1]));
         } else if (dataset[0].equals("[console]")) {

@@ -18,7 +18,7 @@ import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.lootchest.ButtonSpawnEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 import org.twightlight.hlootchest.objects.ButtonSound;
@@ -46,7 +46,7 @@ public class Button implements TButton {
     private ButtonSound sound;
     private boolean isHiding = false;
     private TIcon icon = null;
-    private TConfigManager config;
+    private TYamlWrapper config;
     private String pathToButton;
     private boolean dynamicName;
     private boolean dynamicIcon;
@@ -64,7 +64,7 @@ public class Button implements TButton {
     public static final Map<TButton, List<EntityArmorStand>> linkedStands = new HashMap<>();
     public static final Map<EntityArmorStand, TIcon> linkedStandsIcon = new HashMap<>();
 
-    public Button(Location location, ButtonType type, Player player, String path, TConfigManager config, boolean isPreview) {
+    public Button(Location location, ButtonType type, Player player, String path, TYamlWrapper config, boolean isPreview) {
         this.owner = player;
         this.config = config;
         this.pathToButton = path;
@@ -827,7 +827,7 @@ public class Button implements TButton {
         this.icon = icon;
     }
 
-    public TConfigManager getConfig() {
+    public TYamlWrapper getConfig() {
         return config;
     }
     public BukkitTask getTask() {
@@ -865,7 +865,7 @@ public class Button implements TButton {
         return icon;
     }
 
-    public void setConfig(TConfigManager config) {
+    public void setConfig(TYamlWrapper config) {
         this.config = config;
     }
 

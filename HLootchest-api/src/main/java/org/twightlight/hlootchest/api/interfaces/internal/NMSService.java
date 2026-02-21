@@ -166,5 +166,5 @@ public interface NMSService {
      */
     void setFakeGameMode(Player p, GameMode gamemode);
 
-    void rotate(ArmorStand armorStandbukkit, TConfigManager config, String path);
+    void rotate(ArmorStand armorStandbukkit, TYamlWrapper config, String path);
 }

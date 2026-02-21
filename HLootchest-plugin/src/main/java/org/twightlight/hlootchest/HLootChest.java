@@ -5,16 +5,18 @@ import io.github.retrooper.packetevents.factory.spigot.SpigotPacketEventsBuilder
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
-import org.twightlight.hlootchest.api.enums.DatabaseType;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
-import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
+import org.twightlight.hlootchest.classloader.LibsLoader;
 import org.twightlight.hlootchest.commands.admin.AdminCommand;
 import org.twightlight.hlootchest.commands.admin.AdminTabCompleter;
 import org.twightlight.hlootchest.commands.main.MainCommands;
 import org.twightlight.hlootchest.commands.main.MainTabCompleter;
 import org.twightlight.hlootchest.config.ConfigManager;
-import org.twightlight.hlootchest.config.configs.MainConfig;
+import org.twightlight.hlootchest.config.YamlWrapper;
+import org.twightlight.hlootchest.database.DatabaseManager;
+import org.twightlight.hlootchest.database.SQL.MariaDB;
+import org.twightlight.hlootchest.database.SQL.MySQL;
 import org.twightlight.hlootchest.database.SQLite;
 import org.twightlight.hlootchest.listeners.LootChests;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
@@ -33,26 +35,21 @@ import org.twightlight.hlootchest.utils.Utility;
 import org.twightlight.hlootchest.utils.VersionChecker;
 
 import java.io.File;
-import java.util.HashMap;
-import java.util.Map;
+import java.io.IOException;
+import java.nio.file.Paths;
 import java.util.Set;
 
-public final class HLootchest extends JavaPlugin {
+public final class HLootChest extends JavaPlugin {
 
     private static NMSHandler nms;
     private static API api;
-    private String path = getDataFolder().getPath();
     private org.twightlight.hlootchest.supports.interfaces.HooksLoader hooksLoader;
-    public static TConfigManager mainConfig;
-    public static TConfigManager templateConfig;
-    public static Map<String, TConfigManager> boxesConfigMap = new HashMap<>();
-    public static TConfigManager messagesConfig;
-    private static TConfigManager registration;
-    public static TDatabase db;
+    public static DatabaseManager db;
     public static boolean hex_gradient = false;
     public static ColorUtils colorUtils;
     private static final String version = Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1];
     private ActionHandler actionHandler;
+    private LibsLoader libsLoader;
 
     @Override
     public void onEnable() {
@@ -63,11 +60,23 @@ public final class HLootchest extends JavaPlugin {
         }
         api = new API();
         Bukkit.getServicesManager().register(org.twightlight.hlootchest.api.HLootchest.class, api, this, ServicePriority.Normal);
-        loadConf();
+        ConfigManager.init();
         loadNMS();
         loadLootchests();
         loadCommands();
         loadListeners();
+        try {
+            File d = new File(getFilePath() + "/libs");
+            if (!d.exists()) {
+                d.mkdirs();
+            }
+
+            Utility.info("Loading internal libraries...");
+            downloadLibs();
+            libsLoader = new LibsLoader(Paths.get(getFilePath() + "/libs"));
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         loadDatabase();
         hooksLoader = new HooksLoader();
         loadCredit();
@@ -76,12 +85,12 @@ public final class HLootchest extends JavaPlugin {
             PacketEvents.getAPI().load();
             PacketEvents.getAPI().init();
         }
-        if (mainConfig.getBoolean("metrics")) {
+        if (api.getConfigUtil().getMainConfig().getBoolean("metrics")) {
             bStats.init();
         }
         new VersionChecker(this, "122671").checkForUpdates();
         Utility.info("§aHLootChest has successfully been enabled!");
-        actionHandler = new ActionHandler(org.twightlight.hlootchest.HLootchest.getAPI());
+        actionHandler = new ActionHandler(HLootChest.getAPI());
     }
 
     @Override
@@ -92,7 +101,7 @@ public final class HLootchest extends JavaPlugin {
         api.getSessionUtil().closeAll();
         Bukkit.getScheduler().cancelTasks(this);
         Utility.info("HLootChest has been disabled successfully!");
-        Utility.info("Current Version: " + version);
+        db.getDatabase().shutdown();
     }
 
     private void loadNMS() {
@@ -151,11 +160,15 @@ public final class HLootchest extends JavaPlugin {
         }
     }
 
+    private void downloadLibs() {
+
+    }
+
     private void loadLootchests() {
-        Set<String> types = registration.getYml().getConfigurationSection("").getKeys(false);
+        Set<String> types = api.getConfigUtil().getRegistrationConfig().getYml().getConfigurationSection("").getKeys(false);
         for (String type : types) {
             Utility.info("Registering type: " + type + ".");
-            String animation = registration.getString(type + ".animation", "regular");
+            String animation = api.getConfigUtil().getRegistrationConfig().getString(type + ".animation", "regular");
             try {
                 nms.register(type, api.getNMS().getAnimationsRegistrationData().get(animation));
             } catch (Exception e) {
@@ -163,7 +176,7 @@ public final class HLootchest extends JavaPlugin {
                 Utility.info("Diagnostic: the animation cannot be found!");
             }
             try {
-                TConfigManager boxConfig = new ConfigManager(this, type, getDataFolder().getPath()+ "/lootchests");
+                TYamlWrapper boxConfig = new YamlWrapper(this, type, getDataFolder().getPath()+ "/lootchests");
                 api.getConfigUtil().registerConfig(type, boxConfig);
                 Utility.info("Matched " + type + " with " + type + ".yml");
             } catch (Exception e) {
@@ -183,63 +196,36 @@ public final class HLootchest extends JavaPlugin {
 
     private void loadListeners() {
 
-        Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoin(), HLootchest.getInstance());
-        Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuit(), HLootchest.getInstance());
-        Bukkit.getServer().getPluginManager().registerEvents(new LootChests(), HLootchest.getInstance());
-        Bukkit.getServer().getPluginManager().registerEvents(new Setup(), HLootchest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new PlayerJoin(), HLootChest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new PlayerQuit(), HLootChest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new LootChests(), HLootChest.getInstance());
+        Bukkit.getServer().getPluginManager().registerEvents(new Setup(), HLootChest.getInstance());
 
     }
 
-    private void loadConf() {
-        Utility.info("Loading config.yml...");
-        mainConfig = new MainConfig(this, "config", path);
-
-        Utility.info("Loading templates...");
-        File file = new File((getDataFolder().getPath()+ "/templates"), "example_template.yml");
-        if (!file.exists()) {
-            saveResource("templates/example_template.yml", false);
-        }
-        templateConfig = new ConfigManager(this, mainConfig.getString("template"), getDataFolder().getPath()+ "/templates");
-
-        Utility.info("Loading messages.yml...");
-        File file4 = new File(getDataFolder().getPath(), "messages.yml");
-        if (!file4.exists()) {
-            saveResource("messages.yml", false);
-        }
-        messagesConfig = new ConfigManager(this, "messages", path);
-
-        Utility.info("Loading registrations.yml...");
-        File file5 = new File(getDataFolder().getPath(), "registrations.yml");
-        if (!file5.exists()) {
-            saveResource("registrations.yml", false);
-        }
-        registration = new ConfigManager(this, "registrations", path);
-
-        File file6 = new File((getDataFolder().getPath()+ "/lootchests"), "regular.yml");
-        if (!file6.exists()) {
-            saveResource("lootchests/" + "regular.yml", false);
-        }
-        File file7 = new File((getDataFolder().getPath()+ "/lootchests"), "mystic.yml");
-        if (!file7.exists()) {
-            saveResource("lootchests/" + "mystic.yml", false);
-        }
-        File file8 = new File((getDataFolder().getPath()+ "/lootchests"), "spooky.yml");
-        if (!file8.exists()) {
-            saveResource("lootchests/" + "spooky.yml", false);
-        }
-        File file9 = new File((getDataFolder().getPath()+ "/lootchests"), "aeternus.yml");
-        if (!file9.exists()) {
-            saveResource("lootchests/" + "aeternus.yml", false);
-        }
-    }
 
     private void loadDatabase() {
         Utility.info("Connecting to database...");
-        String provider = mainConfig.getString("storage.source");
+        String provider = api.getConfigUtil().getMainConfig().getString("database.provider");
+        db = new DatabaseManager();
+        String host = api.getConfigUtil().getMainConfig().getString("database.host");
+        int port = api.getConfigUtil().getMainConfig().getInt("database.host");
+        String database = api.getConfigUtil().getMainConfig().getString("database.database");
+        String username = api.getConfigUtil().getMainConfig().getString("database.username");
+        String password = api.getConfigUtil().getMainConfig().getString("database.password");
+        boolean ssl = api.getConfigUtil().getMainConfig().getBoolean("database.ssl");
         switch (provider) {
             case "SQLite":
                 Utility.info("Using SQLite as database provider...");
-                db = new SQLite(this, DatabaseType.SQLITE);
+                db.setDatabase(new SQLite(this));
+                break;
+            case "MySQL":
+                Utility.info("Using MySQL as database provider! This data source is in its beta stage, any bugs please report to my discord or open a github issue!");
+                db.setDatabase(new MySQL(host, port, database, username, password, ssl));
+                break;
+            case "MariaDB":
+                Utility.info("Using MariaDB as database provider! This data source is in its beta stage, any bugs please report to my discord or open a github issue!");
+                db.setDatabase(new MariaDB(libsLoader, host, port, database, username, password, ssl));
         }
         Utility.info("Your database is ready!");
     }
@@ -263,8 +249,8 @@ public final class HLootchest extends JavaPlugin {
         return nms;
     }
 
-    public static HLootchest getInstance() {
-        return getPlugin(HLootchest.class);
+    public static HLootChest getInstance() {
+        return getPlugin(HLootChest.class);
     }
 
     public static API getAPI() {
@@ -280,7 +266,7 @@ public final class HLootchest extends JavaPlugin {
     }
 
     public static String getVersion() {
-        return "1.2.1";
+        return "1.2.3";
     }
 
     public static String getAPIVersion() {
@@ -293,5 +279,9 @@ public final class HLootchest extends JavaPlugin {
 
     public ActionHandler getActionHandler() {
         return actionHandler;
+    }
+
+    public LibsLoader getLibsLoader() {
+        return libsLoader;
     }
 }

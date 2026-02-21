@@ -1,6 +1,5 @@
 package org.twightlight.hlootchest.api.version_supports;
 
-import org.bukkit.GameMode;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -10,7 +9,7 @@ import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 
@@ -49,12 +48,12 @@ public abstract class NMSHandler {
      * @param typePlayer The {@link ButtonType} of the button.
      * @param player The {@link Player} associated with the button.
      * @param path The configuration path related to the button.
-     * @param config The {@link TConfigManager} instance managing configurations.
+     * @param config The {@link TYamlWrapper} instance managing configurations.
      */
-    public abstract TButton spawnButton(Location location, ButtonType typePlayer, Player player, String path, TConfigManager config);
+    public abstract TButton spawnButton(Location location, ButtonType typePlayer, Player player, String path, TYamlWrapper config);
 
 
-    public abstract TButton spawnPreviewButton(Location location, ButtonType typePlayer, Player player, String path, TConfigManager config);
+    public abstract TButton spawnPreviewButton(Location location, ButtonType typePlayer, Player player, String path, TYamlWrapper config);
 
     /**
      * Spawns a loot box at the given location.
@@ -63,10 +62,10 @@ public abstract class NMSHandler {
      * @param boxid The unique ID of the loot box.
      * @param player The {@link Player} associated with the box.
      * @param icon The {@link ItemStack} representing the box's appearance.
-     * @param config The {@link TConfigManager} instance managing configurations.
+     * @param config The {@link TYamlWrapper} instance managing configurations.
      * @return The spawned {@link TBox} instance.
      */
-    public abstract TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TConfigManager config);
+    public abstract TBox spawnBox(Location location, String boxid, Player player, ItemStack icon, TYamlWrapper config);
 
     /**
      * Removes all buttons of a specific type that belong to a player.

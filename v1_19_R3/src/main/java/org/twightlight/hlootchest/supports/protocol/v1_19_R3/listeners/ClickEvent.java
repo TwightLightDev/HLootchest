@@ -80,7 +80,7 @@ public class ClickEvent implements Listener {
         }
         List<String> actions = button.getActions();
         for (String stringAction : actions) {
-            Main.api.getPlayerUtil().getActionHandler().handle(stringAction, player, ButtonType.FUNCTIONAL);
+            Main.api.getPlayerUtil().getActionHandler().handle(stringAction, player, button.getType());
         }
     }
 

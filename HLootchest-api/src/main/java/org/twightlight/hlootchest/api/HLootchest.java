@@ -1,11 +1,12 @@
 package org.twightlight.hlootchest.api;
 
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.supports.hooks.HeadDatabase;
+import org.twightlight.hlootchest.classloader.LibsLoader;
+import org.twightlight.hlootchest.database.DatabaseManager;
 import org.twightlight.hlootchest.supports.interfaces.HooksLoader;
 import org.twightlight.hlootchest.utils.ActionHandler;
 
@@ -64,6 +65,8 @@ public interface HLootchest {
 
     HooksLoader getHooksLoader();
 
+    LibsLoader getLibsLoader();
+
     interface LanguageUtil {
         String getMsg(Player p, String path);
 
@@ -84,43 +87,49 @@ public interface HLootchest {
         /**
          * Retrieves the template configuration file.
          *
-         * @return The {@link TConfigManager} instance for the template configuration.
+         * @return The {@link TYamlWrapper} instance for the template configuration.
          */
-        TConfigManager getTemplateConfig();
+        TYamlWrapper getTemplateConfig();
 
         /**
          * Retrieves the main configuration file.
          *
-         * @return The {@link TConfigManager} instance for the main configuration.
+         * @return The {@link TYamlWrapper} instance for the main configuration.
          */
-        TConfigManager getMainConfig();
+        TYamlWrapper getMainConfig();
 
         /**
          * Retrieves the boxes configuration file.
          *
-         * @return The {@link TConfigManager} instance for the box configuration.
+         * @return The {@link TYamlWrapper} instance for the box configuration.
          */
-        TConfigManager getBoxesConfig(String id);
+        TYamlWrapper getBoxesConfig(String id);
 
         /**
          * Retrieves the boxes configuration file.
          *
          * @return The {@link Map} instance for the box configuration.
          */
-        Map<String, TConfigManager> getBoxesConfigs();
+        Map<String, TYamlWrapper> getBoxesConfigs();
         /**
          * Retrieves the messages configuration file.
          *
-         * @return The {@link TConfigManager} instance for the message configuration.
+         * @return The {@link TYamlWrapper} instance for the message configuration.
          */
-        TConfigManager getMessageConfig();
+        TYamlWrapper getMessageConfig();
         /**
          * Registers a config file for a given box ID.
          *
          * @param id The unique ID of the loot chest.
-         * @param config The {@link TConfigManager} you want to link with.
+         * @param config The {@link TYamlWrapper} you want to link with.
          */
-        void registerConfig(String id, TConfigManager config);
+        void registerConfig(String id, TYamlWrapper config);
+        /**
+         * Retrieves the registration configuration file.
+         *
+         * @return The {@link TYamlWrapper} instance for the message configuration.
+         */
+        TYamlWrapper getRegistrationConfig();
     }
 
     /**
@@ -157,7 +166,14 @@ public interface HLootchest {
          *
          * @return The {@link TDatabase} instance.
          */
-        TDatabase getDb();
+        TDatabase getDatabase();
+
+        /**
+         * Retrieves the database manager instance.
+         *
+         * @return The {@link DatabaseManager} instance.
+         */
+        DatabaseManager getDatabaseManager();
     }
 
     /**
@@ -207,11 +223,11 @@ public interface HLootchest {
          * Checks if a player meets certain conditions.
          *
          * @param p The {@link Player}.
-         * @param config The {@link TConfigManager} configuration.
+         * @param config The {@link TYamlWrapper} configuration.
          * @param path The configuration path to check.
          * @return {@code true} if the conditions are met, otherwise {@code false}.
          */
-        boolean checkConditions(Player p, TConfigManager config, String path);
+        boolean checkConditions(Player p, TYamlWrapper config, String path);
 
         ActionHandler getActionHandler();
     }

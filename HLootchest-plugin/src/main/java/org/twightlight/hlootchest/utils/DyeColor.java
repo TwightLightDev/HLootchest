@@ -1,6 +1,6 @@
 package org.twightlight.hlootchest.utils;
 
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 
 public enum DyeColor {
@@ -32,7 +32,7 @@ public enum DyeColor {
     }
 
     public int getColorData() {
-        if (HLootchest.getNms().getProtocolVersion() == ProtocolVersion.v1_8_R3) {
+        if (HLootChest.getNms().getProtocolVersion() == ProtocolVersion.v1_8_R3) {
             return v1_8_R3;
         } else {
             return v1_8_R3_plus;

@@ -15,7 +15,7 @@ import org.bukkit.util.EulerAngle;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 
 import java.util.Collections;
@@ -27,7 +27,7 @@ public class Mystic extends BoxManager {
     private ArmorStand floatingOrb2;
     private BukkitTask task;
 
-    public Mystic(Location location, Player player, ItemStack icon, TConfigManager config, String boxid) {
+    public Mystic(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);
 
         Location orbLocation1 = location.clone().add(1, 1.0, 0);

@@ -5,9 +5,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.elements.RewardsMenu;
@@ -17,15 +17,15 @@ import org.twightlight.hlootchest.utils.Utility;
 import java.util.Arrays;
 import java.util.Collections;
 
-public class LCMenu {
+public class LootChestSetupMenu {
 
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final SetupSession session;
 
 
-    public LCMenu(Player p, TConfigManager templateFile, String name, SetupSession session) {
+    public LootChestSetupMenu(Player p, TYamlWrapper templateFile, String name, SetupSession session) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -33,7 +33,7 @@ public class LCMenu {
 
         Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Editing " + name + "...");
 
-        session.setInvConstructor((MenuHandler<LCMenu>) () -> new LCMenu(p, templateFile, name, session));
+        session.setInvConstructor((MenuHandler<LootChestSetupMenu>) () -> new LootChestSetupMenu(p, templateFile, name, session));
         setItems(inv);
     }
 
@@ -44,13 +44,13 @@ public class LCMenu {
         inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
-                (e) -> new LCSMainMenu(p));
+                (e) -> new LootChestBrowseMenu(p));
 
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(
+                HLootChest.getNms().createItem(
                         XMaterial.valueOf(templateFile.getString(name + ".icon.material", "BEDROCK")).get(),
                         templateFile.getString(name + ".icon.head_value", ""),
                         templateFile.getInt(name + ".icon.data", 0),
@@ -58,10 +58,10 @@ public class LCMenu {
                         Arrays.asList(new String[] {"&aClick to browse!"}),
                         false),
                 11,
-                (e) -> new IconSettings(p, templateFile, name, ".icon", session, (ev) -> new LCMenu(p, templateFile, name, session)));
+                (e) -> new IconSettings(p, templateFile, name, ".icon", session, (ev) -> new LootChestSetupMenu(p, templateFile, name, session)));
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.CHEST.parseMaterial(), "", 0,
+                HLootChest.getNms().createItem(XMaterial.CHEST.parseMaterial(), "", 0,
                         "&bRewards amount",
                         Arrays.asList(new String[] {"&aCurrent value: " + "&7" + templateFile.getString(name + ".reward-amount", "null"),
                                 "", "&eClick to set a new value!"}),
@@ -73,7 +73,7 @@ public class LCMenu {
                     sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {
                             sessions.end();
-                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                     () -> {
                                         setItems(inv);
                                     });
@@ -81,14 +81,14 @@ public class LCMenu {
                         } else if (!Utility.isNumeric(input)) {
                             p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Value! Cancel the action!"));
                             sessions.end();
-                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                     () -> {
                                         setItems(inv);
                                     });
                             return;
                         }
                         sessions.end();
-                        Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                        Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                 () -> {
                                     templateFile.setNotSave(name + ".reward-amount", Float.valueOf(input).intValue());
                                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set value to: &e" + input));
@@ -98,7 +98,7 @@ public class LCMenu {
                 });
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(
+                HLootChest.getNms().createItem(
                         XMaterial.EMERALD.parseMaterial(),
                         "",
                         0,

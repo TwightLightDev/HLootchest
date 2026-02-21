@@ -5,10 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.MenuManager;
@@ -23,13 +23,13 @@ public class Name {
     private static final List<String> NAME_MODE = Arrays.asList("always", "hover");
 
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final String path;
     private final SetupSession session;
     private final boolean isChild;
     private final Executable backAction;
-    public Name(Player p, TConfigManager templateFile, String name, String path, SetupSession session, boolean isChild, Executable backAction) {
+    public Name(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, boolean isChild, Executable backAction) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -51,12 +51,12 @@ public class Name {
         inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
                 backAction);
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.NAME_TAG.parseMaterial(), "", 0,
+                HLootChest.getNms().createItem(XMaterial.NAME_TAG.parseMaterial(), "", 0,
                         "&bEnable",
                         Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".enable", false)),
                                 "", "&eClick to change!"}),
@@ -69,7 +69,7 @@ public class Name {
                 });
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
+                HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
                         "&bVisible mode",
                         Arrays.asList(new String[]{
                                 "&aCurrent value: " + "&7" + templateFile.getYml().getString(name + path + ".visible-mode", "null"),
@@ -94,7 +94,7 @@ public class Name {
                 });
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.NAME_TAG.parseMaterial(), "", 0,
+                HLootChest.getNms().createItem(XMaterial.NAME_TAG.parseMaterial(), "", 0,
                         "&bDynamic",
                         Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".dynamic", false)),
                                 "", "&eClick to change!"}),
@@ -119,7 +119,7 @@ public class Name {
             display_name.add(ChatColor.translateAlternateColorCodes('&', "&eRight-click to remove the last line."));
             MenuManager.setItem(p,
                     inv,
-                    HLootchest.getNms().createItem(
+                    HLootChest.getNms().createItem(
                             XMaterial.FEATHER.parseMaterial(),
                             "",
                             0,
@@ -139,7 +139,7 @@ public class Name {
                             sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
                                 if (input.equals("cancel")) {
                                     sessions.end();
-                                    Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                    Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                             () -> {
                                                 setItems(inv);
                                             });
@@ -147,7 +147,7 @@ public class Name {
                                 }
                                 display_name2.add(input);
                                 sessions.end();
-                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                         () -> {
                                             templateFile.setNotSave(name + path + ".display-name", display_name2);
                                             p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully added a new line: &e" + input));
@@ -163,7 +163,7 @@ public class Name {
                     });
             MenuManager.setItem(p,
                     inv,
-                    HLootchest.getNms().createItem(XMaterial.CLOCK.parseMaterial(), "", 0,
+                    HLootChest.getNms().createItem(XMaterial.CLOCK.parseMaterial(), "", 0,
                             "&bRefresh interval",
                             Arrays.asList(new String[] {"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".refresh-interval", "null"),
                                     "", "&eClick to set a new value!"}),
@@ -175,7 +175,7 @@ public class Name {
                         sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
                             if (input.equals("cancel")) {
                                 sessions.end();
-                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                         () -> {
                                             setItems(inv);
                                         });
@@ -183,14 +183,14 @@ public class Name {
                             } else if (!Utility.isNumeric(input)) {
                                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Value! Cancel the action!"));
                                 sessions.end();
-                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                         () -> {
                                             setItems(inv);
                                         });
                                 return;
                             }
                             sessions.end();
-                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                     () -> {
                                         templateFile.setNotSave(name + path + ".refresh-interval", Float.valueOf(input).intValue());
                                         p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set value to: &e" + input));
@@ -203,7 +203,7 @@ public class Name {
         } else {
             MenuManager.setItem(p,
                     inv,
-                    HLootchest.getNms().createItem(XMaterial.FEATHER.parseMaterial(), "", 0,
+                    HLootChest.getNms().createItem(XMaterial.FEATHER.parseMaterial(), "", 0,
                             "&bDisplay Name",
                             Arrays.asList(new String[] {"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".display-name", "null"),
                                     "", "&eClick to set a new name!"}),
@@ -215,14 +215,14 @@ public class Name {
                         sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
                             if (input.equals("cancel")) {
                                 sessions.end();
-                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                         () -> {
                                             setItems(inv);
                                         });
                                 return;
                             }
                             sessions.end();
-                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                     () -> {
                                         templateFile.setNotSave(name + path + ".display-name", input);
                                         p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new name to: &e" + input));

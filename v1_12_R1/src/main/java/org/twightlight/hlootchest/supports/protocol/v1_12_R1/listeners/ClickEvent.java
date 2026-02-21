@@ -1,14 +1,10 @@
 package org.twightlight.hlootchest.supports.protocol.v1_12_R1.listeners;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import net.minecraft.server.v1_12_R1.EntityPlayer;
 import net.minecraft.server.v1_12_R1.NetworkManager;
 import net.minecraft.server.v1_12_R1.PacketPlayInUseEntity;
 import net.minecraft.server.v1_12_R1.PlayerConnection;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.ConsoleCommandSender;
-import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
@@ -62,7 +58,7 @@ public class ClickEvent extends PlayerConnection {
             }
             List<String> actions = button.getActions();
             for (String stringAction : actions) {
-                Main.api.getPlayerUtil().getActionHandler().handle(stringAction, player.getBukkitEntity(), ButtonType.REWARD);
+                Main.api.getPlayerUtil().getActionHandler().handle(stringAction, player.getBukkitEntity(), button.getType());
             }
         }
     }

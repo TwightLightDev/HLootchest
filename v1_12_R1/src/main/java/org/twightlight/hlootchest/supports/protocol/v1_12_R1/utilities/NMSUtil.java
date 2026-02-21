@@ -20,7 +20,7 @@ import org.bukkit.potion.PotionEffect;
 import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.Main;
 
@@ -234,12 +234,12 @@ public class NMSUtil implements NMSService {
                 break;
         }
     }
-    public void rotate(ArmorStand armorStandbukkit, TConfigManager config, String path) {
+    public void rotate(ArmorStand armorStandbukkit, TYamlWrapper config, String path) {
         EntityArmorStand armorStand = ((CraftArmorStand) armorStandbukkit).getHandle();
         rotate(armorStand, config, path);
     }
 
-    public void rotate(EntityArmorStand armorStand, TConfigManager config, String path) {
+    public void rotate(EntityArmorStand armorStand, TYamlWrapper config, String path) {
         if (config.getYml().getConfigurationSection(path+".rotations") != null) {
             Set<String> rotations = config.getYml().getConfigurationSection(path + ".rotations").getKeys(false);
             for (String s : rotations) {

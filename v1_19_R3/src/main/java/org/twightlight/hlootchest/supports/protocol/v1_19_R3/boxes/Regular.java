@@ -13,14 +13,14 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.utilities.Animations;
 import org.twightlight.hlootchest.utils.Utility;
 
 public class Regular extends BoxManager {
     private final ArmorStand sword;
-    public Regular(Location location, Player player, org.bukkit.inventory.ItemStack icon, TConfigManager config, String boxid) {
+    public Regular(Location location, Player player, org.bukkit.inventory.ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);
         final Location loc = Utility.stringToLocation(config.getString(boxid + ".settings.decoration.location"));
 

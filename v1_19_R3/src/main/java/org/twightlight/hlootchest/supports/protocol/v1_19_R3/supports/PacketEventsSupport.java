@@ -105,7 +105,7 @@ public class PacketEventsSupport {
                 new Vector3i((int) loc.getX(),
                         (int) loc.getY(),
                         (int) loc.getZ()), id);
-        if (data instanceof Directional){
+        if (data instanceof Directional) {
             WrappedBlockState state = packet.getBlockState();
             state.setFacing(getBlockFace(face));
             packet.setBlockState(state);

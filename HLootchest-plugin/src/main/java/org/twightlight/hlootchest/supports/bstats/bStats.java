@@ -1,12 +1,12 @@
 package org.twightlight.hlootchest.supports.bstats;
 
 import org.bukkit.Bukkit;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 
 public class bStats {
     public static void init() {
         int pluginId = 24836;
-        Metrics metrics = new Metrics(HLootchest.getInstance(), pluginId);
+        Metrics metrics = new Metrics(HLootChest.getInstance(), pluginId);
 
         metrics.addCustomChart(new Metrics.SingleLineChart("players_online", () -> Bukkit.getOnlinePlayers().size()));
 

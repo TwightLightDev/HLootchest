@@ -5,12 +5,12 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.setup.LCMenu;
+import org.twightlight.hlootchest.setup.LootChestSetupMenu;
 import org.twightlight.hlootchest.setup.MenuManager;
 import org.twightlight.hlootchest.setup.modules.Reward;
 
@@ -21,12 +21,12 @@ import java.util.Set;
 public class RewardsMenu {
 
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final String path;
     private final SetupSession session;
 
-    public RewardsMenu(Player p, TConfigManager templateFile, String name, String path, SetupSession session) {
+    public RewardsMenu(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -45,12 +45,12 @@ public class RewardsMenu {
         inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
-                (e) -> new LCMenu(p, templateFile, name, session));
+                (e) -> new LootChestSetupMenu(p, templateFile, name, session));
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Reward", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Reward", Collections.emptyList(), false),
                 26,
                 (e) -> {
                     p.closeInventory();
@@ -59,7 +59,7 @@ public class RewardsMenu {
                     sessions.prompt(Arrays.asList(new String[] {"&aType the name of the new reward: ", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {
                             sessions.end();
-                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                     () -> {
                                         setItems(inv);
                                     });
@@ -70,7 +70,7 @@ public class RewardsMenu {
                             if (rewardsList.contains(input)) {
                                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis reward name already exist! Cancel the action!"));
                                 sessions.end();
-                                Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                         () -> {
                                             setItems(inv);
                                         });
@@ -78,7 +78,7 @@ public class RewardsMenu {
                             }
                         }
                         sessions.end();
-                        Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                        Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                 () -> {
                                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou successfully created new reward: &e"+ input));
                                     new Reward(p, templateFile, name, path + "." + input, session, false);
@@ -93,7 +93,7 @@ public class RewardsMenu {
             for (String reward : rewardsList) {
                 MenuManager.setItem(p,
                         inv,
-                        HLootchest.getNms().createItem(XMaterial.EMERALD.parseMaterial(),
+                        HLootChest.getNms().createItem(XMaterial.EMERALD.parseMaterial(),
                                 "",
                                 0,
                                 "&eName: " + ChatColor.AQUA + reward,

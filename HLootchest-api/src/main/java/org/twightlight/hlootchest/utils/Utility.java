@@ -4,7 +4,7 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.*;
 import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -93,7 +93,7 @@ public class Utility {
         return lo;
     }
 
-    public static boolean checkConditions(Player p, TConfigManager config, String path) {
+    public static boolean checkConditions(Player p, TYamlWrapper config, String path) {
         if (!config.getYml().contains(path)) {
             return true;
         }

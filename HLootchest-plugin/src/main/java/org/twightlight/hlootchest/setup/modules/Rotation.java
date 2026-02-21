@@ -5,10 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.MenuManager;
@@ -23,13 +23,13 @@ public class Rotation {
 
     private static final List<String> POSTITIONS = Arrays.asList("HEAD", "BODY", "RIGHT_ARM", "LEFT_ARM", "RIGHT_LEG", "LEFT_LEG");
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final String path;
     private final SetupSession session;
     private final Executable backAction;
 
-    public Rotation(Player p, TConfigManager templateFile, String name, String path, SetupSession session, Executable backAction) {
+    public Rotation(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, Executable backAction) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -50,12 +50,12 @@ public class Rotation {
         inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
                 (e) -> new RotationsMenu(p, templateFile, name, Utility.getPrevPath(path), session, backAction));
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
+                HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
                         "&bPosition",
                         Arrays.asList(new String[]{
                                 "&aCurrent value: " + "&7" + templateFile.getYml().getString(name + path + ".position", "null"),
@@ -80,7 +80,8 @@ public class Rotation {
                 });
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
+
+                HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
                         "&bRotate Value",
                         Arrays.asList(new String[]{
                                 "&aCurrent value: " + "&7" + templateFile.getYml().getString(name + path + ".value", "null"),
@@ -94,7 +95,7 @@ public class Rotation {
                     sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aThe format should be X, Y, Z", "&aType 'cancel' to cancel!"}), (input) -> {
                         if (input.equals("cancel")) {
                             sessions.end();
-                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                     () -> {
                                         setItems(inv);
                                     });
@@ -102,14 +103,14 @@ public class Rotation {
                         } else if (!Utility.isXYZFormat(input)) {
                             p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Format! Cancel the action!"));
                             sessions.end();
-                            Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                     () -> {
                                         setItems(inv);
                                     });
                             return;
                         }
                         sessions.end();
-                        Bukkit.getScheduler().runTask(HLootchest.getInstance(),
+                        Bukkit.getScheduler().runTask(HLootChest.getInstance(),
                                 () -> {
                                     templateFile.setNotSave(name + path + ".value", input);
                                     p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + input));

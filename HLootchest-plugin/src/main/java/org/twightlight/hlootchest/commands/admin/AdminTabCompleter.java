@@ -5,7 +5,7 @@ import org.bukkit.command.Command;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -48,14 +48,14 @@ public class AdminTabCompleter implements TabCompleter {
             }
         } else if (args.length == 3) {
             if (args[0].equalsIgnoreCase("add")) {
-                for (String box : HLootchest.getNms().getRegistrationData().keySet()) {
+                for (String box : HLootChest.getNms().getRegistrationData().keySet()) {
                     if (box.toLowerCase().startsWith(args[2].toLowerCase())) {
                         completions.add(box);
                     }
                 }
             }
             if (args[0].equalsIgnoreCase("template")) {
-                File[] files = new File((HLootchest.getFilePath() + "/templates")).listFiles();
+                File[] files = new File((HLootChest.getFilePath() + "/templates")).listFiles();
 
                 for (File file : files) {
                     if (file.getName().replace(".yml", "").startsWith(args[2].toLowerCase())) {

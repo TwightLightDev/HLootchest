@@ -14,7 +14,7 @@ import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 
@@ -159,7 +159,7 @@ public class NMSUtil implements NMSService {
         }
     }
 
-    public void rotate(ArmorStand armorStand, TConfigManager config, String path) {
+    public void rotate(ArmorStand armorStand, TYamlWrapper config, String path) {
         if (config.getYml().getConfigurationSection(path + ".rotations") != null) {
             Set<String> rotations = config.getYml().getConfigurationSection(path + ".rotations").getKeys(false);
             for (String s : rotations) {

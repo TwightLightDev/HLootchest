@@ -5,10 +5,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
-import org.twightlight.hlootchest.api.enums.ProtocolVersion;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.utils.DyeColor;
@@ -16,13 +15,13 @@ import org.twightlight.hlootchest.utils.DyeColor;
 import java.util.Collections;
 import java.util.Set;
 
-public class LCSMainMenu {
+public class LootChestBrowseMenu {
 
-    public LCSMainMenu(Player p) {
-        if (HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
+    public LootChestBrowseMenu(Player p) {
+        if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
             return;
         }
-        TSession session1 = HLootchest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+        TSession session1 = HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p);
         SetupSession session;
         if (session1 instanceof SetupSession) {
             session = ((SetupSession) session1);
@@ -32,24 +31,24 @@ public class LCSMainMenu {
         if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
             MenuManager.removeData(p);
         }
-        Set<String> lcList = HLootchest.getAPI().getNMS().getRegistrationData().keySet();
+        Set<String> lcList = HLootChest.getAPI().getNMS().getRegistrationData().keySet();
         Inventory inv = Bukkit.createInventory(null, 54, ChatColor.translateAlternateColorCodes('&', "&7LootChest Setup"));
-        session.setInvConstructor((MenuHandler<LCSMainMenu>) () -> new LCSMainMenu(p));
+        session.setInvConstructor((MenuHandler<LootChestBrowseMenu>) () -> new LootChestBrowseMenu(p));
         int i = 0;
         for (String lc : lcList) {
             MenuManager.setItem(p,
                     inv,
-                    HLootchest.getNms().createItem(XMaterial.valueOf("CHEST").parseMaterial(), "", 0, ChatColor.GREEN + lc, Collections.emptyList(), false),
+                    HLootChest.getNms().createItem(XMaterial.valueOf("CHEST").parseMaterial(), "", 0, ChatColor.GREEN + lc, Collections.emptyList(), false),
                     i,
                     (e) -> {
-                new LCMenu(p, HLootchest.getAPI().getConfigUtil().getBoxesConfig(lc), lc, session);
+                new LootChestSetupMenu(p, HLootChest.getAPI().getConfigUtil().getBoxesConfig(lc), lc, session);
             });
             i ++;
         }
 
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(
+                HLootChest.getNms().createItem(
                         XMaterial.RED_WOOL.parseMaterial(),
                         "",
                         DyeColor.RED.getColorData(),
@@ -64,7 +63,7 @@ public class LCSMainMenu {
                 });
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(
+                HLootChest.getNms().createItem(
                         XMaterial.LIME_WOOL.parseMaterial(),
                         "",
                         DyeColor.LIME.getColorData(),
@@ -74,9 +73,9 @@ public class LCSMainMenu {
                 53,
                 (e) -> {
 
-                    Set<String> types = HLootchest.getAPI().getConfigUtil().getBoxesConfigs().keySet();
+                    Set<String> types = HLootChest.getAPI().getConfigUtil().getBoxesConfigs().keySet();
                     for (String type : types) {
-                        TConfigManager templateFile = HLootchest.getAPI().getConfigUtil().getBoxesConfig(type);
+                        TYamlWrapper templateFile = HLootChest.getAPI().getConfigUtil().getBoxesConfig(type);
                         templateFile.save();
                         templateFile.reload();
                         p.sendMessage(ChatColor.GREEN + "You successfully saved " + type + ".yml!");

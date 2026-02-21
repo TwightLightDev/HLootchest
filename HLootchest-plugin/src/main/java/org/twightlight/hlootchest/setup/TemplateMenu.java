@@ -5,9 +5,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.elements.ButtonsMenu;
 import org.twightlight.hlootchest.setup.modules.Settings;
@@ -21,11 +21,11 @@ import java.util.stream.Collectors;
 public class TemplateMenu {
 
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final SetupSession session;
 
-    public TemplateMenu(Player p, TConfigManager templateFile, String name, SetupSession session) {
+    public TemplateMenu(Player p, TYamlWrapper templateFile, String name, SetupSession session) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -45,12 +45,12 @@ public class TemplateMenu {
         inv.clear();
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
+                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
                 18,
-                (e) -> new TSMainMenu(p, templateFile));
+                (e) -> new TemplateBrowseMenu(p, templateFile));
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(
+                HLootChest.getNms().createItem(
                         XMaterial.COMPARATOR.parseMaterial(),
                         "",
                         0,
@@ -61,7 +61,7 @@ public class TemplateMenu {
                 (e) -> new Settings(p, templateFile, name, ".settings", session));
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(
+                HLootChest.getNms().createItem(
                         XMaterial.STONE_BUTTON.parseMaterial(),
                         "",
                         0,
@@ -82,7 +82,7 @@ public class TemplateMenu {
         locs.add(ChatColor.translateAlternateColorCodes('&', "&eRight-click to remove the last location."));
         MenuManager.setItem(p,
                 inv,
-                HLootchest.getNms().createItem(
+                HLootChest.getNms().createItem(
                         XMaterial.ARMOR_STAND.parseMaterial(),
                         "",
                         0,

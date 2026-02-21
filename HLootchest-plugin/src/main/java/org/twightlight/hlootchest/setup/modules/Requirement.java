@@ -5,10 +5,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootchest;
+import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TConfigManager;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.MenuManager;
@@ -22,14 +22,14 @@ import java.util.List;
 public class Requirement {
     private static final List<String> TYPES = Arrays.asList("has-permission", "string-equals", ">=", ">", "==", "<", "<=", "!=");
     private final Player p;
-    private final TConfigManager templateFile;
+    private final TYamlWrapper templateFile;
     private final String name;
     private final String path;
     private final SetupSession session;
     private final Executable backAction;
 
 
-    public Requirement(Player p, TConfigManager templateFile, String name, String path, SetupSession session, Executable backAction) {
+    public Requirement(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, Executable backAction) {
         this.p = p;
         this.templateFile = templateFile;
         this.name = name;
@@ -48,10 +48,10 @@ public class Requirement {
         }
         inv.clear();
 
-        MenuManager.setItem(p, inv, HLootchest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false), 18,
+        MenuManager.setItem(p, inv, HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false), 18,
                 (e) -> new RequirementsMenu(p, templateFile, name, Utility.getPrevPath(path), session, backAction));
 
-        MenuManager.setItem(p, inv, HLootchest.getNms().createItem(XMaterial.COMPARATOR.parseMaterial(), "", 0,
+        MenuManager.setItem(p, inv, HLootChest.getNms().createItem(XMaterial.COMPARATOR.parseMaterial(), "", 0,
                         "&bType", Arrays.asList("&aCurrent value: &7" + templateFile.getYml().getString(name + path + ".type", "null"), "", "&eClick to set to new type!"), false),
                 11, (e) -> cycleRequirementType(inv));
 
@@ -79,7 +79,7 @@ public class Requirement {
     }
 
     private void setRequirementValue(Inventory inv, String key, String displayName) {
-        MenuManager.setItem(p, inv, HLootchest.getNms().createItem(XMaterial.FLINT.parseMaterial(), "", 0, displayName,
+        MenuManager.setItem(p, inv, HLootChest.getNms().createItem(XMaterial.FLINT.parseMaterial(), "", 0, displayName,
                         Arrays.asList("&aCurrent value: &7" + templateFile.getString(name + path + "." + key, "null"), "", "&eClick to set a new " + key + "!"), false),
                 key.equals("input") ? 12 : 13, (e) -> handleChatInput(inv, key));
     }
@@ -90,7 +90,7 @@ public class Requirement {
         sessions.prompt(Arrays.asList("&aType the value you want: ", "&aType 'cancel' to cancel!"), (input) -> {
             if ("cancel".equalsIgnoreCase(input)) {
                 sessions.end();
-                Bukkit.getScheduler().runTask(HLootchest.getInstance(), () -> setItems(inv));
+                Bukkit.getScheduler().runTask(HLootChest.getInstance(), () -> setItems(inv));
                 return;
             }
 
@@ -99,7 +99,7 @@ public class Requirement {
             if (!"string-equals".equals(type) && !Utility.isNumeric(input)) {
                 p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Type! Cancel the action!"));
                 sessions.end();
-                Bukkit.getScheduler().runTask(HLootchest.getInstance(), () -> setItems(inv));
+                Bukkit.getScheduler().runTask(HLootChest.getInstance(), () -> setItems(inv));
                 return;
             }
 
@@ -110,7 +110,7 @@ public class Requirement {
             templateFile.setNotSave(name + path + "." + key, finalInput);
             p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new " + key + " to: &e" + input));
             sessions.end();
-            Bukkit.getScheduler().runTask(HLootchest.getInstance(), () -> setItems(inv));
+            Bukkit.getScheduler().runTask(HLootChest.getInstance(), () -> setItems(inv));
         });
     }
 }
