@@ -108,10 +108,10 @@ public abstract class AbstractButton implements TButton {
             public void run() {
                 if (!owner.isOnline() || removed) { cancel(); return; }
                 if (!cfg.dynamicName) {
-                    nms.setCustomName(armorstand, apiInstance.getLanguageUtil().p(owner, cfg.displayNames.get(0)));
+                    nms.setCustomName(armorstand, ChatColor.translateAlternateColorCodes('&', apiInstance.getLanguageUtil().p(owner, cfg.displayNames.get(0))));
                 } else {
                     if (i >= cfg.displayNames.size()) i = 0;
-                    nms.setCustomName(armorstand, apiInstance.getLanguageUtil().p(owner, cfg.displayNames.get(i)));
+                    nms.setCustomName(armorstand, ChatColor.translateAlternateColorCodes('&', apiInstance.getLanguageUtil().p(owner, cfg.displayNames.get(i))));
                     i++;
                 }
                 nms.sendMetadataPacket(owner, armorstand);
@@ -145,7 +145,7 @@ public abstract class AbstractButton implements TButton {
         if (cfg.holdingIcon && cfg.dynamicIcon && cfg.dynamicIcons != null && cfg.iconRefreshInterval > 0) {
             List<TIcon> icons = buildIconList(cfg.dynamicIcons);
             new BukkitRunnable() {
-                int i = 1;
+                int i = 0;
                 public void run() {
                     if (!owner.isOnline() || removed) { cancel(); return; }
                     if (i >= icons.size()) i = 0;
@@ -334,9 +334,11 @@ public abstract class AbstractButton implements TButton {
     }
 
     private void unmovablePeriod(int time) {
-        ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
         this.moveable = false;
-        scheduler.schedule(() -> { moveable = true; scheduler.shutdown(); }, time, TimeUnit.MILLISECONDS);
+        Bukkit.getScheduler().runTaskLaterAsynchronously((plugin), () -> {
+            moveable = true;
+        }, time);
+
     }
 
     @Override
@@ -373,6 +375,7 @@ public abstract class AbstractButton implements TButton {
             }
             buttonIdMap.remove(id);
             childStands.clear();
+            childNameModes.clear();
             List<TButton> buttons = playerButtonMap.get(owner);
             if (buttons != null) {
                 buttons.remove(this);

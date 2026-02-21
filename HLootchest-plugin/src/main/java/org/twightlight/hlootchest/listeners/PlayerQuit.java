@@ -13,5 +13,6 @@ public class PlayerQuit implements Listener {
         if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) != null) {
             HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p).close();
         }
+        HLootChest.getAPI().getNMS().getGlobalButtons().remove(p);
     }
 }

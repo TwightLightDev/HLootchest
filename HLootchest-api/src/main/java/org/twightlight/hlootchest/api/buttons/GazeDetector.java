@@ -37,7 +37,12 @@ public class GazeDetector {
         double[] mx = {max.getX(), max.getY(), max.getZ()};
 
         for (int i = 0; i < 3; i++) {
-            double invD = 1.0 / d[i];
+
+            double d1 = d[i];
+            if (d[i] == 0) {
+                d1 = 0.001;
+            }
+            double invD = 1.0 / d1;
             double t0 = (mn[i] - o[i]) * invD;
             double t1 = (mx[i] - o[i]) * invD;
             if (invD < 0.0) { double tmp = t0; t0 = t1; t1 = tmp; }

@@ -9,7 +9,7 @@ import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.classloader.LibsLoader;
+import org.twightlight.hlootchest.dependency.Classloader;
 import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.database.DatabaseManager;
 import org.twightlight.hlootchest.sessions.LootChestSession;
@@ -171,7 +171,7 @@ public class API implements HLootchest {
     }
 
     @Override
-    public LibsLoader getLibsLoader() {
+    public Classloader getLibsLoader() {
         return HLootChest.getInstance().getLibsLoader();
     }
 

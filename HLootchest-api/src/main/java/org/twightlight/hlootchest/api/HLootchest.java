@@ -5,7 +5,7 @@ import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.classloader.LibsLoader;
+import org.twightlight.hlootchest.dependency.Classloader;
 import org.twightlight.hlootchest.database.DatabaseManager;
 import org.twightlight.hlootchest.supports.interfaces.HooksLoader;
 import org.twightlight.hlootchest.utils.ActionHandler;
@@ -65,7 +65,7 @@ public interface HLootchest {
 
     HooksLoader getHooksLoader();
 
-    LibsLoader getLibsLoader();
+    Classloader getLibsLoader();
 
     interface LanguageUtil {
         String getMsg(Player p, String path);

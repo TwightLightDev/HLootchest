@@ -2,7 +2,6 @@ package org.twightlight.hlootchest.database;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
-import com.zaxxer.hikari.HikariDataSource;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.bukkit.OfflinePlayer;
@@ -12,11 +11,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 public abstract class SQLDatabase implements TDatabase {
-    protected final HikariDataSource dataSource;
+    protected final Object dataSource;
     protected final Gson gson = new Gson();
     protected final DatabaseType type;
 
-    protected SQLDatabase(DatabaseType type, HikariDataSource dataSource) {
+    protected SQLDatabase(DatabaseType type, Object dataSource){
         this.type = type;
         this.dataSource = dataSource;
         initializeDatabase();
@@ -26,14 +25,28 @@ public abstract class SQLDatabase implements TDatabase {
 
     @Override
     public Connection getConnection() throws SQLException {
-        return dataSource.getConnection();
+        try {
+            return (Connection) dataSource
+                    .getClass()
+                    .getMethod("getConnection")
+                    .invoke(dataSource);
+        } catch (Exception e) {
+            throw new SQLException("Failed to get connection from datasource", e);
+        }
     }
 
     @Override
     public boolean isConnected() {
-        return dataSource != null && !dataSource.isClosed();
+        try {
+            return dataSource != null &&
+                    !(boolean) dataSource
+                            .getClass()
+                            .getMethod("isClosed")
+                            .invoke(dataSource);
+        } catch (Exception e) {
+            return false;
+        }
     }
-
     @Override
     public DatabaseType getDatabaseType() {
         return type;
@@ -130,8 +143,20 @@ public abstract class SQLDatabase implements TDatabase {
 
     @Override
     public void shutdown() {
-        if (dataSource != null && !dataSource.isClosed()) {
-            dataSource.close();
+        if (dataSource == null) return;
+
+        try {
+            boolean closed = (boolean) dataSource
+                    .getClass()
+                    .getMethod("isClosed")
+                    .invoke(dataSource);
+
+            if (!closed) {
+                dataSource.getClass()
+                        .getMethod("close")
+                        .invoke(dataSource);
+            }
+        } catch (Exception ignored) {
         }
     }
 }

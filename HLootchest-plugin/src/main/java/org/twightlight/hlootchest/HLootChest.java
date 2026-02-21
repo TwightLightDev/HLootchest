@@ -7,7 +7,7 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.classloader.LibsLoader;
+import org.twightlight.hlootchest.dependency.*;
 import org.twightlight.hlootchest.commands.admin.AdminCommand;
 import org.twightlight.hlootchest.commands.admin.AdminTabCompleter;
 import org.twightlight.hlootchest.commands.main.MainCommands;
@@ -32,8 +32,6 @@ import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Spooky;
 import org.twightlight.hlootchest.utils.*;
 
 import java.io.File;
-import java.io.IOException;
-import java.nio.file.Paths;
 import java.util.Set;
 
 public final class HLootChest extends JavaPlugin {
@@ -46,10 +44,11 @@ public final class HLootChest extends JavaPlugin {
     public static ColorUtils colorUtils;
     private static final String version = Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1];
     private ActionHandler actionHandler;
-    private LibsLoader libsLoader;
+    private Classloader libsLoader;
 
     @Override
     public void onEnable() {
+        Utility.setPlugin(this);
         if (Bukkit.getPluginManager().getPlugin("TwightLightCore") == null) {
             Utility.info("TwightLightCore not found, disabling...");
             Bukkit.getPluginManager().disablePlugin(this);
@@ -59,15 +58,25 @@ public final class HLootChest extends JavaPlugin {
         Bukkit.getServicesManager().register(org.twightlight.hlootchest.api.HLootchest.class, api, this, ServicePriority.Normal);
         ConfigManager.init();
 
+        File d = new File(getFilePath() + "/libs");
+        if (!d.exists()) {
+            d.mkdirs();
+        }
+        Utility.info("Loading internal libraries...");
+
+        DownloadManager downloader = new DownloadManager(
+                getDataFolder().toPath().resolve("libs"),
+                Repository.MAVEN_CENTRAL,
+                getClassLoader()
+        );
+        downloadLibs(downloader);
+
         try {
-            File d = new File(getFilePath() + "/libs");
-            if (!d.exists()) {
-                d.mkdirs();
-            }
-            Utility.info("Loading internal libraries...");
-            downloadLibs();
-            libsLoader = new LibsLoader(Paths.get(getFilePath() + "/libs"), getClass().getClassLoader());
-        } catch (IOException e) {
+            libsLoader = CLBuilder.build(
+                            new File(getDataFolder(), "libs"),
+                            getClassLoader()
+                    );
+        } catch (Exception e) {
             throw new RuntimeException(e);
         }
 
@@ -158,26 +167,18 @@ public final class HLootChest extends JavaPlugin {
         }
     }
 
-    private void downloadLibs() {
-        File libsDir = new File(getFilePath() + "/libs");
-        UrlHelper urlHelper = new UrlHelper();
-
-        String[][] libs = {
-                {"HikariCP-5.1.0.jar", "https://repo1.maven.org/maven2/com/zaxxer/HikariCP/5.1.0/HikariCP-5.1.0.jar"},
-                {"slf4j-api-2.0.9.jar", "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar"},
-                {"slf4j-simple-2.0.9.jar", "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.9/slf4j-simple-2.0.9.jar"},
-                {"mysql-connector-j-8.3.0.jar", "https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.3.0/mysql-connector-j-8.3.0.jar"},
-                {"mariadb-java-client-3.3.2.jar", "https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.2/mariadb-java-client-3.3.2.jar"},
-                {"sqlite-jdbc-3.45.1.0.jar", "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.45.1.0/sqlite-jdbc-3.45.1.0.jar"},
-
-        };
-
-        for (String[] lib : libs) {
-            File target = new File(libsDir, lib[0]);
-            if (!target.exists()) {
-                Utility.info("Downloading library: " + lib[0] + "...");
-                urlHelper.download(lib[1], target);
-            }
+    private void downloadLibs(DownloadManager downloader) {
+        try {
+            downloader.load(
+                    new Dependency("com.zaxxer", "HikariCP", "5.1.0", false),
+                    new Dependency("org.slf4j", "slf4j-api", "2.0.9", false),
+                    new Dependency("org.slf4j", "slf4j-simple", "2.0.9", false),
+                    new Dependency("com.mysql", "mysql-connector-j", "8.3.0", false),
+                    new Dependency("org.mariadb.jdbc", "mariadb-java-client", "3.3.2", false),
+                    new Dependency("org.xerial", "sqlite-jdbc", "3.45.1.0", false)
+            );
+        } catch (Exception e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -190,7 +191,7 @@ public final class HLootChest extends JavaPlugin {
                 nms.register(type, api.getNMS().getAnimationsRegistrationData().get(animation));
             } catch (Exception e) {
                 Utility.info("Something went wrong while registering the " + type + " box type");
-                Utility.info("Diagnostic: the animation cannot be found!");
+                Utility.info("Diagnostic: The animation cannot be found!");
             }
             try {
                 TYamlWrapper boxConfig = new YamlWrapper(this, type, getDataFolder().getPath()+ "/lootchests");
@@ -234,15 +235,15 @@ public final class HLootChest extends JavaPlugin {
         switch (provider) {
             case "SQLite":
                 Utility.info("Using SQLite as database provider...");
-                db.setDatabase(new SQLite(this));
+                db.setDatabase(new SQLite(this, libsLoader));
                 break;
             case "MySQL":
                 Utility.info("Using MySQL as database provider! ...");
-                db.setDatabase(new MySQL(host, port, database, username, password, ssl));
+                db.setDatabase(new MySQL(libsLoader, host, port, database, username, password, ssl));
                 break;
             case "MariaDB":
                 Utility.info("Using MariaDB as database provider! ...");
-                db.setDatabase(new MariaDB(host, port, database, username, password, ssl));
+                db.setDatabase(new MariaDB(libsLoader, host, port, database, username, password, ssl));
                 break;
         }
         Utility.info("Your database is ready!");
@@ -300,7 +301,7 @@ public final class HLootChest extends JavaPlugin {
         return actionHandler;
     }
 
-    public LibsLoader getLibsLoader() {
+    public Classloader getLibsLoader() {
         return libsLoader;
     }
 }
