@@ -1,10 +1,10 @@
 package org.twightlight.hlootchest.database.SQL;
 
+import com.zaxxer.hikari.HikariConfig;
+import com.zaxxer.hikari.HikariDataSource;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
 import org.twightlight.hlootchest.classloader.LibsLoader;
 import org.twightlight.hlootchest.database.SQLDatabase;
-import org.twightlight.libs.hikari.HikariConfig;
-import org.twightlight.libs.hikari.HikariDataSource;
 
 import java.sql.Connection;
 import java.sql.SQLException;

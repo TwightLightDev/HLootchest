@@ -1,18 +1,37 @@
 package org.twightlight.hlootchest.classloader;
 
 import java.io.*;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.*;
 import java.util.*;
 import java.util.jar.*;
 import java.util.stream.Stream;
 
-public class LibsLoader extends ClassLoader {
+public class LibsLoader extends URLClassLoader {
 
     private final Map<String, byte[]> classBytes = new HashMap<>();
 
-    public LibsLoader(Path libsDir) throws IOException {
-        super(null);
-        loadAllJars(libsDir);
+    public LibsLoader(Path libsDir, ClassLoader parent) throws IOException {
+        super(collectJarUrls(libsDir), parent);
+    }
+
+    private static URL[] collectJarUrls(Path libsDir) throws IOException {
+        if (!Files.isDirectory(libsDir)) {
+            throw new IOException("Invalid libs directory: " + libsDir);
+        }
+
+        try (Stream<Path> paths = Files.list(libsDir)) {
+            return paths.filter(p -> p.toString().endsWith(".jar"))
+                    .map(p -> {
+                        try {
+                            return p.toUri().toURL();
+                        } catch (IOException e) {
+                            throw new RuntimeException(e);
+                        }
+                    })
+                    .toArray(URL[]::new);
+        }
     }
 
     private void loadAllJars(Path libsDir) throws IOException {

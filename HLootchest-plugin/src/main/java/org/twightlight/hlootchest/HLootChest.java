@@ -17,7 +17,7 @@ import org.twightlight.hlootchest.config.YamlWrapper;
 import org.twightlight.hlootchest.database.DatabaseManager;
 import org.twightlight.hlootchest.database.SQL.MariaDB;
 import org.twightlight.hlootchest.database.SQL.MySQL;
-import org.twightlight.hlootchest.database.SQLite;
+import org.twightlight.hlootchest.database.SQL.SQLite;
 import org.twightlight.hlootchest.listeners.LootChests;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
@@ -29,10 +29,7 @@ import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Aeternus;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Mystic;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Regular;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.boxes.Spooky;
-import org.twightlight.hlootchest.utils.ActionHandler;
-import org.twightlight.hlootchest.utils.ColorUtils;
-import org.twightlight.hlootchest.utils.Utility;
-import org.twightlight.hlootchest.utils.VersionChecker;
+import org.twightlight.hlootchest.utils.*;
 
 import java.io.File;
 import java.io.IOException;
@@ -73,7 +70,7 @@ public final class HLootChest extends JavaPlugin {
 
             Utility.info("Loading internal libraries...");
             downloadLibs();
-            libsLoader = new LibsLoader(Paths.get(getFilePath() + "/libs"));
+            libsLoader = new LibsLoader(Paths.get(getFilePath() + "/libs"), getClass().getClassLoader());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -161,7 +158,26 @@ public final class HLootChest extends JavaPlugin {
     }
 
     private void downloadLibs() {
+        File libsDir = new File(getFilePath() + "/libs");
+        UrlHelper urlHelper = new UrlHelper();
 
+        String[][] libs = {
+                {"HikariCP-5.1.0.jar", "https://repo1.maven.org/maven2/com/zaxxer/HikariCP/5.1.0/HikariCP-5.1.0.jar"},
+                {"slf4j-api-2.0.9.jar", "https://repo1.maven.org/maven2/org/slf4j/slf4j-api/2.0.9/slf4j-api-2.0.9.jar"},
+                {"slf4j-simple-2.0.9.jar", "https://repo1.maven.org/maven2/org/slf4j/slf4j-simple/2.0.9/slf4j-simple-2.0.9.jar"},
+                {"mysql-connector-j-8.3.0.jar", "https://repo1.maven.org/maven2/com/mysql/mysql-connector-j/8.3.0/mysql-connector-j-8.3.0.jar"},
+                {"mariadb-java-client-3.3.2.jar", "https://repo1.maven.org/maven2/org/mariadb/jdbc/mariadb-java-client/3.3.2/mariadb-java-client-3.3.2.jar"},
+                {"sqlite-jdbc-3.45.1.0.jar", "https://repo1.maven.org/maven2/org/xerial/sqlite-jdbc/3.45.1.0/sqlite-jdbc-3.45.1.0.jar"},
+
+        };
+
+        for (String[] lib : libs) {
+            File target = new File(libsDir, lib[0]);
+            if (!target.exists()) {
+                Utility.info("Downloading library: " + lib[0] + "...");
+                urlHelper.download(lib[1], target);
+            }
+        }
     }
 
     private void loadLootchests() {
@@ -209,7 +225,7 @@ public final class HLootChest extends JavaPlugin {
         String provider = api.getConfigUtil().getMainConfig().getString("database.provider");
         db = new DatabaseManager();
         String host = api.getConfigUtil().getMainConfig().getString("database.host");
-        int port = api.getConfigUtil().getMainConfig().getInt("database.host");
+        int port = api.getConfigUtil().getMainConfig().getInt("database.port");
         String database = api.getConfigUtil().getMainConfig().getString("database.database");
         String username = api.getConfigUtil().getMainConfig().getString("database.username");
         String password = api.getConfigUtil().getMainConfig().getString("database.password");
@@ -217,18 +233,20 @@ public final class HLootChest extends JavaPlugin {
         switch (provider) {
             case "SQLite":
                 Utility.info("Using SQLite as database provider...");
-                db.setDatabase(new SQLite(this));
+                db.setDatabase(new SQLite(libsLoader, this));
                 break;
             case "MySQL":
-                Utility.info("Using MySQL as database provider! This data source is in its beta stage, any bugs please report to my discord or open a github issue!");
-                db.setDatabase(new MySQL(host, port, database, username, password, ssl));
+                Utility.info("Using MySQL as database provider! ...");
+                db.setDatabase(new MySQL(libsLoader, host, port, database, username, password, ssl));
                 break;
             case "MariaDB":
-                Utility.info("Using MariaDB as database provider! This data source is in its beta stage, any bugs please report to my discord or open a github issue!");
+                Utility.info("Using MariaDB as database provider! ...");
                 db.setDatabase(new MariaDB(libsLoader, host, port, database, username, password, ssl));
+                break;
         }
         Utility.info("Your database is ready!");
     }
+
 
     private void loadCredit() {
         Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");

@@ -2,9 +2,9 @@ package org.twightlight.hlootchest.database;
 
 import com.google.common.reflect.TypeToken;
 import com.google.gson.Gson;
+import com.zaxxer.hikari.HikariDataSource;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
-import org.twightlight.libs.hikari.HikariDataSource;
 import org.bukkit.OfflinePlayer;
 
 import java.sql.*;
