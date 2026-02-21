@@ -22,7 +22,6 @@ import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.objects.Reward;
 import org.twightlight.hlootchest.sessions.LootChestSession;
-import org.twightlight.hlootchest.utils.FoliaScheduler;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;

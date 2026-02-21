@@ -113,6 +113,7 @@ public interface TButton {
      *
      * @return The {@link BukkitTask} assigned to the button.
      */
+    @Deprecated
     BukkitTask getTask();
 
     /**

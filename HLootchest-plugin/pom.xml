@@ -94,6 +94,16 @@
       </dependency>
       <dependency>
           <groupId>org.twightlight</groupId>
+          <artifactId>Bukkit-impl</artifactId>
+          <version>1.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.twightlight</groupId>
+          <artifactId>Folia-impl</artifactId>
+          <version>1.0</version>
+      </dependency>
+      <dependency>
+          <groupId>org.twightlight</groupId>
           <artifactId>HLootchest-api</artifactId>
           <version>1.0</version>
       </dependency>

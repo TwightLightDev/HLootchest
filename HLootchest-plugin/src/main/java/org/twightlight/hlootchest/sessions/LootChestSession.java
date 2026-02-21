@@ -18,12 +18,10 @@ import org.twightlight.hlootchest.api.events.session.SessionStartEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
-import org.twightlight.hlootchest.utils.FoliaScheduler;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicReference;
 
 public class LootChestSession extends SessionsManager implements TSession {
 
@@ -53,7 +51,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                 chunk.load();
             }
 
-            FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), p, () -> {
+            HLootChest.getScheduler().runAtEntityLater(p, () -> {
                 potionEffects = p.getActivePotionEffects();
                 potionEffects.forEach(effect -> p.removePotionEffect(effect.getType()));
                 initialLocation = p.getLocation();
@@ -65,7 +63,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                     }
                 }
 
-                FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), p, () -> {
+                HLootChest.getScheduler().runAtEntityLater(p, () -> {
                     if (!p.isOnline()) return;
 
                     if (p.getLocation().getWorld() != Plocation.getWorld()
@@ -98,7 +96,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                         if (!taskQueue.isEmpty()) {
                             final int finalHighestDelay = highestDelay;
                             final int[] currentTick = {0};
-                            FoliaScheduler.runTaskTimer(HLootChest.getInstance(), new Runnable() {
+                            HLootChest.getScheduler().runTimer(new Runnable() {
                                 @Override
                                 public void run() {
                                     if (!player.isOnline()) return;
@@ -149,7 +147,7 @@ public class LootChestSession extends SessionsManager implements TSession {
     }
 
     private void startVehicleTask() {
-        FoliaScheduler.runTaskTimer(HLootChest.getInstance(), () -> {
+        HLootChest.getScheduler().runTimer(() -> {
             if (box == null || player == null || !player.isOnline()) return;
             Entity vehicle = box.getVehiclesList().get(player);
             if (vehicle == null || vehicle.isDead()) return;
@@ -157,7 +155,7 @@ public class LootChestSession extends SessionsManager implements TSession {
             if (vehicle.getPassenger() != player) {
                 if (player.getLocation().distance(vehicle.getLocation()) > 5) {
                     player.teleport(vehicle.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), player, () -> {
+                    HLootChest.getScheduler().runAtEntityLater(player, () -> {
                         if (player.isOnline() && vehicle.isValid()) {
                             vehicle.eject();
                             vehicle.setPassenger(player);
@@ -190,7 +188,7 @@ public class LootChestSession extends SessionsManager implements TSession {
             }
         }
 
-        FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), player, () -> {
+        HLootChest.getScheduler().runAtEntityLater(player, () -> {
             box.getOwner().teleport(initialLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }, 2L);
 

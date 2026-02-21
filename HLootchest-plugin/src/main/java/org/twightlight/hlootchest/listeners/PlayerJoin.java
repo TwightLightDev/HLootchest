@@ -11,7 +11,6 @@ import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.objects.Reward;
-import org.twightlight.hlootchest.utils.FoliaScheduler;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.*;
@@ -47,12 +46,12 @@ public class PlayerJoin implements Listener {
 
         db.addColumnIfNotExists("awaiting_rewards", "TEXT", "NULL");
 
-        FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), player, () -> {
+        HLootChest.getScheduler().runAtEntityLater(player, () -> {
             if (!player.isOnline()) return;
             db.getLootChestDataAsync(player, "fallback_loc", TypeToken.of(String.class), null)
                     .thenAccept(locS -> {
                         if (locS == null || locS.isEmpty()) return;
-                        FoliaScheduler.runAtEntity(HLootChest.getInstance(), player, () -> {
+                        HLootChest.getScheduler().runAtEntity(player, () -> {
                             try {
                                 Chunk chunk = player.getLocation().getChunk();
                                 Utility.clean(chunk, "LootchestVehicle");
@@ -68,12 +67,12 @@ public class PlayerJoin implements Listener {
                     });
         }, 3L);
 
-        FoliaScheduler.runAtEntityLater(HLootChest.getInstance(), player, () -> {
+        HLootChest.getScheduler().runAtEntityLater(player, () -> {
             if (!player.isOnline()) return;
             db.getLootChestDataAsync(player, "awaiting_rewards", new TypeToken<List<Reward>>() {}, Collections.emptyList())
                     .thenAccept(awaitingRewards -> {
                         if (awaitingRewards == null || awaitingRewards.isEmpty()) return;
-                        FoliaScheduler.runAtEntity(HLootChest.getInstance(), player, () -> {
+                        HLootChest.getScheduler().runAtEntity(player, () -> {
                             for (Reward reward : awaitingRewards) {
                                 reward.accept(player);
                             }

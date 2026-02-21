@@ -7,7 +7,6 @@ import org.bukkit.plugin.ServicePriority;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.config.configs.MainConfig;
 import org.twightlight.hlootchest.dependency.*;
 import org.twightlight.hlootchest.commands.admin.AdminCommand;
 import org.twightlight.hlootchest.commands.admin.AdminTabCompleter;
@@ -25,6 +24,8 @@ import org.twightlight.hlootchest.listeners.LootChests;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
 import org.twightlight.hlootchest.listeners.Setup;
+import org.twightlight.hlootchest.scheduler.SchedulerAdapter;
+import org.twightlight.hlootchest.scheduler.SchedulerProvider;
 import org.twightlight.hlootchest.supports.HooksLoader;
 import org.twightlight.hlootchest.supports.bstats.bStats;
 import org.twightlight.hlootchest.supports.protocol.v1_8_R3.Main;
@@ -49,12 +50,14 @@ public final class HLootChest extends JavaPlugin {
     private static final String version = Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1];
     private ActionHandler actionHandler;
     private Classloader libsLoader;
+    private static SchedulerAdapter scheduler;
 
     @Override
     public void onEnable() {
         Utility.setPlugin(this);
+        scheduler = new SchedulerProvider(this).get();
 
-        if (FoliaScheduler.isFolia()) {
+        if (SchedulerProvider.isFolia()) {
             Utility.info("Folia detected! Using region-based scheduling.");
         }
 
@@ -126,7 +129,7 @@ public final class HLootChest extends JavaPlugin {
             } catch (Exception ignored) {}
         }
 
-        FoliaScheduler.cancelAllTasks(this);
+        scheduler.cancelAll();
 
         if (db != null && db.getDatabase() != null) {
             try {
@@ -330,7 +333,7 @@ public final class HLootChest extends JavaPlugin {
         Utility.info("  7Minecraft Version: a" + Bukkit.getBukkitVersion());
         Utility.info("  7Plugin Version: a" + getVersion());
         Utility.info("  7Author: a" + String.join(", ", getDescription().getAuthors()));
-        Utility.info("  7Folia: " + (FoliaScheduler.isFolia() ? "aDetected" : "cNot Detected"));
+        Utility.info("  7Folia: " + (SchedulerProvider.isFolia() ? "aDetected" : "cNot Detected"));
         if (version.equals("19") || version.equals("20") || version.equals("21")) {
             Utility.info("  7PacketEvents: " + (Bukkit.getPluginManager().getPlugin("packetevents") != null ? "aEnabled" : "cDisabled"));
         }
@@ -348,4 +351,7 @@ public final class HLootChest extends JavaPlugin {
     public org.twightlight.hlootchest.supports.interfaces.HooksLoader getHooksLoader() { return hooksLoader; }
     public ActionHandler getActionHandler() { return actionHandler; }
     public Classloader getLibsLoader() { return libsLoader; }
+    public static SchedulerAdapter getScheduler() {
+        return scheduler;
+    }
 }
