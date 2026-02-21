@@ -1,95 +1,47 @@
 package org.twightlight.hlootchest.classloader;
 
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Method;
 import java.net.URL;
 import java.net.URLClassLoader;
-import java.nio.file.*;
-import java.util.*;
-import java.util.jar.*;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.stream.Stream;
 
-public class LibsLoader extends URLClassLoader {
+public class LibsLoader {
 
-    private final Map<String, byte[]> classBytes = new HashMap<>();
+    private final Path libsDir;
 
-    public LibsLoader(Path libsDir, ClassLoader parent) throws IOException {
-        super(collectJarUrls(libsDir), parent);
+    public LibsLoader(Path libsDir, ClassLoader pluginClassLoader) throws IOException {
+        this.libsDir = libsDir;
+        injectLibs(pluginClassLoader);
     }
 
-    private static URL[] collectJarUrls(Path libsDir) throws IOException {
+    private void injectLibs(ClassLoader pluginClassLoader) throws IOException {
         if (!Files.isDirectory(libsDir)) {
             throw new IOException("Invalid libs directory: " + libsDir);
         }
 
         try (Stream<Path> paths = Files.list(libsDir)) {
-            return paths.filter(p -> p.toString().endsWith(".jar"))
-                    .map(p -> {
-                        try {
-                            return p.toUri().toURL();
-                        } catch (IOException e) {
-                            throw new RuntimeException(e);
-                        }
-                    })
-                    .toArray(URL[]::new);
+            paths.filter(p -> p.toString().endsWith(".jar"))
+                    .forEach(jar -> addToClasspath(jar.toFile(), pluginClassLoader));
         }
     }
 
-    private void loadAllJars(Path libsDir) throws IOException {
-        if (!Files.isDirectory(libsDir)) {
-            throw new IOException("Invalid libs directory: " + libsDir);
-        }
-
-        try (Stream<Path> paths = Files.list(libsDir)) {
-            for (Path jar : (Iterable<Path>) paths.filter(p -> p.toString().endsWith(".jar"))::iterator) {
-                loadJar(jar);
+    private void addToClasspath(File file, ClassLoader classLoader) {
+        try {
+            if (classLoader instanceof URLClassLoader) {
+                Method addURL = URLClassLoader.class.getDeclaredMethod("addURL", URL.class);
+                addURL.setAccessible(true);
+                addURL.invoke(classLoader, file.toURI().toURL());
+            } else {
+                Method addPath = classLoader.getClass().getDeclaredMethod("addURL", URL.class);
+                addPath.setAccessible(true);
+                addPath.invoke(classLoader, file.toURI().toURL());
             }
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to inject library: " + file.getName(), e);
         }
     }
-
-    private void loadJar(Path jarFile) throws IOException {
-        try (JarFile jar = new JarFile(jarFile.toFile())) {
-            Enumeration<JarEntry> entries = jar.entries();
-            while (entries.hasMoreElements()) {
-                JarEntry entry = entries.nextElement();
-                if (entry.getName().endsWith(".class")) {
-                    String className = entry.getName()
-                            .replace('/', '.')
-                            .substring(0, entry.getName().length() - 6);
-                    try (InputStream in = jar.getInputStream(entry)) {
-                        byte[] bytes = toByteArray(in);
-                        classBytes.put(className, bytes);
-                    }
-                }
-            }
-        }
-    }
-
-    private static byte[] toByteArray(InputStream in) throws IOException {
-        ByteArrayOutputStream buffer = new ByteArrayOutputStream();
-        int nRead;
-        byte[] data = new byte[4096];
-        while ((nRead = in.read(data, 0, data.length)) != -1) {
-            buffer.write(data, 0, nRead);
-        }
-        return buffer.toByteArray();
-    }
-
-    @Override
-    protected Class<?> findClass(String name) throws ClassNotFoundException {
-        byte[] bytes = classBytes.get(name);
-        if (bytes != null) {
-            return defineClass(name, bytes, 0, bytes.length);
-        }
-
-        if (name.startsWith("java.") || name.startsWith("javax.")) {
-            try {
-                return getSystemClassLoader().loadClass(name);
-            } catch (ClassNotFoundException e) {
-                throw new ClassNotFoundException("Core Java class not found: " + name, e);
-            }
-        }
-
-        throw new ClassNotFoundException(name);
-    }
-
 }

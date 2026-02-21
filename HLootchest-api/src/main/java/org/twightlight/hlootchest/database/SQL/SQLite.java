@@ -4,7 +4,6 @@ import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
-import org.twightlight.hlootchest.classloader.LibsLoader;
 import org.twightlight.hlootchest.database.SQLDatabase;
 
 import java.io.File;
@@ -15,11 +14,11 @@ import java.sql.Statement;
 
 public class SQLite extends SQLDatabase {
 
-    public SQLite(LibsLoader libsLoader, Plugin plugin) {
-        super(DatabaseType.SQLITE, createDataSource(libsLoader, plugin));
+    public SQLite(Plugin plugin) {
+        super(DatabaseType.SQLITE, createDataSource(plugin));
     }
 
-    private static HikariDataSource createDataSource(LibsLoader libsLoader, Plugin plugin) {
+    private static HikariDataSource createDataSource(Plugin plugin) {
         File dataFile = new File(plugin.getDataFolder(), "hlootchest.db");
         if (!dataFile.exists()) {
             try {
@@ -30,25 +29,16 @@ public class SQLite extends SQLDatabase {
             }
         }
 
-        ClassLoader original = Thread.currentThread().getContextClassLoader();
-        try {
-            Thread.currentThread().setContextClassLoader(libsLoader);
+        HikariConfig config = new HikariConfig();
+        config.setDriverClassName("org.sqlite.JDBC");
+        config.setJdbcUrl("jdbc:sqlite:" + dataFile.getAbsolutePath());
+        config.setPoolName("HLootChest-SQLite-Pool");
+        config.setMaximumPoolSize(1);
+        config.setConnectionTestQuery("SELECT 1");
+        config.addDataSourceProperty("journal_mode", "WAL");
+        config.addDataSourceProperty("synchronous", "NORMAL");
 
-            HikariConfig config = new HikariConfig();
-            config.setDriverClassName("org.sqlite.JDBC");
-            config.setJdbcUrl("jdbc:sqlite:" + dataFile.getAbsolutePath());
-            config.setPoolName("HLootChest-SQLite-Pool");
-
-            config.setMaximumPoolSize(1);
-
-            config.setConnectionTestQuery("SELECT 1");
-            config.addDataSourceProperty("journal_mode", "WAL");
-            config.addDataSourceProperty("synchronous", "NORMAL");
-
-            return new HikariDataSource(config);
-        } finally {
-            Thread.currentThread().setContextClassLoader(original);
-        }
+        return new HikariDataSource(config);
     }
 
     @Override

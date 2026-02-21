@@ -11,17 +11,15 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class MariaDB extends SQLDatabase {
-    public MariaDB(LibsLoader libsLoader, String host, int port, String database,
+    public MariaDB(String host, int port, String database,
                    String username, String password, boolean ssl) {
-        super(DatabaseType.MARIADB, createDataSource(libsLoader, host, port, database, username, password, ssl));
+        super(DatabaseType.MARIADB, createDataSource(host, port, database, username, password, ssl));
     }
 
-    private static HikariDataSource createDataSource(LibsLoader libsLoader, String host, int port, String database,
+    private static HikariDataSource createDataSource(String host, int port, String database,
                                                      String username, String password, boolean useSSL) {
-        ClassLoader original = Thread.currentThread().getContextClassLoader();
 
         try {
-            Thread.currentThread().setContextClassLoader(libsLoader);
             HikariConfig config = new HikariConfig();
             config.setDriverClassName("org.mariadb.jdbc.Driver");
             config.setJdbcUrl(String.format("jdbc:mariadb://%s:%d/%s", host, port, database));
@@ -41,8 +39,6 @@ public class MariaDB extends SQLDatabase {
             return new HikariDataSource(config);
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(original);
         }
     }
 

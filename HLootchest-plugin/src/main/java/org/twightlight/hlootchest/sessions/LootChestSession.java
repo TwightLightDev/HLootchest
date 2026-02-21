@@ -28,17 +28,11 @@ import java.util.concurrent.CompletableFuture;
 public class LootChestSession extends SessionsManager implements TSession {
 
     private Player player;
-
     private TBox box;
-
     private GameMode gm;
-
     private Location initialLocation;
-
     private Collection<PotionEffect> potionEffects;
-
     private BukkitTask vehicleTask;
-
     private CompletableFuture<Boolean> isloaded;
 
     public LootChestSession(Player p, String identifier) {
@@ -75,11 +69,20 @@ public class LootChestSession extends SessionsManager implements TSession {
                     }
 
                     Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
+                        if (!p.isOnline()) return;
+
+                        if (p.getLocation().getWorld() != Plocation.getWorld()
+                                || p.getLocation().distance(Plocation) > 10) {
+                            p.teleport(Plocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        }
+
                         Location location = Utility.stringToLocation(templateconfig.getString(identifier + ".settings.location"));
 
                         box = HLootChest.getNms().spawnBox(location, identifier, p, icon, templateconfig);
                         gm = p.getGameMode();
                         HLootChest.getNms().getNMSService().setFakeGameMode(p, GameMode.SURVIVAL);
+
+                        startVehicleTask();
 
                         if (templateconfig.getYml().getConfigurationSection(identifier + ".buttons") != null) {
                             Set<String> buttons = templateconfig.getYml().getConfigurationSection(identifier + ".buttons").getKeys(false);
@@ -139,21 +142,9 @@ public class LootChestSession extends SessionsManager implements TSession {
 
                         String initialLoc = Utility.locationToString(initialLocation);
                         HLootChest.getAPI().getDatabaseUtil().getDatabase().updateData(p, initialLoc, "fallback_loc");
-                    }, 1L);
+                    }, 5L);
                 }
             }.runTaskLater(HLootChest.getInstance(), 1L);
-
-            vehicleTask = new BukkitRunnable() {
-                @Override
-                public void run() {
-                    Entity vehicle = box.getVehiclesList().get(player);
-
-                    if (vehicle.getPassenger() != player) {
-                        vehicle.eject();
-                        vehicle.setPassenger(player);
-                    }
-                }
-            }.runTaskTimer(HLootChest.getInstance(), 20L, 20L);
 
             SessionStartEvent event = new SessionStartEvent(player, this);
             Bukkit.getPluginManager().callEvent(event);
@@ -161,6 +152,36 @@ public class LootChestSession extends SessionsManager implements TSession {
         }
     }
 
+    private void startVehicleTask() {
+        vehicleTask = new BukkitRunnable() {
+            @Override
+            public void run() {
+                if (box == null || player == null || !player.isOnline()) {
+                    cancel();
+                    return;
+                }
+                Entity vehicle = box.getVehiclesList().get(player);
+                if (vehicle == null || vehicle.isDead()) {
+                    return;
+                }
+
+                if (vehicle.getPassenger() != player) {
+                    if (player.getLocation().distance(vehicle.getLocation()) > 5) {
+                        player.teleport(vehicle.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
+                        Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
+                            if (player.isOnline() && vehicle.isValid()) {
+                                vehicle.eject();
+                                vehicle.setPassenger(player);
+                            }
+                        }, 2L);
+                    } else {
+                        vehicle.eject();
+                        vehicle.setPassenger(player);
+                    }
+                }
+            }
+        }.runTaskTimer(HLootChest.getInstance(), 10L, 20L);
+    }
 
     public void close() {
         box.removeVehicle(player);
@@ -180,7 +201,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                 online.showPlayer(player);
             }
         }
-        vehicleTask.cancel();
+        if (vehicleTask != null) vehicleTask.cancel();
 
         Bukkit.getScheduler().runTaskLater(HLootChest.getInstance(), () -> {
             box.getOwner().teleport(initialLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);

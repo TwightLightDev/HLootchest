@@ -12,16 +12,14 @@ import java.sql.SQLException;
 import java.sql.Statement;
 
 public class MySQL extends SQLDatabase {
-    public MySQL(LibsLoader libsLoader, String host, int port, String database,
+    public MySQL(String host, int port, String database,
                  String username, String password, boolean ssl) {
-        super(DatabaseType.MYSQL, createDataSource(libsLoader, host, port, database, username, password, ssl));
+        super(DatabaseType.MYSQL, createDataSource(host, port, database, username, password, ssl));
     }
 
-    private static HikariDataSource createDataSource(LibsLoader libsLoader, String host, int port, String database,
+    private static HikariDataSource createDataSource(String host, int port, String database,
                                                      String username, String password, boolean useSSL) {
-        ClassLoader original = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(libsLoader);
             HikariConfig config = new HikariConfig();
             String jdbcUrl = String.format("jdbc:mysql://%s:%d/%s?useSSL=%b&verifyServerCertificate=%b&requireSSL=%b",
                     host, port, database, useSSL, useSSL, useSSL);
@@ -37,8 +35,6 @@ public class MySQL extends SQLDatabase {
             return new HikariDataSource(config);
         } catch (RuntimeException e) {
             throw new RuntimeException(e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(original);
         }
     }
 

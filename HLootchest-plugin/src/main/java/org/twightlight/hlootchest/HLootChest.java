@@ -58,22 +58,23 @@ public final class HLootChest extends JavaPlugin {
         api = new API();
         Bukkit.getServicesManager().register(org.twightlight.hlootchest.api.HLootchest.class, api, this, ServicePriority.Normal);
         ConfigManager.init();
-        loadNMS();
-        loadLootchests();
-        loadCommands();
-        loadListeners();
+
         try {
             File d = new File(getFilePath() + "/libs");
             if (!d.exists()) {
                 d.mkdirs();
             }
-
             Utility.info("Loading internal libraries...");
             downloadLibs();
             libsLoader = new LibsLoader(Paths.get(getFilePath() + "/libs"), getClass().getClassLoader());
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+
+        loadNMS();
+        loadLootchests();
+        loadCommands();
+        loadListeners();
         loadDatabase();
         hooksLoader = new HooksLoader();
         loadCredit();
@@ -233,15 +234,15 @@ public final class HLootChest extends JavaPlugin {
         switch (provider) {
             case "SQLite":
                 Utility.info("Using SQLite as database provider...");
-                db.setDatabase(new SQLite(libsLoader, this));
+                db.setDatabase(new SQLite(this));
                 break;
             case "MySQL":
                 Utility.info("Using MySQL as database provider! ...");
-                db.setDatabase(new MySQL(libsLoader, host, port, database, username, password, ssl));
+                db.setDatabase(new MySQL(host, port, database, username, password, ssl));
                 break;
             case "MariaDB":
                 Utility.info("Using MariaDB as database provider! ...");
-                db.setDatabase(new MariaDB(libsLoader, host, port, database, username, password, ssl));
+                db.setDatabase(new MariaDB(host, port, database, username, password, ssl));
                 break;
         }
         Utility.info("Your database is ready!");
