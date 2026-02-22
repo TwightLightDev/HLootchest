@@ -10,6 +10,8 @@
       <element id="module-output" name="v1_20_R3" />
       <element id="module-output" name="v1_20_R4" />
       <element id="module-output" name="v1_21_R3" />
+      <element id="module-output" name="Bukkit-impl" />
+      <element id="module-output" name="Folia-impl" />
     </root>
   </artifact>
 </component>

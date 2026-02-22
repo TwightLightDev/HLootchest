@@ -51,7 +51,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                 chunk.load();
             }
 
-            HLootChest.getScheduler().runAtEntityLater(p, () -> {
+            HLootChest.getScheduler().runTaskLater(p, () -> {
                 potionEffects = p.getActivePotionEffects();
                 potionEffects.forEach(effect -> p.removePotionEffect(effect.getType()));
                 initialLocation = p.getLocation();
@@ -63,7 +63,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                     }
                 }
 
-                HLootChest.getScheduler().runAtEntityLater(p, () -> {
+                HLootChest.getScheduler().runTaskLater(p, () -> {
                     if (!p.isOnline()) return;
 
                     if (p.getLocation().getWorld() != Plocation.getWorld()
@@ -96,7 +96,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                         if (!taskQueue.isEmpty()) {
                             final int finalHighestDelay = highestDelay;
                             final int[] currentTick = {0};
-                            HLootChest.getScheduler().runTimer(new Runnable() {
+                            HLootChest.getScheduler().runTaskTimer(new Runnable() {
                                 @Override
                                 public void run() {
                                     if (!player.isOnline()) return;
@@ -147,7 +147,7 @@ public class LootChestSession extends SessionsManager implements TSession {
     }
 
     private void startVehicleTask() {
-        HLootChest.getScheduler().runTimer(() -> {
+        HLootChest.getScheduler().runTaskTimer(() -> {
             if (box == null || player == null || !player.isOnline()) return;
             Entity vehicle = box.getVehiclesList().get(player);
             if (vehicle == null || vehicle.isDead()) return;
@@ -155,7 +155,7 @@ public class LootChestSession extends SessionsManager implements TSession {
             if (vehicle.getPassenger() != player) {
                 if (player.getLocation().distance(vehicle.getLocation()) > 5) {
                     player.teleport(vehicle.getLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    HLootChest.getScheduler().runAtEntityLater(player, () -> {
+                    HLootChest.getScheduler().runTaskLater(player, () -> {
                         if (player.isOnline() && vehicle.isValid()) {
                             vehicle.eject();
                             vehicle.setPassenger(player);
@@ -188,7 +188,7 @@ public class LootChestSession extends SessionsManager implements TSession {
             }
         }
 
-        HLootChest.getScheduler().runAtEntityLater(player, () -> {
+        HLootChest.getScheduler().runTaskLater(player, () -> {
             box.getOwner().teleport(initialLocation, PlayerTeleportEvent.TeleportCause.PLUGIN);
         }, 2L);
 

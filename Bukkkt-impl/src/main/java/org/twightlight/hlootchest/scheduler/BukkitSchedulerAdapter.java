@@ -30,50 +30,50 @@ public class BukkitSchedulerAdapter implements SchedulerAdapter {
     }
 
     @Override
-    public ScheduledTask run(Runnable task) {
+    public ScheduledTask runTask(Runnable task) {
         return wrap(Bukkit.getScheduler().runTask(plugin, task));
     }
 
     @Override
-    public ScheduledTask runLater(Runnable task, long delayTicks) {
+    public ScheduledTask runTaskLater(Runnable task, long delayTicks) {
         return wrap(Bukkit.getScheduler().runTaskLater(plugin, task, delayTicks));
     }
 
     @Override
-    public ScheduledTask runTimer(Runnable task, long delayTicks, long periodTicks) {
+    public ScheduledTask runTaskTimer(Runnable task, long delayTicks, long periodTicks) {
         return wrap(Bukkit.getScheduler().runTaskTimer(plugin, task, delayTicks, periodTicks));
     }
 
 
     @Override
-    public ScheduledTask runAsync(Runnable task) {
+    public ScheduledTask runTaskAsynchronously(Runnable task) {
         return wrap(Bukkit.getScheduler().runTaskAsynchronously(plugin, task));
     }
 
     @Override
-    public ScheduledTask runAsyncLater(Runnable task, long delayTicks) {
+    public ScheduledTask runTaskAsynchronouslyLater(Runnable task, long delayTicks) {
         return wrap(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delayTicks));
     }
 
 
     @Override
-    public ScheduledTask runAtEntity(Entity entity, Runnable task) {
-        return run(task);
+    public ScheduledTask runTask(Entity entity, Runnable task) {
+        return runTask(task);
     }
 
     @Override
-    public ScheduledTask runAtEntityLater(Entity entity, Runnable task, long delayTicks) {
-        return runLater(task, delayTicks);
+    public ScheduledTask runTaskLater(Entity entity, Runnable task, long delayTicks) {
+        return runTaskLater(task, delayTicks);
     }
 
     @Override
-    public ScheduledTask runAtLocation(Location location, Runnable task) {
-        return run(task);
+    public ScheduledTask runTask(Location location, Runnable task) {
+        return runTask(task);
     }
 
     @Override
-    public ScheduledTask runAtLocationLater(Location location, Runnable task, long delayTicks) {
-        return runLater(task, delayTicks);
+    public ScheduledTask runTaskLater(Location location, Runnable task, long delayTicks) {
+        return runTaskLater(task, delayTicks);
     }
 
     @Override

@@ -6,31 +6,27 @@ import org.bukkit.entity.Entity;
 public interface SchedulerAdapter {
 
 
-    ScheduledTask run(Runnable task);
+    ScheduledTask runTask(Runnable task);
 
-    ScheduledTask runLater(Runnable task, long delayTicks);
+    ScheduledTask runTaskLater(Runnable task, long delayTicks);
 
-    ScheduledTask runTimer(Runnable task, long delayTicks, long periodTicks);
-
-
-    ScheduledTask runAsync(Runnable task);
-
-    ScheduledTask runAsyncLater(Runnable task, long delayTicks);
+    ScheduledTask runTaskTimer(Runnable task, long delayTicks, long periodTicks);
 
 
-    ScheduledTask runAtEntity(Entity entity, Runnable task);
+    ScheduledTask runTaskAsynchronously(Runnable task);
 
-    ScheduledTask runAtEntityLater(Entity entity, Runnable task, long delayTicks);
+    ScheduledTask runTaskAsynchronouslyLater(Runnable task, long delayTicks);
 
 
-    ScheduledTask runAtLocation(Location location, Runnable task);
+    ScheduledTask runTask(Entity entity, Runnable task);
 
-    ScheduledTask runAtLocationLater(Location location, Runnable task, long delayTicks);
+    ScheduledTask runTaskLater(Entity entity, Runnable task, long delayTicks);
+
+
+    ScheduledTask runTask(Location location, Runnable task);
+
+    ScheduledTask runTaskLater(Location location, Runnable task, long delayTicks);
 
     void cancelAll();
 
-    interface ScheduledTask {
-        void cancel();
-        boolean isCancelled();
-    }
 }

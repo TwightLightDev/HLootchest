@@ -2,6 +2,8 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
+      <module fileurl="file://$PROJECT_DIR$/Bukkkt-impl/Bukkit-impl.iml" filepath="$PROJECT_DIR$/Bukkkt-impl/Bukkit-impl.iml" />
+      <module fileurl="file://$PROJECT_DIR$/Folia-impl/Folia-impl.iml" filepath="$PROJECT_DIR$/Folia-impl/Folia-impl.iml" />
       <module fileurl="file://$PROJECT_DIR$/HLootchest-api/HLootchest-api.iml" filepath="$PROJECT_DIR$/HLootchest-api/HLootchest-api.iml" />
       <module fileurl="file://$PROJECT_DIR$/HLootchest-plugin/HLootchest-plugin.iml" filepath="$PROJECT_DIR$/HLootchest-plugin/HLootchest-plugin.iml" />
       <module fileurl="file://$PROJECT_DIR$/v1_12_R1/v1_12_R1.iml" filepath="$PROJECT_DIR$/v1_12_R1/v1_12_R1.iml" />

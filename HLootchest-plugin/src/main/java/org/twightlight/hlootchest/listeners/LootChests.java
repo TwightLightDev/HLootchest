@@ -52,7 +52,7 @@ public class LootChests implements Listener {
             maxRewards = locs.size();
             Utility.error("Detect an illegal value at " + boxid + ".reward-amount.");
             Utility.error("It should be lower or equal " + locs.size());
-            Utility.error("We are trying to fix it, but this cannot be guaranteed");
+            Utility.error("We are trying to fix it, but this cannot be guaranteed!");
         }
         Set<String> rewards = Utility.getRandomElements(prerewards, chances, maxRewards);
         List<Reward> awaiting_rewards = new ArrayList<>();

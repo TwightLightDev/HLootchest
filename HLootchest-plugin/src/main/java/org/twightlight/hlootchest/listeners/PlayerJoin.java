@@ -46,12 +46,12 @@ public class PlayerJoin implements Listener {
 
         db.addColumnIfNotExists("awaiting_rewards", "TEXT", "NULL");
 
-        HLootChest.getScheduler().runAtEntityLater(player, () -> {
+        HLootChest.getScheduler().runTaskLater(player, () -> {
             if (!player.isOnline()) return;
             db.getLootChestDataAsync(player, "fallback_loc", TypeToken.of(String.class), null)
                     .thenAccept(locS -> {
                         if (locS == null || locS.isEmpty()) return;
-                        HLootChest.getScheduler().runAtEntity(player, () -> {
+                        HLootChest.getScheduler().runTask(player, () -> {
                             try {
                                 Chunk chunk = player.getLocation().getChunk();
                                 Utility.clean(chunk, "LootchestVehicle");
@@ -67,12 +67,12 @@ public class PlayerJoin implements Listener {
                     });
         }, 3L);
 
-        HLootChest.getScheduler().runAtEntityLater(player, () -> {
+        HLootChest.getScheduler().runTaskLater(player, () -> {
             if (!player.isOnline()) return;
             db.getLootChestDataAsync(player, "awaiting_rewards", new TypeToken<List<Reward>>() {}, Collections.emptyList())
                     .thenAccept(awaitingRewards -> {
                         if (awaitingRewards == null || awaitingRewards.isEmpty()) return;
-                        HLootChest.getScheduler().runAtEntity(player, () -> {
+                        HLootChest.getScheduler().runTask(player, () -> {
                             for (Reward reward : awaitingRewards) {
                                 reward.accept(player);
                             }
