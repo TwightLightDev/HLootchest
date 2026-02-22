@@ -2,7 +2,7 @@ package org.twightlight.hlootchest.database.SQL;
 
 import org.twightlight.hlootchest.api.enums.DatabaseType;
 import org.twightlight.hlootchest.database.SQLDatabase;
-import org.twightlight.hlootchest.dependency.Classloader;
+import org.twightlight.hlootchest.dependency.ClassLoader;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,14 +10,14 @@ import java.sql.Statement;
 
 public class MySQL extends SQLDatabase {
 
-    public MySQL(Classloader classloader, String host, int port, String database,
+    public MySQL(ClassLoader classloader, String host, int port, String database,
                  String username, String password, boolean ssl) {
         super(DatabaseType.MYSQL, createDataSource(classloader, host, port, database, username, password, ssl));
     }
 
-    private static Object createDataSource(ClassLoader libLoader, String host, int port,
+    private static Object createDataSource(java.lang.ClassLoader libLoader, String host, int port,
                                            String database, String username, String password, boolean useSSL) {
-        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        java.lang.ClassLoader previous = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(libLoader);
             Class.forName("com.mysql.cj.jdbc.Driver", true, libLoader);

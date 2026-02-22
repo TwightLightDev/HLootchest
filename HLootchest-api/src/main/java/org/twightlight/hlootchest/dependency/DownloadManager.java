@@ -12,13 +12,13 @@ public class DownloadManager {
 
     private final Path folder;
     private final Repository repository;
-    private final ClassLoader parent;
+    private final java.lang.ClassLoader parent;
 
     private URLClassLoader loader;
 
     public DownloadManager(Path folder,
                            Repository repository,
-                           ClassLoader parent) {
+                           java.lang.ClassLoader parent) {
         this.folder = folder;
         this.repository = repository;
         this.parent = parent;
@@ -55,7 +55,7 @@ public class DownloadManager {
 
     }
 
-    public ClassLoader getLoader() {
+    public java.lang.ClassLoader getLoader() {
         return loader;
     }
 }

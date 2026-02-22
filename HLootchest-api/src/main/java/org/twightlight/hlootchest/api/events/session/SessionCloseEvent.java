@@ -4,6 +4,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
+import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 
 public class SessionCloseEvent extends Event {
 
@@ -11,9 +12,15 @@ public class SessionCloseEvent extends Event {
     private Player player;
     private TSession session;
 
-    public SessionCloseEvent(Player player, TSession session) {
+    public SessionCloseEvent(boolean isAsync, Player player, TSession session) {
+        super(isAsync);
         this.session = session;
         this.player = player;
+    }
+
+    public SessionCloseEvent(Player player, TSession session) {
+
+        this(false, player, session);
     }
 
 

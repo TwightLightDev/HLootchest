@@ -13,9 +13,14 @@ public class PlayerButtonClickEvent extends Event implements Cancellable {
     private TButton button;
     private boolean cancelled = false;
 
-    public PlayerButtonClickEvent(Player player, TButton button) {
+    public PlayerButtonClickEvent(boolean isAsync, Player player, TButton button) {
+        super(isAsync);
         this.button = button;
         this.player = player;
+    }
+
+    public PlayerButtonClickEvent(Player player, TButton button) {
+        this(false, player, button);
     }
 
 

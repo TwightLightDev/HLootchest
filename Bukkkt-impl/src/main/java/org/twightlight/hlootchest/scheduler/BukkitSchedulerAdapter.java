@@ -55,6 +55,11 @@ public class BukkitSchedulerAdapter implements SchedulerAdapter {
         return wrap(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delayTicks));
     }
 
+    @Override
+    public ScheduledTask runTaskAsynchronouslyTimer(Runnable task, long delayTicks, long periodTicks) {
+        return wrap(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delayTicks));
+    }
+
 
     @Override
     public ScheduledTask runTask(Entity entity, Runnable task) {
@@ -67,6 +72,11 @@ public class BukkitSchedulerAdapter implements SchedulerAdapter {
     }
 
     @Override
+    public ScheduledTask runTaskTimer(Entity entity, Runnable task, long delayTicks, long periodTicks) {
+        return runTaskTimer(task, delayTicks, periodTicks);
+    }
+
+    @Override
     public ScheduledTask runTask(Location location, Runnable task) {
         return runTask(task);
     }
@@ -74,6 +84,11 @@ public class BukkitSchedulerAdapter implements SchedulerAdapter {
     @Override
     public ScheduledTask runTaskLater(Location location, Runnable task, long delayTicks) {
         return runTaskLater(task, delayTicks);
+    }
+
+    @Override
+    public ScheduledTask runTaskTimer(Location location, Runnable task, long delayTicks, long periodTicks) {
+        return runTaskTimer(task, delayTicks, periodTicks);
     }
 
     @Override

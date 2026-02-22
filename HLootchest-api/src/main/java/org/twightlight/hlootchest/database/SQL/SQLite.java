@@ -3,7 +3,7 @@ package org.twightlight.hlootchest.database.SQL;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
 import org.twightlight.hlootchest.database.SQLDatabase;
-import org.twightlight.hlootchest.dependency.Classloader;
+import org.twightlight.hlootchest.dependency.ClassLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,11 +13,11 @@ import java.sql.Statement;
 
 public class SQLite extends SQLDatabase {
 
-    public SQLite(Plugin plugin, Classloader classloader) {
+    public SQLite(Plugin plugin, ClassLoader classloader) {
         super(DatabaseType.SQLITE, createDataSource(plugin, classloader));
     }
 
-    private static Object createDataSource(Plugin plugin, ClassLoader libLoader) {
+    private static Object createDataSource(Plugin plugin, java.lang.ClassLoader libLoader) {
         File dataFile = new File(plugin.getDataFolder(), "hlootchest.db");
         if (!dataFile.exists()) {
             try {
@@ -28,7 +28,7 @@ public class SQLite extends SQLDatabase {
             }
         }
 
-        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+        java.lang.ClassLoader previous = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(libLoader);
 

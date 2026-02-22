@@ -187,8 +187,8 @@ public class AdminCommand implements CommandExecutor {
                         }
                     case "clean-debug":
                         if (HLootChest.getAPI().getDebugService().isDebug()) {
-                            Utility.clean(p.getLocation().getChunk(), "LootchestVehicle");
-                            Utility.clean(p.getLocation().getChunk(), "removeOnRestart");
+                            Utility.clean(p.getLocation().getChunk(), "LootchestVehicle", HLootChest.getScheduler());
+                            Utility.clean(p.getLocation().getChunk(), "removeOnRestart", HLootChest.getScheduler());
                         } else {
                             p.sendMessage(ChatColor.RED + "Not in debug mode!");
                         }

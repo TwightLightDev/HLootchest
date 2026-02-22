@@ -5,7 +5,7 @@ import com.google.gson.Gson;
 import org.bukkit.OfflinePlayer;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
-import org.twightlight.hlootchest.dependency.Classloader;
+import org.twightlight.hlootchest.dependency.ClassLoader;
 
 import java.lang.reflect.Method;
 import java.sql.Connection;
@@ -28,7 +28,7 @@ public class RedisDatabase implements TDatabase {
     private final Gson gson = new Gson();
     private final ExecutorService executor;
 
-    public RedisDatabase(TDatabase backingDatabase, Classloader classloader,
+    public RedisDatabase(TDatabase backingDatabase, ClassLoader classloader,
                          String host, int port, String password) {
         this.backingDatabase = backingDatabase;
         this.jedisPool = createJedisPool(classloader, host, port, password);
@@ -39,8 +39,8 @@ public class RedisDatabase implements TDatabase {
         });
     }
 
-    private static Object createJedisPool(ClassLoader libLoader, String host, int port, String password) {
-        ClassLoader previous = Thread.currentThread().getContextClassLoader();
+    private static Object createJedisPool(java.lang.ClassLoader libLoader, String host, int port, String password) {
+        java.lang.ClassLoader previous = Thread.currentThread().getContextClassLoader();
         try {
             Thread.currentThread().setContextClassLoader(libLoader);
 

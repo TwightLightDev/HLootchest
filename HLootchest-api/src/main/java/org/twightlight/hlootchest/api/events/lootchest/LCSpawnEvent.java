@@ -11,9 +11,14 @@ public class LCSpawnEvent extends Event {
     private Player player;
     private TBox box;
 
-    public LCSpawnEvent(Player player, TBox box) {
+    public LCSpawnEvent(boolean isAsync, Player player, TBox box) {
+        super(isAsync);
         this.box = box;
         this.player = player;
+    }
+
+    public LCSpawnEvent(Player player, TBox box) {
+        this(false, player, box);
     }
 
 

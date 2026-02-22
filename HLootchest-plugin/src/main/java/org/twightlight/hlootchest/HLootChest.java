@@ -20,6 +20,7 @@ import org.twightlight.hlootchest.database.SQL.MariaDB;
 import org.twightlight.hlootchest.database.SQL.MySQL;
 import org.twightlight.hlootchest.database.SQL.SQLite;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
+import org.twightlight.hlootchest.dependency.ClassLoader;
 import org.twightlight.hlootchest.listeners.LootChests;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
@@ -49,14 +50,13 @@ public final class HLootChest extends JavaPlugin {
     public static ColorUtils colorUtils;
     private static final String version = Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1];
     private ActionHandler actionHandler;
-    private Classloader libsLoader;
+    private ClassLoader libsLoader;
     private static SchedulerAdapter scheduler;
 
     @Override
     public void onEnable() {
         Utility.setPlugin(this);
         scheduler = new SchedulerProvider(this).get();
-
         if (SchedulerProvider.isFolia()) {
             Utility.info("Folia detected! Using region-based scheduling.");
         }
@@ -97,6 +97,7 @@ public final class HLootChest extends JavaPlugin {
         loadCommands();
         loadListeners();
         loadDatabase(downloader);
+        actionHandler = new ActionHandler(HLootChest.getAPI(), scheduler);
         hooksLoader = new HooksLoader();
         loadCredit();
 
@@ -112,7 +113,7 @@ public final class HLootChest extends JavaPlugin {
 
         new VersionChecker(this, "122671").checkForUpdates();
         Utility.info("HLootChest has successfully been enabled!");
-        actionHandler = new ActionHandler(HLootChest.getAPI());
+
     }
 
     @Override
@@ -349,8 +350,10 @@ public final class HLootChest extends JavaPlugin {
     public static String getVersion() { return "1.3.0"; }
     public static String getAPIVersion() { return version; }
     public org.twightlight.hlootchest.supports.interfaces.HooksLoader getHooksLoader() { return hooksLoader; }
-    public ActionHandler getActionHandler() { return actionHandler; }
-    public Classloader getLibsLoader() { return libsLoader; }
+    public ActionHandler getActionHandler() {
+        return actionHandler;
+    }
+    public ClassLoader getLibsLoader() { return libsLoader; }
     public static SchedulerAdapter getScheduler() {
         return scheduler;
     }

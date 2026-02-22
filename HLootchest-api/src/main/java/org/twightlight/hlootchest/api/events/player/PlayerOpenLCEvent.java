@@ -13,10 +13,15 @@ public class PlayerOpenLCEvent extends Event implements Cancellable {
     private boolean cancelled = false;
     private TBox box;
 
-    public PlayerOpenLCEvent(Player player, TBox box) {
-
+    public PlayerOpenLCEvent(boolean isAsync, Player player, TBox box) {
+        super(isAsync);
         this.box = box;
         this.player = player;
+    }
+
+    public PlayerOpenLCEvent(Player player, TBox box) {
+
+        this(false, player, box);
     }
 
 

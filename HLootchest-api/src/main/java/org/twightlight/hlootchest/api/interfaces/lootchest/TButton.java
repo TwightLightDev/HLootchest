@@ -5,6 +5,7 @@ import org.bukkit.scheduler.BukkitTask;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.objects.ButtonSound;
+import org.twightlight.hlootchest.scheduler.ScheduledTask;
 
 import java.util.List;
 
@@ -111,10 +112,9 @@ public interface TButton {
     /**
      * Gets the scheduled task associated with the button, if any.
      *
-     * @return The {@link BukkitTask} assigned to the button.
+     * @return The {@link ScheduledTask} assigned to the button.
      */
-    @Deprecated
-    BukkitTask getTask();
+    ScheduledTask getTask();
 
     /**
      * Checks if the button is movable.

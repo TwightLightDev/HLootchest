@@ -45,11 +45,11 @@ public class Main extends NMSHandler {
     private static boolean haspacketService = false;
     private static PacketEventsSupport packetService;
 
-    public Main(Plugin pl, String name, HLootchest api) {
+    public Main(Plugin pl, String name, HLootchest api1) {
         super(pl, name);
         handler = this;
         colorUtils = new ColorUtils();
-        this.api = api;
+        api = api1;
         nmsUtil = new NMSUtil();
         Bukkit.getServer().getPluginManager().registerEvents(new ClickEvent(), pl);
 

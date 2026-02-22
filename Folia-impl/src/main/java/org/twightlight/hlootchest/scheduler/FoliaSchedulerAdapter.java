@@ -56,16 +56,27 @@ public class FoliaSchedulerAdapter implements SchedulerAdapter {
     }
 
     @Override
-    public ScheduledTask runTaskAsynchronouslyLater(Runnable task, long delayTicks) {
-        long delayMillis = delayTicks * 50L;
+    public ScheduledTask runTaskAsynchronouslyLater(Runnable task, long delayMillis) {
+        long delayTicks = delayMillis * 50L;
 
         return wrap(Bukkit.getAsyncScheduler()
                 .runDelayed(plugin,
                         t -> task.run(),
-                        delayMillis,
+                        delayTicks,
                         TimeUnit.MILLISECONDS));
     }
 
+    @Override
+    public ScheduledTask runTaskAsynchronouslyTimer(Runnable task, long delayMillis, long periodMillis) {
+        long delayTicks = delayMillis * 50L;
+        long periodTicks = periodMillis * 50L;
+
+        return wrap(Bukkit.getAsyncScheduler()
+                .runAtFixedRate(plugin,
+                        t -> task.run(),
+                        delayTicks, periodTicks,
+                        TimeUnit.MILLISECONDS));
+    }
 
     @Override
     public ScheduledTask runTask(Entity entity, Runnable task) {
@@ -77,6 +88,12 @@ public class FoliaSchedulerAdapter implements SchedulerAdapter {
     public ScheduledTask runTaskLater(Entity entity, Runnable task, long delayTicks) {
         return wrap(entity.getScheduler()
                 .runDelayed(plugin, t -> task.run(), null, delayTicks));
+    }
+
+    @Override
+    public ScheduledTask runTaskTimer(Entity entity, Runnable task, long delayTicks, long periodTicks) {
+        return wrap(entity.getScheduler()
+                .runAtFixedRate(plugin, t -> task.run(), null, delayTicks, periodTicks));
     }
 
 
@@ -92,9 +109,17 @@ public class FoliaSchedulerAdapter implements SchedulerAdapter {
                 .runDelayed(plugin, location, t -> task.run(), delayTicks));
     }
 
+    @Override
+    public ScheduledTask runTaskTimer(Location location, Runnable task, long delayTicks, long periodTicks) {
+        return wrap(Bukkit.getRegionScheduler()
+                .runAtFixedRate(plugin, location, t -> task.run(), delayTicks, periodTicks));
+    }
+
+
 
     @Override
     public void cancelAll() {
         Bukkit.getGlobalRegionScheduler().cancelTasks(plugin);
+        Bukkit.getAsyncScheduler().cancelTasks(plugin);
     }
 }

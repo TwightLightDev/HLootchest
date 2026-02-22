@@ -3,9 +3,9 @@ package org.twightlight.hlootchest.dependency;
 import java.net.URL;
 import java.net.URLClassLoader;
 
-public class Classloader extends URLClassLoader {
+public class ClassLoader extends URLClassLoader {
 
-    public Classloader(URL[] urls, ClassLoader parent) {
+    public ClassLoader(URL[] urls, java.lang.ClassLoader parent) {
         super(urls, parent);
     }
 

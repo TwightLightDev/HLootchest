@@ -17,15 +17,21 @@ public interface SchedulerAdapter {
 
     ScheduledTask runTaskAsynchronouslyLater(Runnable task, long delayTicks);
 
+    ScheduledTask runTaskAsynchronouslyTimer(Runnable task, long delayTicks, long periodTicks);
+
 
     ScheduledTask runTask(Entity entity, Runnable task);
 
     ScheduledTask runTaskLater(Entity entity, Runnable task, long delayTicks);
 
+    ScheduledTask runTaskTimer(Entity entity, Runnable task, long delayTicks, long periodTicks);
+
 
     ScheduledTask runTask(Location location, Runnable task);
 
     ScheduledTask runTaskLater(Location location, Runnable task, long delayTicks);
+
+    ScheduledTask runTaskTimer(Location location, Runnable task, long delayTicks, long periodTicks);
 
     void cancelAll();
 

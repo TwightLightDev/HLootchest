@@ -11,9 +11,15 @@ public class PlayerRewardGiveEvent extends Event {
     private Player player;
     private TBox box;
 
-    public PlayerRewardGiveEvent(Player player, TBox box) {
+    public PlayerRewardGiveEvent(boolean isAsync, Player player, TBox box) {
+        super(isAsync);
         this.box = box;
         this.player = player;
+    }
+
+    public PlayerRewardGiveEvent(Player player, TBox box) {
+
+        this(false, player, box);
     }
 
 

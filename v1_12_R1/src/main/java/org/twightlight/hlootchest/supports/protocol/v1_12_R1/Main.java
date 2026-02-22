@@ -43,10 +43,10 @@ public class Main extends NMSHandler {
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
     private static final Map<String, LootChestFactory> effectsList = new HashMap<>();
 
-    public Main(Plugin pl, String name, HLootchest api) {
+    public Main(Plugin pl, String name, HLootchest api1) {
         super(pl, name);
         handler = this;
-        this.api = api;
+        api = api1;
         nmsUtil = new NMSUtil();
     }
 

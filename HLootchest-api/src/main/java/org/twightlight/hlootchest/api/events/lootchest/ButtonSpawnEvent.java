@@ -8,22 +8,26 @@ import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 public class ButtonSpawnEvent extends Event {
 
     private static final HandlerList HANDLERS = new HandlerList();
-    private Player player;
-    private TButton button;
+    private final Player player;
+    private final TButton button;
 
     public ButtonSpawnEvent(Player player, TButton button) {
+        this(false, player, button);
+    }
+
+    public ButtonSpawnEvent(boolean isAsync, Player player, TButton button) {
+        super(isAsync);
         this.button = button;
         this.player = player;
     }
 
-
     public Player getPlayer() {
         return this.player;
     }
+
     public TButton getButton() {
         return this.button;
     }
-
 
     public HandlerList getHandlers() {
         return HANDLERS;

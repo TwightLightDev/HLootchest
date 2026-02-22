@@ -6,6 +6,7 @@ import org.bukkit.entity.Entity;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
+import org.twightlight.hlootchest.scheduler.SchedulerAdapter;
 
 import java.util.*;
 import java.util.regex.Pattern;
@@ -265,23 +266,26 @@ public class Utility {
         }
     }
 
-    public static void clean(Chunk chunk, String name) {
-        boolean isLoaded = chunk.isLoaded();
-        if (!isLoaded) {
-            chunk.load();
-        }
-        for (Entity entity : chunk.getEntities()) {
-            if (entity.getCustomName() != null && entity.getCustomName().contains(name) && !(entity instanceof Player)) {
-                entity.remove();
-            } else if (entity.hasMetadata(name) && !(entity instanceof Player)) {
-                entity.remove();
+    public static void clean(Chunk chunk, String name, SchedulerAdapter scheduler) {
+        Location regionLoc = new Location(chunk.getWorld(), chunk.getX() << 4, 64, chunk.getZ() << 4);
+        scheduler.runTask(regionLoc, () -> {
+            boolean isLoaded = chunk.isLoaded();
+            if (!isLoaded) {
+                chunk.load();
             }
-        }
-
-        if (!isLoaded) {
-            chunk.unload();
-        }
+            for (Entity entity : chunk.getEntities()) {
+                if (entity.getCustomName() != null && entity.getCustomName().contains(name) && !(entity instanceof Player)) {
+                    entity.remove();
+                } else if (entity.hasMetadata(name) && !(entity instanceof Player)) {
+                    entity.remove();
+                }
+            }
+            if (!isLoaded) {
+                chunk.unload();
+            }
+        });
     }
+
 
     public static boolean isValidBase64(String base64) {
         String base64Pattern = "^[A-Za-z0-9+/]+={0,2}$";

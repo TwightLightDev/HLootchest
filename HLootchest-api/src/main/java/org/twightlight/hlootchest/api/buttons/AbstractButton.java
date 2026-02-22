@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.api.buttons;
 
+import org.twightlight.hlootchest.utils.Utility;
 import org.twightlight.libs.xseries.XMaterial;
 import org.twightlight.libs.exp4j.Expression;
 import org.twightlight.libs.exp4j.ExpressionBuilder;
@@ -10,8 +11,6 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.plugin.Plugin;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.Vector;
 import org.twightlight.hlootchest.api.HLootchest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
@@ -22,13 +21,11 @@ import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.objects.ButtonSound;
 import org.twightlight.hlootchest.objects.Icon;
-import org.twightlight.hlootchest.utils.Utility;
+import org.twightlight.hlootchest.scheduler.SchedulerAdapter;
+import org.twightlight.hlootchest.scheduler.ScheduledTask;
 
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
-import java.util.concurrent.TimeUnit;
 
 public abstract class AbstractButton implements TButton {
 
@@ -44,11 +41,12 @@ public abstract class AbstractButton implements TButton {
     protected final HLootchest apiInstance;
     protected final NMSHandler handler;
     protected final Plugin plugin;
+    protected final SchedulerAdapter scheduler;
 
     protected ArmorStand armorstand;
     protected int id;
     protected boolean isMoved = false;
-    protected BukkitTask task;
+    protected ScheduledTask task;
     protected boolean clickable = false;
     protected boolean moveable = true;
     protected ButtonType type;
@@ -62,7 +60,8 @@ public abstract class AbstractButton implements TButton {
 
     public AbstractButton(Location location, ButtonType type, Player player, String path,
                           TYamlWrapper config, boolean isPreview,
-                          NMSBridge nms, HLootchest apiInstance, NMSHandler handler, Plugin plugin) {
+                          NMSBridge nms, HLootchest apiInstance, NMSHandler handler,
+                          Plugin plugin, SchedulerAdapter scheduler) {
         this.owner = player;
         this.config = config;
         this.pathToButton = path;
@@ -72,13 +71,14 @@ public abstract class AbstractButton implements TButton {
         this.handler = handler;
         this.plugin = plugin;
         this.type = type;
+        this.scheduler = scheduler;
 
         boolean betterCheck = apiInstance.getConfigUtil().getMainConfig()
                 .getBoolean("performance.modern-check-algorithm", false);
         this.cfg = ButtonConfigParser.parse(config, path, betterCheck);
 
         ButtonSpawnEvent event = new ButtonSpawnEvent(owner, this);
-        Bukkit.getPluginManager().callEvent(event);
+        scheduler.runTask(owner, () -> Bukkit.getPluginManager().callEvent(event));
 
         initializeArmorStand(location);
         setupNameRefresh();
@@ -103,34 +103,32 @@ public abstract class AbstractButton implements TButton {
 
     private void setupNameRefresh() {
         if (cfg.nameRefreshInterval <= 0) return;
-        new BukkitRunnable() {
-            int i = 1;
-            public void run() {
-                if (!owner.isOnline() || removed) { cancel(); return; }
-                if (!cfg.dynamicName) {
-                    nms.setCustomName(armorstand, ChatColor.translateAlternateColorCodes('&', apiInstance.getLanguageUtil().p(owner, cfg.displayNames.get(0))));
-                } else {
-                    if (i >= cfg.displayNames.size()) i = 0;
-                    nms.setCustomName(armorstand, ChatColor.translateAlternateColorCodes('&', apiInstance.getLanguageUtil().p(owner, cfg.displayNames.get(i))));
-                    i++;
-                }
-                nms.sendMetadataPacket(owner, armorstand);
+        final int[] i = {1};
+        scheduler.runTaskTimer(owner, () -> {
+            if (!owner.isOnline() || removed) return;
+            if (!cfg.dynamicName) {
+                nms.setCustomName(armorstand, ChatColor.translateAlternateColorCodes('&',
+                        apiInstance.getLanguageUtil().p(owner, cfg.displayNames.get(0))));
+            } else {
+                if (i[0] >= cfg.displayNames.size()) i[0] = 0;
+                nms.setCustomName(armorstand, ChatColor.translateAlternateColorCodes('&',
+                        apiInstance.getLanguageUtil().p(owner, cfg.displayNames.get(i[0]))));
+                i[0]++;
             }
-        }.runTaskTimer(plugin, 0L, cfg.nameRefreshInterval);
+            nms.sendMetadataPacket(owner, armorstand);
+        }, 0L, cfg.nameRefreshInterval);
     }
 
     private void setupRotationOnSpawn(Location location) {
         if (!cfg.rotateOnSpawn) return;
         float angle = (float) (location.getYaw() - cfg.rotateOnSpawnFinalYaw);
         int multiply = cfg.rotateReverse ? 1 : -1;
-        new BukkitRunnable() {
-            int i = 0;
-            public void run() {
-                if (!owner.isOnline() || i >= 1) { cancel(); return; }
-                i++;
-                nms.spin(owner, armorstand, location.getYaw() - (angle * i * multiply));
-            }
-        }.runTaskTimer(plugin, 2L, 1L);
+        final int[] i = {0};
+        scheduler.runTaskTimer(owner, () -> {
+            if (!owner.isOnline() || i[0] >= 1) return;
+            i[0]++;
+            nms.spin(owner, armorstand, location.getYaw() - (angle * i[0] * multiply));
+        }, 2L, 1L);
     }
 
     private void setupIconHandling() {
@@ -144,18 +142,16 @@ public abstract class AbstractButton implements TButton {
         }
         if (cfg.holdingIcon && cfg.dynamicIcon && cfg.dynamicIcons != null && cfg.iconRefreshInterval > 0) {
             List<TIcon> icons = buildIconList(cfg.dynamicIcons);
-            new BukkitRunnable() {
-                int i = 0;
-                public void run() {
-                    if (!owner.isOnline() || removed) { cancel(); return; }
-                    if (i >= icons.size()) i = 0;
-                    if (!isHiding) {
-                        nms.equipIcon(owner, armorstand, icons.get(i).getItemStack(), icons.get(i).getItemSlot());
-                        setIcon(icons.get(i));
-                    }
-                    i++;
+            final int[] i = {0};
+            scheduler.runTaskTimer(owner, () -> {
+                if (!owner.isOnline() || removed) return;
+                if (i[0] >= icons.size()) i[0] = 0;
+                if (!isHiding) {
+                    nms.equipIcon(owner, armorstand, icons.get(i[0]).getItemStack(), icons.get(i[0]).getItemSlot());
+                    setIcon(icons.get(i[0]));
                 }
-            }.runTaskTimer(plugin, 0L, cfg.iconRefreshInterval);
+                i[0]++;
+            }, 0L, cfg.iconRefreshInterval);
         }
     }
 
@@ -223,22 +219,20 @@ public abstract class AbstractButton implements TButton {
     }
 
     private void scheduleChildNameRefresh(ArmorStand child, ChildConfig ch) {
-        new BukkitRunnable() {
-            int i = 1;
-            public void run() {
-                if (!owner.isOnline() || removed) { cancel(); return; }
-                if (!ch.dynamicName) {
-                    nms.setCustomName(child, apiInstance.getLanguageUtil().p(owner,
-                            ChatColor.translateAlternateColorCodes('&', ch.displayNames.get(0))));
-                } else {
-                    if (i >= ch.displayNames.size()) i = 0;
-                    nms.setCustomName(child, apiInstance.getLanguageUtil().p(owner,
-                            ChatColor.translateAlternateColorCodes('&', ch.displayNames.get(i))));
-                    i++;
-                }
-                nms.sendMetadataPacket(owner, child);
+        final int[] i = {1};
+        scheduler.runTaskTimer(owner, () -> {
+            if (!owner.isOnline() || removed) return;
+            if (!ch.dynamicName) {
+                nms.setCustomName(child, apiInstance.getLanguageUtil().p(owner,
+                        ChatColor.translateAlternateColorCodes('&', ch.displayNames.get(0))));
+            } else {
+                if (i[0] >= ch.displayNames.size()) i[0] = 0;
+                nms.setCustomName(child, apiInstance.getLanguageUtil().p(owner,
+                        ChatColor.translateAlternateColorCodes('&', ch.displayNames.get(i[0]))));
+                i[0]++;
             }
-        }.runTaskTimer(plugin, 0L, ch.nameRefreshInterval);
+            nms.sendMetadataPacket(owner, child);
+        }, 0L, ch.nameRefreshInterval);
     }
 
     private void setupChildIcon(ArmorStand child, ChildConfig ch) {
@@ -254,18 +248,16 @@ public abstract class AbstractButton implements TButton {
             nms.equipIcon(owner, child, icons.get(0).getItemStack(), icons.get(0).getItemSlot());
             childIcons.put(child, icons.get(0));
             if (ch.iconRefreshInterval > 0) {
-                new BukkitRunnable() {
-                    int i = 1;
-                    public void run() {
-                        if (!owner.isOnline() || removed) { cancel(); return; }
-                        if (i >= icons.size()) i = 0;
-                        if (!isHiding) {
-                            nms.equipIcon(owner, child, icons.get(i).getItemStack(), icons.get(i).getItemSlot());
-                            childIcons.put(child, icons.get(i));
-                        }
-                        i++;
+                final int[] i = {1};
+                scheduler.runTaskTimer(owner, () -> {
+                    if (!owner.isOnline() || removed) return;
+                    if (i[0] >= icons.size()) i[0] = 0;
+                    if (!isHiding) {
+                        nms.equipIcon(owner, child, icons.get(i[0]).getItemStack(), icons.get(i[0]).getItemSlot());
+                        childIcons.put(child, icons.get(i[0]));
                     }
-                }.runTaskTimer(plugin, 0L, ch.iconRefreshInterval);
+                    i[0]++;
+                }, 0L, ch.iconRefreshInterval);
             }
         }
     }
@@ -283,7 +275,7 @@ public abstract class AbstractButton implements TButton {
 
     private void setupMovementBehavior() {
         if (!cfg.moveForward) { this.task = null; return; }
-        this.task = Bukkit.getScheduler().runTaskTimer(plugin, () -> {
+        this.task = scheduler.runTaskTimer(owner, () -> {
             if (owner == null || armorstand == null || !owner.isOnline()) { cancelTask(); return; }
             Location standLoc = nms.getBukkitLocation(armorstand);
             if (owner.getLocation().distance(standLoc) > 5 || isHiding) {
@@ -333,12 +325,10 @@ public abstract class AbstractButton implements TButton {
         }
     }
 
-    private void unmovablePeriod(int time) {
+    private void unmovablePeriod(int timeMillis) {
         this.moveable = false;
-        Bukkit.getScheduler().runTaskLaterAsynchronously((plugin), () -> {
-            moveable = true;
-        }, time);
-
+        long ticks = Math.max(1, timeMillis / 50);
+        scheduler.runTaskAsynchronouslyLater(() -> moveable = true, ticks);
     }
 
     @Override
@@ -411,7 +401,7 @@ public abstract class AbstractButton implements TButton {
     @Override public boolean isHiding() { return isHiding; }
     @Override public void setIcon(TIcon icon) { this.icon = icon; }
     @Override public TYamlWrapper getConfig() { return config; }
-    @Override public BukkitTask getTask() { return task; }
+    @Override public ScheduledTask getTask() { return task; }
     @Override public boolean isMoveable() { return moveable; }
     @Override public void setMoveable(boolean moveable) { this.moveable = moveable; }
     @Override public void setType(ButtonType type) { this.type = type; }
@@ -427,4 +417,3 @@ public abstract class AbstractButton implements TButton {
     @Override public String getNameVisibleMode() { return cfg.nameVisibleMode; }
     @Override public boolean isPreview() { return isPreview; }
 }
-

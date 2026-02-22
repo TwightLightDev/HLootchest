@@ -54,8 +54,8 @@ public class PlayerJoin implements Listener {
                         HLootChest.getScheduler().runTask(player, () -> {
                             try {
                                 Chunk chunk = player.getLocation().getChunk();
-                                Utility.clean(chunk, "LootchestVehicle");
-                                Utility.clean(chunk, "removeOnRestart");
+                                Utility.clean(chunk, "LootchestVehicle", HLootChest.getScheduler());
+                                Utility.clean(chunk, "removeOnRestart", HLootChest.getScheduler());
                                 Location loc = Utility.stringToLocation(locS);
                                 if (loc != null) {
                                     player.teleport(loc);
