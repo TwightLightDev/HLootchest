@@ -17,9 +17,7 @@ public class MariaDB extends SQLDatabase {
 
     private static Object createDataSource(HClassLoader libLoader, String host, int port,
                                            String database, String username, String password, boolean useSSL) {
-        java.lang.ClassLoader previous = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(libLoader);
             Class.forName("org.mariadb.jdbc.Driver", true, libLoader);
 
             Class<?> hikariConfigClass = Class.forName("com.zaxxer.hikari.HikariConfig", true, libLoader);
@@ -27,7 +25,6 @@ public class MariaDB extends SQLDatabase {
 
             Object config = hikariConfigClass.getDeclaredConstructor().newInstance();
 
-            hikariConfigClass.getMethod("setDriverClassName", String.class).invoke(config, "org.mariadb.jdbc.Driver");
             hikariConfigClass.getMethod("setJdbcUrl", String.class)
                     .invoke(config, String.format("jdbc:mariadb://%s:%d/%s", host, port, database));
             hikariConfigClass.getMethod("setUsername", String.class).invoke(config, username);
@@ -43,8 +40,6 @@ public class MariaDB extends SQLDatabase {
             return hikariDataSourceClass.getConstructor(hikariConfigClass).newInstance(config);
         } catch (Exception e) {
             throw new RuntimeException("Failed to init MariaDB datasource", e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(previous);
         }
     }
 

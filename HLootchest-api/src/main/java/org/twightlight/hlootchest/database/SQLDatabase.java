@@ -70,9 +70,6 @@ public abstract class SQLDatabase implements TDatabase {
     }
 
     protected String insertIgnoreSyntax() {
-        if (type == DatabaseType.SQLITE) {
-            return "INSERT OR IGNORE INTO";
-        }
         return "INSERT IGNORE INTO";
     }
 

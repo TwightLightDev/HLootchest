@@ -17,9 +17,7 @@ public class MySQL extends SQLDatabase {
 
     private static Object createDataSource(java.lang.ClassLoader libLoader, String host, int port,
                                            String database, String username, String password, boolean useSSL) {
-        java.lang.ClassLoader previous = Thread.currentThread().getContextClassLoader();
         try {
-            Thread.currentThread().setContextClassLoader(libLoader);
             Class.forName("com.mysql.cj.jdbc.Driver", true, libLoader);
 
             Class<?> hikariConfigClass = Class.forName("com.zaxxer.hikari.HikariConfig", true, libLoader);
@@ -32,7 +30,6 @@ public class MySQL extends SQLDatabase {
                     host, port, database, useSSL, useSSL, useSSL
             );
 
-            hikariConfigClass.getMethod("setDriverClassName", String.class).invoke(config, "com.mysql.cj.jdbc.Driver");
             hikariConfigClass.getMethod("setJdbcUrl", String.class).invoke(config, jdbcUrl);
             hikariConfigClass.getMethod("setUsername", String.class).invoke(config, username);
             hikariConfigClass.getMethod("setPassword", String.class).invoke(config, password);
@@ -45,8 +42,6 @@ public class MySQL extends SQLDatabase {
             return hikariDataSourceClass.getConstructor(hikariConfigClass).newInstance(config);
         } catch (Exception e) {
             throw new RuntimeException("Failed to init MySQL datasource", e);
-        } finally {
-            Thread.currentThread().setContextClassLoader(previous);
         }
     }
 

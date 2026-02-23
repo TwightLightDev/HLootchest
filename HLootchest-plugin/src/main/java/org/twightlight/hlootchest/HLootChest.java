@@ -285,10 +285,7 @@ public final class HLootChest extends JavaPlugin {
                         Utility.info("Unknown database provider '" + provider + "', falling back to SQLite.");
                     }
                     Utility.info("&aUsing SQLite as database provider...");
-                    downloader.load(
-                            new Dependency("org.xerial", "sqlite-jdbc", "3.45.1.0", false)
-                    );
-                    sqlDatabase = new SQLite(this, hclassLoader);
+                    sqlDatabase = new SQLite(this);
                     break;
             }
 
