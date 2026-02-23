@@ -9,18 +9,19 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.bukkit.util.EulerAngle;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
+import org.twightlight.hlootchest.scheduler.ScheduledTask;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.utilities.Animations;
 import org.twightlight.hlootchest.utils.Utility;
 
 public class Regular extends AbstractBox {
     private final ArmorStand sword;
-    public Regular(Location location, Player player, org.bukkit.inventory.ItemStack icon, TYamlWrapper config, String boxid) {
+
+    public Regular(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);
         final Location loc = Utility.stringToLocation(config.getString(boxid + ".settings.decoration.location"));
 
@@ -30,35 +31,32 @@ public class Regular extends AbstractBox {
         sendSpawnPacket(getOwner(), sword);
         ItemStack icon1 = new ItemStack(XMaterial.DIAMOND_SWORD.parseMaterial());
         sword.getEquipment().setItem(EquipmentSlot.HAND, icon1);
-        new BukkitRunnable() {
-            final double startY = getBox().getLocation().getY();
-            final double targetY = getBox().getLocation().getY() - 4.6;
-            final int totalTicks = (int) ((startY - targetY) / 0.2);
-            int currentTick = 0;
-            final double swordOffset = sword.getLocation().getY() - getBox().getLocation().getY();
 
-            @Override
-            public void run() {
-                if (currentTick >= totalTicks) {
-                    cancel();
-                    getOwner().playSound(getOwner().getLocation(), XSound.BLOCK_ANVIL_LAND.get(), 10, 5);
-                    return;
-                }
+        final double startY = getBox().getLocation().getY();
+        final double targetY = getBox().getLocation().getY() - 4.6;
+        final int totalTicks = (int) ((startY - targetY) / 0.2);
+        final double swordOffset = sword.getLocation().getY() - getBox().getLocation().getY();
+        final int[] currentTick = {0};
 
-                double progress = (double) currentTick / totalTicks;
-                double newY_box = startY - ((startY - targetY) * progress);
-                double newY_sword = newY_box + swordOffset;
-
-                Location swnewLoc = sword.getLocation().clone();
-                swnewLoc.setY(newY_sword);
-                sword.teleport(swnewLoc);
-                Location boxnewLoc = getBox().getLocation().clone();
-                boxnewLoc.setY(newY_box);
-                getBox().teleport(boxnewLoc);
-
-                currentTick++;
+        Main.api.getScheduler().runTaskTimer(loc, () -> {
+            if (currentTick[0] >= totalTicks) {
+                getOwner().playSound(getOwner().getLocation(), XSound.BLOCK_ANVIL_LAND.get(), 10, 5);
+                return;
             }
-        }.runTaskTimer(Main.handler.plugin, 0L, 1L);
+
+            double progress = (double) currentTick[0] / totalTicks;
+            double newY_box = startY - ((startY - targetY) * progress);
+            double newY_sword = newY_box + swordOffset;
+
+            Location swnewLoc = sword.getLocation().clone();
+            swnewLoc.setY(newY_sword);
+            sword.teleport(swnewLoc);
+            Location boxnewLoc = getBox().getLocation().clone();
+            boxnewLoc.setY(newY_box);
+            getBox().teleport(boxnewLoc);
+
+            currentTick[0]++;
+        }, 0L, 1L);
     }
 
     public boolean open() {
@@ -79,70 +77,63 @@ public class Regular extends AbstractBox {
         }
         Main.nmsUtil.setFakeGameMode(getOwner(), GameMode.SPECTATOR);
         Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, true);
-        (new BukkitRunnable() {
-            long startTime = System.currentTimeMillis();
-            public void run() {
-                if (System.currentTimeMillis() - this.startTime > 3500L)
-                    return;
-                if (getOwner().getLocation().getYaw() != Regular.this.getPlayerLocation().getYaw() || getOwner().getLocation().getPitch() != Regular.this.getPlayerLocation().getPitch()) {
-                    getOwner().teleport(getPlayerLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
-                }
+
+        final long startTimeLock = System.currentTimeMillis();
+        Main.api.getScheduler().runTaskTimer(getOwner(), () -> {
+            if (System.currentTimeMillis() - startTimeLock > 3500L) return;
+            if (getOwner().getLocation().getYaw() != getPlayerLocation().getYaw() || getOwner().getLocation().getPitch() != getPlayerLocation().getPitch()) {
+                getOwner().teleport(getPlayerLocation(), PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
-        }).runTaskTimer(Main.handler.plugin, 0L, 2L);
-        new BukkitRunnable() {
-            private long startTime = System.currentTimeMillis();
-            private int time = 0;
+        }, 0L, 2L);
 
-            @Override
-            public void run() {
-                Player player = Regular.this.getOwner();
+        final long startTimeAnim = System.currentTimeMillis();
+        final int[] time = {0};
 
-                if (System.currentTimeMillis() - this.startTime > 3000L) {
-                    Bukkit.getScheduler().runTaskLater(Main.handler.plugin, () -> {
-                        setOpeningState(false);
-                    }, 2L);
-                    Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_CAT_AMBIENT.name(), 20, 5);
+        Main.api.getScheduler().runTaskTimer(getLoc(), () -> {
+            Player player = getOwner();
 
-                    PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
-                    Bukkit.getPluginManager().callEvent(event);
+            if (System.currentTimeMillis() - startTimeAnim > 3000L) {
+                Main.api.getScheduler().runTaskLater(getLoc(), () -> {
+                    setOpeningState(false);
+                }, 2L);
+                Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_CAT_AMBIENT.name(), 20, 5);
 
-                    remove();
+                PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
+                Bukkit.getPluginManager().callEvent(event);
 
-                    Main.nmsUtil.setFakeGameMode(getOwner(), GameMode.SURVIVAL);
+                remove();
 
-                    Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
+                Main.nmsUtil.setFakeGameMode(getOwner(), GameMode.SURVIVAL);
 
-                    setClickable(true);
-                    ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -3.2, 0), 2, 0.5, 0.5, 0.5, 0);
+                Main.handler.hideButtonsFromPlayer(getOwner(), ButtonType.FUNCTIONAL, false);
 
-                    Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_GENERIC_EXPLODE.name(), 20, 5);
+                setClickable(true);
+                ParticleType.of("EXPLOSION_HUGE").spawn(getOwner(), getLoc().clone().add(0, -3.2, 0), 2, 0.5, 0.5, 0.5, 0);
 
-                    new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId());
-                    cancel();
-                    return;
-                }
+                Main.handler.playSound(getOwner(), getOwner().getLocation(), XSound.ENTITY_GENERIC_EXPLODE.name(), 20, 5);
 
-                ArmorStand box = getBox();
-                if (box == null) {
-                    cancel();
-                    return;
-                }
-
-                Main.handler.playSound(player, player.getLocation(), XSound.ENTITY_CHICKEN_EGG.name(), 20.0F, 5.0F);
-                ParticleType.of("CLOUD").spawn(Regular.this.getOwner(), Regular.this.getLoc().clone().add(0.0D, -2.8D, 0.0D), 1, 0.0D, 0.0D, 0.0D, 0.0D);                time++;
-
-                float x, z;
-                switch (time % 4) {
-                    case 0: x = 6.0F; z = 6.0F; break;
-                    case 1: x = -6.0F; z = 6.0F; break;
-                    case 2: x = -6.0F; z = -6.0F; break;
-                    default: x = 6.0F; z = -6.0F; break;
-                }
-
-                EulerAngle newPose = new EulerAngle(Math.toRadians(x), Math.toRadians(time * 18.0F), Math.toRadians(z));
-                box.setHeadPose(newPose);
+                new Regular(getLoc(), getOwner(), getIcon(), getConfig(), getBoxId());
+                return;
             }
-        }.runTaskTimer(Main.handler.plugin, 20L, 1L);
+
+            ArmorStand box = getBox();
+            if (box == null) return;
+
+            Main.handler.playSound(player, player.getLocation(), XSound.ENTITY_CHICKEN_EGG.name(), 20.0F, 5.0F);
+            ParticleType.of("CLOUD").spawn(getOwner(), getLoc().clone().add(0.0D, -2.8D, 0.0D), 1, 0.0D, 0.0D, 0.0D, 0.0D);
+            time[0]++;
+
+            float x, z;
+            switch (time[0] % 4) {
+                case 0: x = 6.0F; z = 6.0F; break;
+                case 1: x = -6.0F; z = 6.0F; break;
+                case 2: x = -6.0F; z = -6.0F; break;
+                default: x = 6.0F; z = -6.0F; break;
+            }
+
+            EulerAngle newPose = new EulerAngle(Math.toRadians(x), Math.toRadians(time[0] * 18.0F), Math.toRadians(z));
+            box.setHeadPose(newPose);
+        }, 20L, 1L);
         return true;
     }
 
@@ -152,14 +143,10 @@ public class Regular extends AbstractBox {
     }
 
     private void moveUp() {
-        (new BukkitRunnable() {
-            long startTime = System.currentTimeMillis();
-
-            public void run() {
-                if (System.currentTimeMillis() - this.startTime > 100L)
-                    cancel();
-                Animations.moveUp(getOwner(), sword, 0.06F);
-            }
-        }).runTaskTimer(Main.handler.plugin, 0L, 1L);
+        final long startTime = System.currentTimeMillis();
+        Main.api.getScheduler().runTaskTimer(getLoc(), () -> {
+            if (System.currentTimeMillis() - startTime > 100L) return;
+            Animations.moveUp(getOwner(), sword, 0.06F);
+        }, 0L, 1L);
     }
 }

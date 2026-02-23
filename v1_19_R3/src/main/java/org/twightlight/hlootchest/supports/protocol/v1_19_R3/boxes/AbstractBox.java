@@ -9,13 +9,11 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.EquipmentSlot;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
-import org.twightlight.hlootchest.scheduler.ScheduledRunnable;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 import org.twightlight.hlootchest.utils.Utility;
 
@@ -66,10 +64,9 @@ public abstract class AbstractBox implements TBox {
             player.showEntity(Main.handler.plugin, vehicle);
             vehicle.setInvisible(true);
 
-
             Main.api.getScheduler().runTaskLater(player, () -> {
 
-                player.teleport(location);
+                player.teleport(Plocation);
 
                 Main.api.getScheduler().runTaskLater(vehicle, () -> {
                     vehicle.addPassenger(player);
@@ -99,7 +96,7 @@ public abstract class AbstractBox implements TBox {
         }
 
         LCSpawnEvent lCSpawnEvent = new LCSpawnEvent(this.owner, this);
-        Bukkit.getPluginManager().callEvent(lCSpawnEvent);
+        Main.api.getScheduler().runTask(location, () -> Bukkit.getPluginManager().callEvent(lCSpawnEvent));
     }
 
     public ArmorStand createArmorStand(Location location, String name, boolean isNameEnable) {
@@ -110,7 +107,6 @@ public abstract class AbstractBox implements TBox {
         armorStand.setGravity(false);
         armorStand.setRotation(location.getYaw(), location.getPitch());
         armorStand.setVisibleByDefault(false);
-
         return armorStand;
     }
 
@@ -143,72 +139,25 @@ public abstract class AbstractBox implements TBox {
         }
     }
 
-    public boolean isClickable() {
-        return this.clickable;
-    }
-
-    public void setClickable(boolean bool) {
-        this.clickable = bool;
-    }
-
-    public Player getOwner() {
-        return this.owner;
-    }
-
-    public ArmorStand getBox() {
-        return this.box;
-    }
-
-    public Location getLoc() {
-        return this.loc;
-    }
-
-    public ItemStack getIcon() {
-        return this.icon;
-    }
-
-    public TYamlWrapper getConfig() {
-        return this.config;
-    }
-
-    public String getBoxId() {
-        return this.boxid;
-    }
-
-
-    public Map<Player, Pig> getVehiclesList() {
-        return vehicles;
-    }
-
+    public boolean isClickable() { return this.clickable; }
+    public void setClickable(boolean bool) { this.clickable = bool; }
+    public Player getOwner() { return this.owner; }
+    public ArmorStand getBox() { return this.box; }
+    public Location getLoc() { return this.loc; }
+    public ItemStack getIcon() { return this.icon; }
+    public TYamlWrapper getConfig() { return this.config; }
+    public String getBoxId() { return this.boxid; }
+    public Map<Player, Pig> getVehiclesList() { return vehicles; }
     public void removeVehicle(Player p) {
         if (vehicles.get(p) != null) {
             vehicles.get(p).remove();
             vehicles.remove(p);
         }
     }
-
-
-    public void setOpeningState(Boolean state) {
-        isOpening = state;
-    }
-
-    public boolean isOpening() {
-        return isOpening;
-    }
-
-    public TBox getInstance() {
-        return this.instance;
-    }
-
-    public boolean isClickToOpen() {
-        return this.clickToOpen;
-    }
-
-    public Location getPlayerLocation() {
-        return this.playerLocation;
-    }
-
-    public List<Location> getRewardsLocation() {
-        return new ArrayList<Location>(this.rewardsLocation);
-    }
+    public void setOpeningState(Boolean state) { isOpening = state; }
+    public boolean isOpening() { return isOpening; }
+    public TBox getInstance() { return this.instance; }
+    public boolean isClickToOpen() { return this.clickToOpen; }
+    public Location getPlayerLocation() { return this.playerLocation; }
+    public List<Location> getRewardsLocation() { return new ArrayList<Location>(this.rewardsLocation); }
 }

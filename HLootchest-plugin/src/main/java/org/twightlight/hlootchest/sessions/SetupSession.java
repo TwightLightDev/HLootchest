@@ -8,7 +8,7 @@ import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
-import org.twightlight.hlootchest.setup.Preview;
+import org.twightlight.hlootchest.setup.modules.Preview;
 
 
 public class SetupSession extends SessionsManager implements TSession {

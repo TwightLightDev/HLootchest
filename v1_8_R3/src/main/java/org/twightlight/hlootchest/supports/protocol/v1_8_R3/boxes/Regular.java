@@ -26,11 +26,11 @@ public class Regular extends AbstractBox {
     public Regular(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);
 
-        Location loc = Utility.stringToLocation(config.getString(boxid+".settings.decoration.location"));
+        Location loc = Utility.stringToLocation(config.getString(boxid + ".settings.decoration.location"));
 
         this.sword = createArmorStand(loc, "", false);
 
-        Main.nmsUtil.rotate(sword, config, boxid+".settings.decoration");
+        Main.nmsUtil.rotate(sword, config, boxid + ".settings.decoration");
 
         sendSpawnPacket(getOwner(), sword);
         net.minecraft.server.v1_8_R3.ItemStack icon1 = CraftItemStack.asNMSCopy(new ItemStack(XMaterial.DIAMOND_SWORD.parseMaterial()));

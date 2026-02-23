@@ -16,6 +16,7 @@ import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
+import org.twightlight.hlootchest.scheduler.ScheduledTask;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 
 import java.util.Set;
@@ -81,18 +82,21 @@ public class NMSUtil implements NMSService {
         entityLiving.teleport(location);
     }
 
-    public void lockAngle(Player p, Location loc, long duration) {
+    public ScheduledTask lockAngle(Player p, Location loc, long duration) {
         long startTime = System.currentTimeMillis();
-        Main.api.getScheduler().runTaskTimer(p, () -> {
+        final ScheduledTask[] holder = new ScheduledTask[1];
+        holder[0] = Main.api.getScheduler().runTaskTimer(p, () -> {
             if (System.currentTimeMillis() - startTime > duration * 50) {
-
+                if (holder[0] != null) holder[0].cancel();
                 return;
             }
             if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
                 p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
             }
         }, 0L, 2L);
+        return holder[0];
     }
+
 
     @SuppressWarnings("unchecked")
     public <T extends Entity> T summonVehicle(Location loc, Class<T> entityClass) {

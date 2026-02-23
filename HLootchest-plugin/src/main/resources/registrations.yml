@@ -1,8 +1,15 @@
 regular:
   animation: regular
+  enabled: true
+
 mystic:
   animation: mystic
+  enabled: true
+
 spooky:
   animation: spooky
+  enabled: true
+
 aeternus:
   animation: aeternus
+  enabled: true

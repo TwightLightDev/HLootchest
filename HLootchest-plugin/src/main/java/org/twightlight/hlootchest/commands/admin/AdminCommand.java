@@ -13,8 +13,8 @@ import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.config.YamlWrapper;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.setup.LootChestBrowseMenu;
-import org.twightlight.hlootchest.setup.TemplateBrowseMenu;
+import org.twightlight.hlootchest.setup.browse.LootChestBrowseMenu;
+import org.twightlight.hlootchest.setup.browse.TemplateBrowseMenu;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.io.File;

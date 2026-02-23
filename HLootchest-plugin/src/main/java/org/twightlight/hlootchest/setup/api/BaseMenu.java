@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.setup;
+package org.twightlight.hlootchest.setup.api;
 
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -9,6 +9,7 @@ import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.SetupSession;
+import org.twightlight.hlootchest.setup.MenuManager;
 import org.twightlight.hlootchest.utils.Utility;
 import org.twightlight.libs.xseries.XMaterial;
 

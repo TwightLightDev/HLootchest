@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.setup;
+package org.twightlight.hlootchest.setup.modules;
 
 import org.bukkit.Location;
 import org.bukkit.entity.Player;

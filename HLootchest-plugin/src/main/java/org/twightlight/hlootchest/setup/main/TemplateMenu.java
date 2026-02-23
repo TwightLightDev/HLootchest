@@ -1,9 +1,11 @@
-package org.twightlight.hlootchest.setup;
+package org.twightlight.hlootchest.setup.main;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.SetupSession;
+import org.twightlight.hlootchest.setup.api.BaseMenu;
+import org.twightlight.hlootchest.setup.browse.TemplateBrowseMenu;
 import org.twightlight.hlootchest.setup.elements.ButtonsMenu;
 import org.twightlight.hlootchest.setup.modules.Settings;
 import org.twightlight.hlootchest.utils.Utility;

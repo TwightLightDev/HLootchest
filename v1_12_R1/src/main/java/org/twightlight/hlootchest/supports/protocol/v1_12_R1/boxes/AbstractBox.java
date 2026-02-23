@@ -84,7 +84,7 @@ public abstract class AbstractBox implements TBox {
 
             Main.api.getScheduler().runTaskLater(player, () -> {
 
-                player.teleport(location);
+                player.teleport(Plocation);
 
                 Main.api.getScheduler().runTaskLater(vehicle, () -> {
                     vehicle.addPassenger(player);

@@ -200,6 +200,8 @@ public final class HLootChest extends JavaPlugin {
     private void loadLootchests() {
         Set<String> types = api.getConfigUtil().getRegistrationConfig().getYml().getConfigurationSection("").getKeys(false);
         for (String type : types) {
+            boolean isEnable = api.getConfigUtil().getRegistrationConfig().getBoolean(type + ".enable", true);
+            if (!isEnable) return;
             Utility.info("&aRegistering type: " + type + ".");
             String animation = api.getConfigUtil().getRegistrationConfig().getString(type + ".animation", "regular");
             try {

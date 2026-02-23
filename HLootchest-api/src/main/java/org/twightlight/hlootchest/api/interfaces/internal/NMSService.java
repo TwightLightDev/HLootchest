@@ -10,6 +10,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TIcon;
+import org.twightlight.hlootchest.scheduler.ScheduledTask;
 
 public interface NMSService {
     /**
@@ -86,7 +87,7 @@ public interface NMSService {
      * @param loc The {@link Location} the player should look at.
      * @param duration The duration in milliseconds to lock the view.
      */
-    void lockAngle(Player p, Location loc, long duration);
+    ScheduledTask lockAngle(Player p, Location loc, long duration);
 
     /**
      * Summons a vehicle of the specified type at a given location.

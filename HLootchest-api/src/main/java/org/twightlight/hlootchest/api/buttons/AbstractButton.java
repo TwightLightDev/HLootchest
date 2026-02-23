@@ -323,8 +323,9 @@ public abstract class AbstractButton implements TButton {
     private void unmovablePeriod(int timeMillis) {
         this.moveable = false;
         long ticks = Math.max(1, timeMillis / 50);
-        apiInstance.getScheduler().runTaskAsynchronouslyLater(() -> moveable = true, ticks);
+        apiInstance.getScheduler().runTaskLater(owner, () -> moveable = true, ticks);
     }
+
 
     @Override
     public void equipIcon(TIcon icon) {

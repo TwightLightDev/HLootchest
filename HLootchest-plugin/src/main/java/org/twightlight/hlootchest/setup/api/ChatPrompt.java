@@ -1,4 +1,4 @@
-package org.twightlight.hlootchest.setup;
+package org.twightlight.hlootchest.setup.api;
 
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;

@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.setup.BaseMenu;
+import org.twightlight.hlootchest.setup.api.BaseMenu;
 import org.twightlight.libs.xseries.XMaterial;
 
 import java.util.Arrays;

@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.supports.protocol.v1_8_R3.utilities;
 
+import org.twightlight.hlootchest.scheduler.ScheduledTask;
 import org.twightlight.libs.xseries.XPotion;
 import net.minecraft.server.v1_8_R3.*;
 import org.bukkit.ChatColor;
@@ -78,9 +79,9 @@ public class NMSUtil implements NMSService {
         ((CraftPlayer) player).getHandle().playerConnection.sendPacket(packet);
     }
 
-    public void lockAngle(Player p, Location loc, long duration) {
+    public ScheduledTask lockAngle(Player p, Location loc, long duration) {
         long startTime = System.currentTimeMillis();
-        Main.api.getScheduler().runTaskTimer(p, () -> {
+        return Main.api.getScheduler().runTaskTimer(p, () -> {
             if (System.currentTimeMillis() - startTime > duration * 50) {
 
                 return;

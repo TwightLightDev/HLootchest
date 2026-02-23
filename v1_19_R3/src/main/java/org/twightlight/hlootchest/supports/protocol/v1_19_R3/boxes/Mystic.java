@@ -9,13 +9,12 @@ import org.bukkit.Location;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.util.EulerAngle;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.events.player.PlayerRewardGiveEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
+import org.twightlight.hlootchest.scheduler.ScheduledTask;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 
 import java.util.Collections;
@@ -25,7 +24,7 @@ public class Mystic extends AbstractBox {
 
     private ArmorStand floatingOrb1;
     private ArmorStand floatingOrb2;
-    private BukkitTask task;
+    private ScheduledTask task;
 
     public Mystic(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);
@@ -33,68 +32,51 @@ public class Mystic extends AbstractBox {
         Location orbLocation1 = location.clone().add(1, 1.0, 0);
         Location orbLocation2 = location.clone().add(-1, 1.0, 0);
 
-        floatingOrb1 = Main.nmsUtil.createArmorStand(getOwner() ,orbLocation1, "", false);
-        floatingOrb2 = Main.nmsUtil.createArmorStand(getOwner() ,orbLocation2, "", false);
+        floatingOrb1 = Main.nmsUtil.createArmorStand(getOwner(), orbLocation1, "", false);
+        floatingOrb2 = Main.nmsUtil.createArmorStand(getOwner(), orbLocation2, "", false);
 
-        Main.nmsUtil.rotate((floatingOrb2), config, boxid+".settings.decoration.2");
-        Main.nmsUtil.rotate((floatingOrb1), config, boxid+".settings.decoration.1");
+        Main.nmsUtil.rotate(floatingOrb2, config, boxid + ".settings.decoration.2");
+        Main.nmsUtil.rotate(floatingOrb1, config, boxid + ".settings.decoration.1");
 
         Main.nmsUtil.sendSpawnPacket(getOwner(), floatingOrb1);
         Main.nmsUtil.sendSpawnPacket(getOwner(), floatingOrb2);
 
-
-        ItemStack orbItem = Main.handler.createItem(XMaterial.IRON_SWORD.parseMaterial(),
-                "",
-                0,
-                "",
-                Collections.emptyList(),
-                false);
+        ItemStack orbItem = Main.handler.createItem(XMaterial.IRON_SWORD.parseMaterial(), "", 0, "", Collections.emptyList(), false);
 
         Main.nmsUtil.equipIcon(getOwner(), floatingOrb1, orbItem, ItemSlot.MAIN_HAND);
         Main.nmsUtil.equipIcon(getOwner(), floatingOrb2, orbItem, ItemSlot.MAIN_HAND);
 
+        final double[] angle = {0};
+        final double[] time = {0};
 
-        task = new BukkitRunnable() {
-            double angle = 0;
-            double time = 0;
+        task = Main.api.getScheduler().runTaskTimer(location, () -> {
+            angle[0] += 5;
+            double radians = Math.toRadians(angle[0]);
 
-            @Override
-            public void run() {
+            double x1 = Math.cos(radians) * 1;
+            double z1 = Math.sin(radians) * 1;
+            double x2 = Math.cos(-radians) * 1;
+            double z2 = Math.sin(-radians) * 1;
+            double yOffset = Math.sin(time[0]) * 0.3;
 
-                angle += 5;
-                double radians = Math.toRadians(angle);
+            Location loc1 = location.clone().add(x1, 1.5 + yOffset, z1);
+            Location loc2 = location.clone().add(x2, 1.5 + yOffset, z2);
 
-                double x1 = Math.cos(radians) * 1;
-                double z1 = Math.sin(radians) * 1;
+            Main.nmsUtil.teleport(getOwner(), floatingOrb1, loc1);
+            Main.nmsUtil.teleport(getOwner(), floatingOrb2, loc2);
 
-                double x2 = Math.cos(-radians) * 1;
-                double z2 = Math.sin(-radians) * 1;
+            ParticleType.of("ENCHANTMENT_TABLE").spawn(getOwner(), floatingOrb1.getLocation(), 3, 0.2, 0.2, 0.2, 0.1);
+            ParticleType.of("CRIT_MAGIC").spawn(getOwner(), floatingOrb1.getLocation(), 3, 0.2, 0.2, 0.2, 0.1);
+            ParticleType.of("ENCHANTMENT_TABLE").spawn(getOwner(), floatingOrb2.getLocation(), 3, 0.2, 0.2, 0.2, 0.1);
+            ParticleType.of("CRIT_MAGIC").spawn(getOwner(), floatingOrb2.getLocation(), 3, 0.2, 0.2, 0.2, 0.1);
 
-                double yOffset = Math.sin(time) * 0.3;
-
-
-                Location loc1 = location.clone().add(x1, 1.5 + yOffset, z1);
-                Location loc2 = location.clone().add(x2, 1.5 + yOffset, z2);
-
-                Main.nmsUtil.teleport(getOwner(), floatingOrb1, loc1);
-                Main.nmsUtil.teleport(getOwner(), floatingOrb2, loc2);
-
-                ParticleType.of("ENCHANTMENT_TABLE").spawn(getOwner(), floatingOrb1.getLocation(), 3, 0.2, 0.2, 0.2, 0.1);
-                ParticleType.of("CRIT_MAGIC").spawn(getOwner(), floatingOrb1.getLocation(), 3, 0.2, 0.2, 0.2, 0.1);
-
-                ParticleType.of("ENCHANTMENT_TABLE").spawn(getOwner(), floatingOrb2.getLocation(), 3, 0.2, 0.2, 0.2, 0.1);
-                ParticleType.of("CRIT_MAGIC").spawn(getOwner(), floatingOrb2.getLocation(), 3, 0.2, 0.2, 0.2, 0.1);
-
-                time += 0.1;
-            }
-        }.runTaskTimer(Main.handler.plugin, 0L, 1L);
+            time[0] += 0.1;
+        }, 0L, 1L);
     }
 
     @Override
     public boolean open() {
-        if (!super.open()) {
-            return false;
-        }
+        if (!super.open()) return false;
 
         setOpeningState(true);
         setClickable(false);
@@ -112,35 +94,32 @@ public class Mystic extends AbstractBox {
         summonGlyph(headLoc, 60);
         summonRay(headLoc, 60);
         summonLightning(headLoc, 60);
-        summonCircle(headLoc.clone().add(0, 0.2, 0), 60, 36 , 1, ParticleType.of("PORTAL"));
-        new BukkitRunnable() {
-            long startTime = System.currentTimeMillis();
-            double scale = 1.0;
-            boolean shrinking = false;
-            @Override
-            public void run() {
-                if (System.currentTimeMillis() - startTime > 3000) {
-                    performFinal();
-                    cancel();
-                    return;
-                }
-                if (!getOwner().isOnline()) {
-                    PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
-                    Bukkit.getPluginManager().callEvent(event);
-                    cancel();
-                    return;
-                }
+        summonCircle(headLoc.clone().add(0, 0.2, 0), 60, 36, 1, ParticleType.of("PORTAL"));
 
-                scale += shrinking ? -0.1 : 0.1;
-                if (scale >= 1.5) shrinking = true;
-                if (scale <= 0.8) shrinking = false;
+        final long startTime = System.currentTimeMillis();
+        final double[] scale = {1.0};
+        final boolean[] shrinking = {false};
 
-                EulerAngle newPose = new EulerAngle(Math.toRadians(0), Math.toRadians(scale * 10.0F), Math.toRadians(0));
-                getBox().setHeadPose(newPose);
-
-                ParticleType.of("SPELL_WITCH").spawn(getOwner(), getLoc().clone().add(0, 1, 0), 2, 0.3, 0.3, 0.3, 0.05);
+        Main.api.getScheduler().runTaskTimer(getLoc(), () -> {
+            if (System.currentTimeMillis() - startTime > 3000) {
+                performFinal();
+                return;
             }
-        }.runTaskTimer(Main.handler.plugin, 0L, 1L);
+            if (!getOwner().isOnline()) {
+                PlayerRewardGiveEvent event = new PlayerRewardGiveEvent(getOwner(), getInstance());
+                Bukkit.getPluginManager().callEvent(event);
+                return;
+            }
+
+            scale[0] += shrinking[0] ? -0.1 : 0.1;
+            if (scale[0] >= 1.5) shrinking[0] = true;
+            if (scale[0] <= 0.8) shrinking[0] = false;
+
+            EulerAngle newPose = new EulerAngle(Math.toRadians(0), Math.toRadians(scale[0] * 10.0F), Math.toRadians(0));
+            getBox().setHeadPose(newPose);
+
+            ParticleType.of("SPELL_WITCH").spawn(getOwner(), getLoc().clone().add(0, 1, 0), 2, 0.3, 0.3, 0.3, 0.05);
+        }, 0L, 1L);
     }
 
     private void performFinal() {
@@ -162,105 +141,66 @@ public class Mystic extends AbstractBox {
     }
 
     private void summonGlyph(Location location, int durationTicks) {
-        new BukkitRunnable() {
-            int ticks = 0;
-
-            @Override
-            public void run() {
-                if (ticks >= durationTicks || !getOwner().isOnline()) {
-                    cancel();
-                    return;
-                }
-
-                for (int i = 0; i < 3; i++) {
-                    double x = (Math.random() - 0.5) * 2;
-                    double z = (Math.random() - 0.5) * 2;
-                    Location loc = location.clone().add(x, 1 + (ticks * 0.05), z);
-
-                    ParticleType.of("SPELL_WITCH").spawn(getOwner(), (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 3, 0, 0, 0, 0);
-                    ParticleType.of("VILLAGER_HAPPY").spawn(getOwner(), (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 3, 0, 0, 0, 0);
-
-                }
-                ticks += 3;
+        final int[] ticks = {0};
+        Main.api.getScheduler().runTaskTimer(location, () -> {
+            if (ticks[0] >= durationTicks || !getOwner().isOnline()) return;
+            for (int i = 0; i < 3; i++) {
+                double x = (Math.random() - 0.5) * 2;
+                double z = (Math.random() - 0.5) * 2;
+                Location loc = location.clone().add(x, 1 + (ticks[0] * 0.05), z);
+                ParticleType.of("SPELL_WITCH").spawn(getOwner(), (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 3, 0, 0, 0, 0);
+                ParticleType.of("VILLAGER_HAPPY").spawn(getOwner(), (float) loc.getX(), (float) loc.getY(), (float) loc.getZ(), 3, 0, 0, 0, 0);
             }
-        }.runTaskTimer(Main.handler.plugin, 0L, 3L);
+            ticks[0] += 3;
+        }, 0L, 3L);
     }
 
     public void summonRay(Location location, int durationTicks) {
-        new BukkitRunnable() {
-            int ticks = 0;
-
-            @Override
-            public void run() {
-                if (ticks >= durationTicks || !getOwner().isOnline()) {
-                    cancel();
-                    return;
-                }
-
-                for (double y = 0; y <= 10; y += 0.5) {
-                    ParticleType.of("ENCHANTMENT_TABLE")
-                            .spawn(getOwner(), location.clone().add(0, y, 0), 3, 0.2, 0.2, 0.2, 0.1);
-                    getOwner().playSound(getOwner().getLocation(), XSound.BLOCK_BEACON_ACTIVATE.get(), 10, 3);
-                }
-
-                ticks += 4;
+        final int[] ticks = {0};
+        Main.api.getScheduler().runTaskTimer(location, () -> {
+            if (ticks[0] >= durationTicks || !getOwner().isOnline()) return;
+            for (double y = 0; y <= 10; y += 0.5) {
+                ParticleType.of("ENCHANTMENT_TABLE").spawn(getOwner(), location.clone().add(0, y, 0), 3, 0.2, 0.2, 0.2, 0.1);
+                getOwner().playSound(getOwner().getLocation(), XSound.BLOCK_BEACON_ACTIVATE.get(), 10, 3);
             }
-        }.runTaskTimer(Main.handler.plugin, 0L, 4L);
+            ticks[0] += 4;
+        }, 0L, 4L);
     }
 
     public void summonLightning(Location center, int durationTicks) {
         Random random = new Random();
-        new BukkitRunnable() {
-            int ticks = 0;
-
-            @Override
-            public void run() {
-                if (ticks >= durationTicks || !getOwner().isOnline()) {
-                    cancel();
-                    return;
+        final int[] ticks = {0};
+        Main.api.getScheduler().runTaskTimer(center, () -> {
+            if (ticks[0] >= durationTicks || !getOwner().isOnline()) return;
+            int num = 1 + random.nextInt(2);
+            for (int i = 0; i < num; i++) {
+                double offsetX = (random.nextDouble() - 0.5) * 16;
+                double offsetZ = (random.nextDouble() - 0.5) * 16;
+                Location strikeLoc = center.clone().add(offsetX, 0, offsetZ);
+                if (Main.hasPacketService()) {
+                    Main.getPacketService().spawnLightning(getOwner(), strikeLoc);
                 }
-                int num = 1 + random.nextInt(2);
-                for (int i = 0; i < num; i++) {
-                    double offsetX = (random.nextDouble() - 0.5) * 16;
-                    double offsetZ = (random.nextDouble() - 0.5) * 16;
-                    Location strikeLoc = center.clone().add(offsetX, 0, offsetZ);
-                    if (Main.hasPacketService()) {
-                        Main.getPacketService().spawnLightning(getOwner(), strikeLoc);
-
-                    }
-
-                    getOwner().playSound(getPlayerLocation(), XSound.ENTITY_LIGHTNING_BOLT_THUNDER.parseSound(), 10, 0.8f + (random.nextFloat()) * 0.4f);
-
-                }
-                ticks += 15;
+                getOwner().playSound(getPlayerLocation(), XSound.ENTITY_LIGHTNING_BOLT_THUNDER.parseSound(), 10, 0.8f + (random.nextFloat()) * 0.4f);
             }
-        }.runTaskTimer(Main.handler.plugin, 0L, 15L);
+            ticks[0] += 15;
+        }, 0L, 15L);
     }
 
     private void summonCircle(Location center, int durationTicks, int points, double radius, ParticleType particle) {
-        new BukkitRunnable() {
-            double angle = 0;
-            int duration = 0;
-
-            @Override
-            public void run() {
-                if (duration >= durationTicks || !getOwner().isOnline()) {
-                    cancel();
-                    return;
-                }
-
-                for (int i = 0; i < points; i++) {
-                    double radians = Math.toRadians((double) i / points * 360 + angle);
-                    double x = Math.cos(radians) * radius;
-                    double z = Math.sin(radians) * radius;
-                    Location particleLoc = center.clone().add(x, 0, z);
-
-                    particle.spawn(getOwner(), particleLoc, 1, 0, 0, 0, 0);
-                }
-                duration += 2;
-                angle += 5;
+        final double[] angle = {0};
+        final int[] duration = {0};
+        Main.api.getScheduler().runTaskTimer(center, () -> {
+            if (duration[0] >= durationTicks || !getOwner().isOnline()) return;
+            for (int i = 0; i < points; i++) {
+                double radians = Math.toRadians((double) i / points * 360 + angle[0]);
+                double x = Math.cos(radians) * radius;
+                double z = Math.sin(radians) * radius;
+                Location particleLoc = center.clone().add(x, 0, z);
+                particle.spawn(getOwner(), particleLoc, 1, 0, 0, 0, 0);
             }
-        }.runTaskTimer(Main.handler.plugin, 0L, 2L);
+            duration[0] += 2;
+            angle[0] += 5;
+        }, 0L, 2L);
     }
 
     @Override
@@ -271,4 +211,3 @@ public class Mystic extends AbstractBox {
         task.cancel();
     }
 }
-

@@ -4,9 +4,9 @@ import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.setup.BaseMenu;
-import org.twightlight.hlootchest.setup.ChatPrompt;
-import org.twightlight.hlootchest.setup.LootChestSetupMenu;
+import org.twightlight.hlootchest.setup.api.BaseMenu;
+import org.twightlight.hlootchest.setup.api.ChatPrompt;
+import org.twightlight.hlootchest.setup.main.LootChestSetupMenu;
 import org.twightlight.hlootchest.setup.modules.Reward;
 import org.twightlight.libs.xseries.XMaterial;
 

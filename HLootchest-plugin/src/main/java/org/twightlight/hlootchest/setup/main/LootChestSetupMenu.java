@@ -1,8 +1,10 @@
-package org.twightlight.hlootchest.setup;
+package org.twightlight.hlootchest.setup.main;
 
 import org.bukkit.entity.Player;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.SetupSession;
+import org.twightlight.hlootchest.setup.api.BaseMenu;
+import org.twightlight.hlootchest.setup.browse.LootChestBrowseMenu;
 import org.twightlight.hlootchest.setup.elements.RewardsMenu;
 import org.twightlight.hlootchest.setup.modules.IconSettings;
 import org.twightlight.libs.xseries.XMaterial;
