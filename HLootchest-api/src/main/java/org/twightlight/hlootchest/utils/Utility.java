@@ -13,94 +13,25 @@ import java.util.regex.Pattern;
 
 public class Utility {
 
-    private static Plugin plugin;
-    private static final boolean ANSI_SUPPORTED = detectAnsiSupport();
-    private static final String RESET = "\u001B[0m";
-    private static final Pattern COLOR_PATTERN =
-            Pattern.compile("§[0-9a-fk-or]", Pattern.CASE_INSENSITIVE);
-
-    private static final Map<Character, String> ANSI = new HashMap<>();
-
-    public static void setPlugin(Plugin plugin1) {
-        plugin = plugin1;
-    }
-
-    static {
-        ANSI.put('0', "\u001B[30m");
-        ANSI.put('1', "\u001B[34m");
-        ANSI.put('2', "\u001B[32m");
-        ANSI.put('3', "\u001B[36m");
-        ANSI.put('4', "\u001B[31m");
-        ANSI.put('5', "\u001B[35m");
-        ANSI.put('6', "\u001B[33m");
-        ANSI.put('7', "\u001B[37m");
-        ANSI.put('8', "\u001B[90m");
-        ANSI.put('9', "\u001B[94m");
-        ANSI.put('a', "\u001B[92m");
-        ANSI.put('b', "\u001B[96m");
-        ANSI.put('c', "\u001B[91m");
-        ANSI.put('d', "\u001B[95m");
-        ANSI.put('e', "\u001B[93m");
-        ANSI.put('f', "\u001B[97m");
-
-        ANSI.put('l', "\u001B[1m");
-        ANSI.put('o', "\u001B[3m");
-        ANSI.put('n', "\u001B[4m");
-        ANSI.put('m', "\u001B[9m");
-        ANSI.put('r', RESET);
-    }
-
     public static void info(String message) {
-        plugin.getLogger().info(format(message));
+        Bukkit.getConsoleSender().sendMessage("[HLootChest-Info] " +
+                ChatColor.translateAlternateColorCodes('&', message)
+        );
     }
 
     public static void error(String message) {
-        plugin.getLogger().severe(format(message));
+        Bukkit.getConsoleSender().sendMessage("[HLootChest-Warning] " +
+                ChatColor.translateAlternateColorCodes('&', "&c" + message)
+        );
     }
 
-    private static String format(String input) {
-        if (input == null) return "";
-
-        if (!ANSI_SUPPORTED) {
-            return stripColors(input);
-        }
-
-        StringBuilder out = new StringBuilder();
-
-        for (int i = 0; i < input.length(); i++) {
-            char c = input.charAt(i);
-
-            if (c == '§' && i + 1 < input.length()) {
-                char code = Character.toLowerCase(input.charAt(i + 1));
-                String ansi = ANSI.get(code);
-                if (ansi != null) {
-                    out.append(ansi);
-                    i++;
-                    continue;
-                }
-            }
-
-            out.append(c);
-        }
-
-        out.append(RESET);
-        return out.toString();
+    public static String hyperlink(String url, String text) {
+        return "\u001B]8;;" + url + "\u001B\\"
+                + text +
+                "\u001B]8;;\u001B\\";
     }
 
-    private static String stripColors(String input) {
-        return COLOR_PATTERN.matcher(input).replaceAll("");
-    }
 
-    private static boolean detectAnsiSupport() {
-        String os = System.getProperty("os.name").toLowerCase();
-
-        if (os.contains("win")) {
-            return System.getenv("WT_SESSION") != null
-                    || System.getenv("TERM") != null;
-        }
-
-        return true;
-    }
     public static Location stringToLocation(String locString) {
         String[] parts = locString.split(",");
         if (parts.length < 4) {

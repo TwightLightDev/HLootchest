@@ -24,7 +24,7 @@ import org.twightlight.hlootchest.utils.LocationFinder;
 import java.util.List;
 import java.util.Random;
 
-public class Spooky extends BoxManager {
+public class Spooky extends AbstractBox {
     private final Location location;
     private final Random random = new Random();
     BukkitTask task;

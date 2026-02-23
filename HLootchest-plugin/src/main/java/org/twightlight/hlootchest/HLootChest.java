@@ -20,7 +20,7 @@ import org.twightlight.hlootchest.database.SQL.MariaDB;
 import org.twightlight.hlootchest.database.SQL.MySQL;
 import org.twightlight.hlootchest.database.SQL.SQLite;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
-import org.twightlight.hlootchest.dependency.ClassLoader;
+import org.twightlight.hlootchest.dependency.HClassLoader;
 import org.twightlight.hlootchest.listeners.LootChests;
 import org.twightlight.hlootchest.listeners.PlayerJoin;
 import org.twightlight.hlootchest.listeners.PlayerQuit;
@@ -50,32 +50,32 @@ public final class HLootChest extends JavaPlugin {
     public static ColorUtils colorUtils;
     private static final String version = Bukkit.getBukkitVersion().split("-")[0].split("\\.")[1];
     private ActionHandler actionHandler;
-    private ClassLoader libsLoader;
+    private HClassLoader hclassLoader;
     private static SchedulerAdapter scheduler;
 
     @Override
     public void onEnable() {
-        Utility.setPlugin(this);
         scheduler = new SchedulerProvider(this).get();
         if (SchedulerProvider.isFolia()) {
-            Utility.info("Folia detected! Using region-based scheduling.");
+            Utility.info("&aFolia detected! Using region-based scheduling.");
         }
 
         if (Bukkit.getPluginManager().getPlugin("TwightLightCore") == null) {
-            Utility.info("TwightLightCore not found, disabling...");
+            Utility.error("&cTwightLightCore not found, disabling...");
             Bukkit.getPluginManager().disablePlugin(this);
             return;
         }
 
         api = new API();
-        Bukkit.getServicesManager().register(org.twightlight.hlootchest.api.HLootchest.class, api, this, ServicePriority.Normal);
+        Bukkit.getServicesManager().register(org.twightlight.hlootchest.api.HLootChest.class, api, this, ServicePriority.Normal);
         ConfigManager.init();
 
         File d = new File(getFilePath() + "/libs");
         if (!d.exists()) {
             d.mkdirs();
         }
-        Utility.info("Loading internal libraries...");
+
+        Utility.info("&aLoading internal libraries...");
 
         DownloadManager downloader = new DownloadManager(
                 getDataFolder().toPath().resolve("libs"),
@@ -84,7 +84,7 @@ public final class HLootChest extends JavaPlugin {
         );
 
         try {
-            libsLoader = CLBuilder.build(
+            hclassLoader = CLBuilder.build(
                     new File(getDataFolder(), "libs"),
                     getClassLoader()
             );
@@ -97,7 +97,7 @@ public final class HLootChest extends JavaPlugin {
         loadCommands();
         loadListeners();
         loadDatabase(downloader);
-        actionHandler = new ActionHandler(HLootChest.getAPI(), scheduler);
+        actionHandler = new ActionHandler(HLootChest.getAPI());
         hooksLoader = new HooksLoader();
         loadCredit();
 
@@ -112,8 +112,7 @@ public final class HLootChest extends JavaPlugin {
         }
 
         new VersionChecker(this, "122671").checkForUpdates();
-        Utility.info("HLootChest has successfully been enabled!");
-
+        Utility.info("&aHLootChest has successfully been enabled!");
     }
 
     @Override
@@ -140,7 +139,7 @@ public final class HLootChest extends JavaPlugin {
             }
         }
 
-        Utility.info("HLootChest has been disabled successfully!");
+        Utility.info("&aHLootChest has been disabled successfully!");
     }
 
     private void loadNMS() {
@@ -187,7 +186,7 @@ public final class HLootChest extends JavaPlugin {
                 nms.registerAnimation("aeternus", org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.Aeternus::new);
                 break;
             default:
-                Utility.info("Sorry, this version is unsupported! HLootChest will be disabled!");
+                Utility.error("Sorry, this version is unsupported! HLootChest will be disabled!");
                 Bukkit.getPluginManager().disablePlugin(this);
                 return;
         }
@@ -201,23 +200,23 @@ public final class HLootChest extends JavaPlugin {
     private void loadLootchests() {
         Set<String> types = api.getConfigUtil().getRegistrationConfig().getYml().getConfigurationSection("").getKeys(false);
         for (String type : types) {
-            Utility.info("Registering type: " + type + ".");
+            Utility.info("&aRegistering type: " + type + ".");
             String animation = api.getConfigUtil().getRegistrationConfig().getString(type + ".animation", "regular");
             try {
                 nms.register(type, api.getNMS().getAnimationsRegistrationData().get(animation));
             } catch (Exception e) {
-                Utility.info("Something went wrong while registering the " + type + " box type");
-                Utility.info("Diagnostic: The animation cannot be found!");
+                Utility.error("Something went wrong while registering the " + type + " box type");
+                Utility.error("Diagnostic: The animation cannot be found!");
             }
             try {
                 TYamlWrapper boxConfig = new YamlWrapper(this, type, getDataFolder().getPath() + "/lootchests");
                 api.getConfigUtil().registerConfig(type, boxConfig);
-                Utility.info("Matched " + type + " with " + type + ".yml");
+                Utility.info("&aMatched " + type + " with " + type + ".yml");
             } catch (Exception e) {
                 nms.deregister(type);
-                Utility.info("Something went wrong while matching " + type + " to its config");
-                Utility.info("You should rename the file you want to match to " + type + ".yml");
-                Utility.info("Deregistering: " + type);
+                Utility.error("Something went wrong while matching " + type + " to its config");
+                Utility.error("You should rename the file you want to match to " + type + ".yml");
+                Utility.error("Deregistering: " + type);
             }
         }
     }
@@ -237,7 +236,7 @@ public final class HLootChest extends JavaPlugin {
     }
 
     private void loadDatabase(DownloadManager downloader) {
-        Utility.info("Connecting to database...");
+        Utility.info("&eConnecting to database...");
 
         TYamlWrapper config = api.getConfigUtil().getMainConfig();
         db = new DatabaseManager();
@@ -263,19 +262,19 @@ public final class HLootChest extends JavaPlugin {
             switch (provider) {
 
                 case "mysql":
-                    Utility.info("Using MySQL as database provider...");
+                    Utility.info("&aUsing MySQL as database provider...");
                     downloader.load(
                             new Dependency("com.mysql", "mysql-connector-j", "8.3.0", false)
                     );
-                    sqlDatabase = new MySQL(libsLoader, host, port, database, username, password, ssl);
+                    sqlDatabase = new MySQL(hclassLoader, host, port, database, username, password, ssl);
                     break;
 
                 case "mariadb":
-                    Utility.info("Using MariaDB as database provider...");
+                    Utility.info("&aUsing MariaDB as database provider...");
                     downloader.load(
                             new Dependency("org.mariadb.jdbc", "mariadb-java-client", "3.3.2", false)
                     );
-                    sqlDatabase = new MariaDB(libsLoader, host, port, database, username, password, ssl);
+                    sqlDatabase = new MariaDB(hclassLoader, host, port, database, username, password, ssl);
                     break;
 
                 case "sqlite":
@@ -283,11 +282,11 @@ public final class HLootChest extends JavaPlugin {
                     if (!provider.equals("sqlite")) {
                         Utility.info("Unknown database provider '" + provider + "', falling back to SQLite.");
                     }
-                    Utility.info("Using SQLite as database provider...");
+                    Utility.info("&aUsing SQLite as database provider...");
                     downloader.load(
                             new Dependency("org.xerial", "sqlite-jdbc", "3.45.1.0", false)
                     );
-                    sqlDatabase = new SQLite(this, libsLoader);
+                    sqlDatabase = new SQLite(this, hclassLoader);
                     break;
             }
 
@@ -305,12 +304,12 @@ public final class HLootChest extends JavaPlugin {
                 try {
                     sqlDatabase = new RedisDatabase(
                             sqlDatabase,
-                            libsLoader,
+                            hclassLoader,
                             redisHost,
                             redisPort,
                             redisPassword
                     );
-                    Utility.info("Redis caching layer enabled!");
+                    Utility.info("&aRedis caching layer enabled!");
                 } catch (Exception e) {
                     getLogger().log(Level.WARNING,
                             "Failed to initialize Redis, falling back to SQL only",
@@ -324,22 +323,24 @@ public final class HLootChest extends JavaPlugin {
             throw new RuntimeException("Failed to initialize database dependencies", e);
         }
 
-        Utility.info("Your database is ready!");
+        Utility.info("&eYour database is ready!");
     }
 
     private void loadCredit() {
-        Utility.info("6m");
-        Utility.info("            eHLootchest by bTwightLight");
-        Utility.info("  7Github: 9https://github.com/TwightLightDev/HLootchest");
-        Utility.info("  7Minecraft Version: a" + Bukkit.getBukkitVersion());
-        Utility.info("  7Plugin Version: a" + getVersion());
-        Utility.info("  7Author: a" + String.join(", ", getDescription().getAuthors()));
-        Utility.info("  7Folia: " + (SchedulerProvider.isFolia() ? "aDetected" : "cNot Detected"));
+        Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+        Utility.info("            &eHLootchest by &bTwightLight");
+        Utility.info(Utility.hyperlink("https://github.com/TwightLightDev/HLootchest",
+                "  &7Github: &9https://github.com/TwightLightDev/HLootchest"));
+        Utility.info("  &7Minecraft Version: &a" + Bukkit.getBukkitVersion());
+        Utility.info("  &7Plugin Version: &a" + getVersion());
+        Utility.info("  &7Author: &a" + String.join(", ", getDescription().getAuthors()));
+        Utility.info("  &7Folia: " + (SchedulerProvider.isFolia() ? "&aDetected" : "&cNot Detected"));
         if (version.equals("19") || version.equals("20") || version.equals("21")) {
-            Utility.info("  7PacketEvents: " + (Bukkit.getPluginManager().getPlugin("packetevents") != null ? "aEnabled" : "cDisabled"));
+            Utility.info("  &7PacketEvents: " + (Bukkit.getPluginManager().getPlugin("packetevents") != null ? "&aEnabled" : "&cDisabled"));
         }
-        Utility.info("  7Hex & Gradient: " + (isHexGradient() ? "aSupported" : "cNot Supported"));
-        Utility.info("6m");
+        Utility.info("  &7Hex & Gradient: " + (isHexGradient() ? "&aSupported" : "&cNot Supported"));
+        Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
+
     }
 
     public static NMSHandler getNms() { return nms; }
@@ -353,7 +354,7 @@ public final class HLootChest extends JavaPlugin {
     public ActionHandler getActionHandler() {
         return actionHandler;
     }
-    public ClassLoader getLibsLoader() { return libsLoader; }
+    public HClassLoader getDependencyClassLoader() { return hclassLoader; }
     public static SchedulerAdapter getScheduler() {
         return scheduler;
     }

@@ -96,7 +96,7 @@ public class LootChestSession extends SessionsManager implements TSession {
                         if (!taskQueue.isEmpty()) {
                             final int finalHighestDelay = highestDelay;
                             final int[] currentTick = {0};
-                            HLootChest.getScheduler().runTaskTimer(new Runnable() {
+                            HLootChest.getScheduler().runTaskTimer(p, new Runnable() {
                                 @Override
                                 public void run() {
                                     if (!player.isOnline()) return;

@@ -15,10 +15,7 @@ public class MenuManager {
 
     public static void setItem(Player p, Inventory inv, ItemStack item, int slot, Executable actions) {
         inv.setItem(slot, item);
-        if (!buttonsList.containsKey(p.getUniqueId())) {
-            buttonsList.put(p.getUniqueId(), new HashMap<>());
-        }
-        buttonsList.get(p.getUniqueId()).put(item, actions);
+        buttonsList.computeIfAbsent(p.getUniqueId(), k -> new HashMap<>()).put(item, actions);
     }
 
     public static void removeData(Player p) {
@@ -29,3 +26,4 @@ public class MenuManager {
         return buttonsList;
     }
 }
+

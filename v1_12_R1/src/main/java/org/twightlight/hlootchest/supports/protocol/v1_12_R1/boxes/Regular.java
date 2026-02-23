@@ -20,7 +20,7 @@ import org.twightlight.hlootchest.utils.Utility;
 import java.util.EnumSet;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class Regular extends BoxManager {
+public class Regular extends AbstractBox {
 
     private EntityArmorStand sword;
 

@@ -2,7 +2,7 @@ package org.twightlight.hlootchest.database.SQL;
 
 import org.twightlight.hlootchest.api.enums.DatabaseType;
 import org.twightlight.hlootchest.database.SQLDatabase;
-import org.twightlight.hlootchest.dependency.ClassLoader;
+import org.twightlight.hlootchest.dependency.HClassLoader;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,7 +10,7 @@ import java.sql.Statement;
 
 public class MySQL extends SQLDatabase {
 
-    public MySQL(ClassLoader classloader, String host, int port, String database,
+    public MySQL(HClassLoader classloader, String host, int port, String database,
                  String username, String password, boolean ssl) {
         super(DatabaseType.MYSQL, createDataSource(classloader, host, port, database, username, password, ssl));
     }

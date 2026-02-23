@@ -1,7 +1,7 @@
 package org.twightlight.hlootchest.utils;
 
-import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.twightlight.hlootchest.HLootChest;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
@@ -19,10 +19,10 @@ public class VersionChecker {
     }
 
     public void checkForUpdates() {
-        Bukkit.getScheduler().runTaskAsynchronously(plugin, () -> {
+        HLootChest.getScheduler().runTaskAsynchronously(() -> {
             try {
                 String latestVersion = getLatestVersion();
-                String currentVersion = plugin.getDescription().getVersion();
+                String currentVersion = HLootChest.getVersion();
 
                 if (latestVersion == null) {
                     plugin.getLogger().warning("Could not fetch latest version.");

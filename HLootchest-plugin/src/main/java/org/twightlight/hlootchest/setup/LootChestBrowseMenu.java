@@ -1,89 +1,55 @@
 package org.twightlight.hlootchest.setup;
 
-import org.twightlight.libs.xseries.XMaterial;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
 import org.twightlight.hlootchest.HLootChest;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.utils.DyeColor;
+import org.twightlight.libs.xseries.XMaterial;
 
 import java.util.Collections;
 import java.util.Set;
 
-public class LootChestBrowseMenu {
+public class LootChestBrowseMenu extends BaseMenu {
 
     public LootChestBrowseMenu(Player p) {
-        if (HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p) == null) {
-            return;
-        }
-        TSession session1 = HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p);
-        SetupSession session;
-        if (session1 instanceof SetupSession) {
-            session = ((SetupSession) session1);
-        } else {
-            return;
-        }
-        if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
-            MenuManager.removeData(p);
-        }
+        super(p, null, "", "", resolveSession(p));
+        if (session == null) return;
+        open(54, "&7LootChest Setup", () -> new LootChestBrowseMenu(p));
+    }
+
+    private static SetupSession resolveSession(Player p) {
+        TSession s = HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+        return s instanceof SetupSession ? (SetupSession) s : null;
+    }
+
+    @Override
+    protected void populate() {
         Set<String> lcList = HLootChest.getAPI().getNMS().getRegistrationData().keySet();
-        Inventory inv = Bukkit.createInventory(null, 54, ChatColor.translateAlternateColorCodes('&', "&7LootChest Setup"));
-        session.setInvConstructor((MenuHandler<LootChestBrowseMenu>) () -> new LootChestBrowseMenu(p));
         int i = 0;
         for (String lc : lcList) {
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.valueOf("CHEST").parseMaterial(), "", 0, ChatColor.GREEN + lc, Collections.emptyList(), false),
-                    i,
-                    (e) -> {
-                new LootChestSetupMenu(p, HLootChest.getAPI().getConfigUtil().getBoxesConfig(lc), lc, session);
-            });
-            i ++;
+            item(i, XMaterial.CHEST, ChatColor.GREEN + lc, Collections.emptyList(),
+                    e -> new LootChestSetupMenu(p, HLootChest.getAPI().getConfigUtil().getBoxesConfig(lc), lc, session));
+            i++;
         }
 
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(
-                        XMaterial.RED_WOOL.parseMaterial(),
-                        "",
-                        DyeColor.RED.getColorData(),
-                        ChatColor.RED + "Exit",
-                        Collections.emptyList(),
-                        false),
-                44,
-                (e) -> {
-                    session.close();
-                    p.closeInventory();
-                    p.sendMessage(ChatColor.GREEN + "You successfully exited this setup!");
-                });
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(
-                        XMaterial.LIME_WOOL.parseMaterial(),
-                        "",
-                        DyeColor.LIME.getColorData(),
-                        ChatColor.GREEN + "Save",
-                        Collections.emptyList(),
-                        false),
-                53,
-                (e) -> {
+        item(44, XMaterial.RED_WOOL, "", DyeColor.RED.getColorData(),
+                ChatColor.RED + "Exit", Collections.emptyList(), false,
+                e -> { session.close(); p.closeInventory(); msg("&aYou successfully exited this setup!"); });
 
-                    Set<String> types = HLootChest.getAPI().getConfigUtil().getBoxesConfigs().keySet();
-                    for (String type : types) {
-                        TYamlWrapper templateFile = HLootChest.getAPI().getConfigUtil().getBoxesConfig(type);
-                        templateFile.save();
-                        templateFile.reload();
-                        p.sendMessage(ChatColor.GREEN + "You successfully saved " + type + ".yml!");
+        item(53, XMaterial.LIME_WOOL, "", DyeColor.LIME.getColorData(),
+                ChatColor.GREEN + "Save", Collections.emptyList(), false,
+                e -> {
+                    for (String type : HLootChest.getAPI().getConfigUtil().getBoxesConfigs().keySet()) {
+                        TYamlWrapper tf = HLootChest.getAPI().getConfigUtil().getBoxesConfig(type);
+                        tf.save();
+                        tf.reload();
+                        msg("&aYou successfully saved " + type + ".yml!");
                     }
                     p.closeInventory();
                     session.close();
                 });
-        p.openInventory(inv);
     }
-
 }

@@ -13,7 +13,7 @@ import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.util.EulerAngle;
-import org.twightlight.hlootchest.api.HLootchest;
+import org.twightlight.hlootchest.api.HLootChest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
@@ -22,7 +22,7 @@ import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.BoxManager;
+import org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.AbstractBox;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.buttons.Button;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.listeners.ClickEvent;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.supports.PacketEventsSupport;
@@ -38,14 +38,14 @@ import java.util.stream.Collectors;
 public class Main extends NMSHandler {
     public static NMSHandler handler;
     public static ColorUtils colorUtils;
-    public static HLootchest api;
+    public static HLootChest api;
     public static NMSUtil nmsUtil;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
     private static final Map<String, LootChestFactory> effectsList = new HashMap<>();
     private static boolean haspacketService = false;
     private static PacketEventsSupport packetService;
 
-    public Main(Plugin pl, String name, HLootchest api1) {
+    public Main(Plugin pl, String name, HLootChest api1) {
         super(pl, name);
         handler = this;
         colorUtils = new ColorUtils();
@@ -132,7 +132,7 @@ public class Main extends NMSHandler {
     }
 
     public TBox getBoxFromPlayer(Player player) {
-        return (TBox)BoxManager.boxPlayerlists.getOrDefault(player, null);
+        return (TBox) AbstractBox.boxPlayerlists.getOrDefault(player, null);
     }
 
     public void playSound(Player player, Location location, String sound, float yaw, float pitch) {

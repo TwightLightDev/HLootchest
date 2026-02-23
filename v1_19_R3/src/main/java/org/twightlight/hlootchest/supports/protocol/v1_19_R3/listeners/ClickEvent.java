@@ -1,23 +1,19 @@
 
 package org.twightlight.hlootchest.supports.protocol.v1_19_R3.listeners;
 
-import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 import org.bukkit.event.player.PlayerInteractAtEntityEvent;
-import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.player.PlayerButtonClickEvent;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
-import org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.BoxManager;
+import org.twightlight.hlootchest.supports.protocol.v1_19_R3.boxes.AbstractBox;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.buttons.Button;
 
 import java.util.List;
@@ -40,7 +36,7 @@ public class ClickEvent implements Listener {
                 handleButtonInteraction(player, button);
                 event.setCancelled(true);
             }
-            if ((box = BoxManager.boxlists.get(entityId)) != null && box.getOwner() == player && box.isClickable() && box.isClickToOpen()) {
+            if ((box = AbstractBox.boxlists.get(entityId)) != null && box.getOwner() == player && box.isClickable() && box.isClickToOpen()) {
                 handleButtonInteraction(box);
                 event.setCancelled(true);
             }
@@ -62,7 +58,7 @@ public class ClickEvent implements Listener {
                 handleButtonInteraction(player, button);
                 event.setCancelled(true);
             }
-            if ((box = BoxManager.boxlists.get(entityId)) != null && box.getOwner() == player && box.isClickable() && box.isClickToOpen()) {
+            if ((box = AbstractBox.boxlists.get(entityId)) != null && box.getOwner() == player && box.isClickable() && box.isClickToOpen()) {
                 handleButtonInteraction(box);
                 event.setCancelled(true);
             }

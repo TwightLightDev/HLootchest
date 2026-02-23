@@ -13,6 +13,6 @@ public class Button extends AbstractButton {
 
     public Button(Location location, ButtonType type, Player player, String path, TYamlWrapper config, boolean isPreview) {
         super(location, type, player, path, config, isPreview,
-                BRIDGE, Main.api, Main.handler, Main.handler.plugin);
+                BRIDGE, Main.api, Main.handler);
     }
 }

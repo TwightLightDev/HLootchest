@@ -4,33 +4,33 @@ import me.clip.placeholderapi.PlaceholderAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.api.HLootchest;
+import org.twightlight.hlootchest.api.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.dependency.ClassLoader;
+import org.twightlight.hlootchest.dependency.HClassLoader;
 import org.twightlight.hlootchest.config.ConfigManager;
 import org.twightlight.hlootchest.database.DatabaseManager;
 import org.twightlight.hlootchest.scheduler.SchedulerAdapter;
 import org.twightlight.hlootchest.sessions.LootChestSession;
 import org.twightlight.hlootchest.supports.interfaces.HooksLoader;
-import org.twightlight.hlootchest.utils.ActionHandler;
+import org.twightlight.hlootchest.utils.*;
 import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.List;
 import java.util.Map;
 
-public class API implements HLootchest {
-    private final HLootchest.ConfigUtil configUtil = new ConfigUtil();
-    private final HLootchest.SessionUtil sessionUtil = new SessionUtil();
-    private final HLootchest.DatabaseUtil dbUtil = new DatabaseUtil();
-    private final HLootchest.Debug debug = new Debug();
-    private final HLootchest.LanguageUtil languageUtil = new LanguageUtil();
-    private final HLootchest.PlayerUtil playerUtil = new PlayerUtil();
+public class API implements HLootChest {
+    private final HLootChest.ConfigUtil configUtil = new ConfigUtil();
+    private final HLootChest.SessionUtil sessionUtil = new SessionUtil();
+    private final HLootChest.DatabaseUtil dbUtil = new DatabaseUtil();
+    private final HLootChest.Debug debug = new Debug();
+    private final HLootChest.LanguageUtil languageUtil = new LanguageUtil();
+    private final HLootChest.PlayerUtil playerUtil = new PlayerUtil();
 
 
-    private static class LanguageUtil implements HLootchest.LanguageUtil {
+    private static class LanguageUtil implements HLootChest.LanguageUtil {
         public String getMsg(Player p, String path) {
             return p(p, ConfigManager.messagesConfig.getString("Messages." + path).replace("{prefix}", ConfigManager.messagesConfig.getString("Messages.prefix")));
         }
@@ -42,8 +42,8 @@ public class API implements HLootchest {
         }
 
         public String p(Player p, String value) {
-            if (HLootChest.hex_gradient) {
-                return HLootChest.colorUtils.colorize(pC(p, value));
+            if (org.twightlight.hlootchest.HLootChest.hex_gradient) {
+                return org.twightlight.hlootchest.HLootChest.colorUtils.colorize(pC(p, value));
             }
             return pC(p, value);
         }
@@ -69,7 +69,7 @@ public class API implements HLootchest {
         }
     }
 
-    private static class ConfigUtil implements HLootchest.ConfigUtil {
+    private static class ConfigUtil implements HLootChest.ConfigUtil {
 
         public TYamlWrapper getTemplateConfig() {
             return ConfigManager.templateConfig;
@@ -92,7 +92,7 @@ public class API implements HLootchest {
 
     }
 
-    private static class SessionUtil implements HLootchest.SessionUtil {
+    private static class SessionUtil implements HLootChest.SessionUtil {
 
         public TSession getSessionFromPlayer(Player p) {
             return LootChestSession.sessions.get(p);
@@ -107,28 +107,28 @@ public class API implements HLootchest {
         }
     }
 
-    private static class DatabaseUtil implements HLootchest.DatabaseUtil {
+    private static class DatabaseUtil implements HLootChest.DatabaseUtil {
 
         public TDatabase getDatabase() {
-            return HLootChest.db.getDatabase();
+            return org.twightlight.hlootchest.HLootChest.db.getDatabase();
         }
         public DatabaseManager getDatabaseManager() {
-            return HLootChest.db;
+            return org.twightlight.hlootchest.HLootChest.db;
         }
 
     }
 
-    private static class PlayerUtil implements HLootchest.PlayerUtil {
+    private static class PlayerUtil implements HLootChest.PlayerUtil {
 
 
         public void addLootChest(Player p, String lc, int amount) {
-            HLootChest.getAPI().getDatabaseUtil().getDatabase().addLootchest(p, lc, amount, "lootchests");
+            org.twightlight.hlootchest.HLootChest.getAPI().getDatabaseUtil().getDatabase().addLootchest(p, lc, amount, "lootchests");
         }
         public void newLcSession(Player p, String lc) {
             new LootChestSession(p, lc);
         }
         public void leaveLcSession(Player p) {
-            TSession session = HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p);
+            TSession session = org.twightlight.hlootchest.HLootChest.getAPI().getSessionUtil().getSessionFromPlayer(p);
             if (session != null) {
                 session.close();
             }
@@ -138,11 +138,11 @@ public class API implements HLootchest {
         }
 
         public ActionHandler getActionHandler() {
-            return HLootChest.getInstance().getActionHandler();
+            return org.twightlight.hlootchest.HLootChest.getInstance().getActionHandler();
         }
     }
 
-    private static class Debug implements HLootchest.Debug {
+    private static class Debug implements HLootChest.Debug {
         public void sendDebugMsg(Player p, String msg) {
 
             if (isDebug()) {
@@ -154,37 +154,37 @@ public class API implements HLootchest {
         }
     }
 
-    public HLootchest.ConfigUtil getConfigUtil() {
+    public HLootChest.ConfigUtil getConfigUtil() {
         return configUtil;
     }
-    public HLootchest.SessionUtil getSessionUtil() {
+    public HLootChest.SessionUtil getSessionUtil() {
         return sessionUtil;
     }
-    public HLootchest.DatabaseUtil getDatabaseUtil() {
+    public HLootChest.DatabaseUtil getDatabaseUtil() {
         return dbUtil;
     }
-    public HLootchest.PlayerUtil getPlayerUtil() {
+    public HLootChest.PlayerUtil getPlayerUtil() {
         return playerUtil;
     }
-    public NMSHandler getNMS() { return HLootChest.getNms(); }
+    public NMSHandler getNMS() { return org.twightlight.hlootchest.HLootChest.getNms(); }
     public HooksLoader getHooksLoader() {
-        return HLootChest.getInstance().getHooksLoader();
+        return org.twightlight.hlootchest.HLootChest.getInstance().getHooksLoader();
     }
 
     @Override
-    public ClassLoader getLibsLoader() {
-        return HLootChest.getInstance().getLibsLoader();
+    public HClassLoader getDependencyClassLoader() {
+        return org.twightlight.hlootchest.HLootChest.getInstance().getDependencyClassLoader();
     }
 
     @Override
     public SchedulerAdapter getScheduler() {
-        return HLootChest.getScheduler();
+        return org.twightlight.hlootchest.HLootChest.getScheduler();
     }
 
-    public HLootchest.Debug getDebugService() {
+    public HLootChest.Debug getDebugService() {
         return debug;
     }
-    public HLootchest.LanguageUtil getLanguageUtil() {
+    public HLootChest.LanguageUtil getLanguageUtil() {
         return languageUtil;
     }
 }

@@ -1,114 +1,35 @@
 package org.twightlight.hlootchest.setup;
 
-import org.twightlight.libs.xseries.XMaterial;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootChest;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
-import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
 import org.twightlight.hlootchest.setup.elements.RewardsMenu;
 import org.twightlight.hlootchest.setup.modules.IconSettings;
-import org.twightlight.hlootchest.utils.Utility;
+import org.twightlight.libs.xseries.XMaterial;
 
 import java.util.Arrays;
-import java.util.Collections;
 
-public class LootChestSetupMenu {
-
-    private final Player p;
-    private final TYamlWrapper templateFile;
-    private final String name;
-    private final SetupSession session;
-
+public class LootChestSetupMenu extends BaseMenu {
 
     public LootChestSetupMenu(Player p, TYamlWrapper templateFile, String name, SetupSession session) {
-        this.p = p;
-        this.templateFile = templateFile;
-        this.name = name;
-        this.session = session;
-
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Editing " + name + "...");
-
-        session.setInvConstructor((MenuHandler<LootChestSetupMenu>) () -> new LootChestSetupMenu(p, templateFile, name, session));
-        setItems(inv);
+        super(p, templateFile, name, "", session);
+        open(27, "&7Editing " + name + "...", () -> new LootChestSetupMenu(p, templateFile, name, session));
     }
 
-    private void setItems(Inventory inv) {
-        if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
-            MenuManager.removeData(p);
-        }
-        inv.clear();
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
-                18,
-                (e) -> new LootChestBrowseMenu(p));
+    @Override
+    protected void populate() {
+        backButton(18, e -> new LootChestBrowseMenu(p));
 
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(
-                        XMaterial.valueOf(templateFile.getString(name + ".icon.material", "BEDROCK")).get(),
-                        templateFile.getString(name + ".icon.head_value", ""),
-                        templateFile.getInt(name + ".icon.data", 0),
-                        "&bIcon",
-                        Arrays.asList(new String[] {"&aClick to browse!"}),
-                        false),
-                11,
-                (e) -> new IconSettings(p, templateFile, name, ".icon", session, (ev) -> new LootChestSetupMenu(p, templateFile, name, session)));
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(XMaterial.CHEST.parseMaterial(), "", 0,
-                        "&bRewards amount",
-                        Arrays.asList(new String[] {"&aCurrent value: " + "&7" + templateFile.getString(name + ".reward-amount", "null"),
-                                "", "&eClick to set a new value!"}),
-                        false),
-                12,
-                (e) -> {
-                    p.closeInventory();
-                    ChatSessions sessions = new ChatSessions(p);
-                    sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
-                        if (input.equals("cancel")) {
-                            sessions.end();
-                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                    () -> {
-                                        setItems(inv);
-                                    });
-                            return;
-                        } else if (!Utility.isNumeric(input)) {
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Value! Cancel the action!"));
-                            sessions.end();
-                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                    () -> {
-                                        setItems(inv);
-                                    });
-                            return;
-                        }
-                        sessions.end();
-                        Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                () -> {
-                                    templateFile.setNotSave(name + ".reward-amount", Float.valueOf(input).intValue());
-                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set value to: &e" + input));
-                                    setItems(inv);
-                                });
-                    });
-                });
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(
-                        XMaterial.EMERALD.parseMaterial(),
-                        "",
-                        0,
-                        ChatColor.YELLOW + "Rewards",
-                        Arrays.asList(new String[] {"&aClick to browse!"}),
-                        false),
-                13,
-                (e) -> new RewardsMenu(p, templateFile, name, ".rewards-list", session));
+        item(11, XMaterial.valueOf(templateFile.getString(name + ".icon.material", "BEDROCK")),
+                templateFile.getString(name + ".icon.head_value", ""),
+                templateFile.getInt(name + ".icon.data", 0),
+                "&bIcon", Arrays.asList("&aClick to browse!"), false,
+                e -> new IconSettings(p, templateFile, name, ".icon", session,
+                        ev -> new LootChestSetupMenu(p, templateFile, name, session)));
 
-        p.openInventory(inv);
+        numericChatItem(12, XMaterial.CHEST, "&bRewards amount", ".reward-amount");
+
+        submenuItem(13, XMaterial.EMERALD, "&bRewards",
+                e -> new RewardsMenu(p, templateFile, name, ".rewards-list", session));
     }
 }
-

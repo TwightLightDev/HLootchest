@@ -18,7 +18,7 @@ import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.utilities.Animations;
 import org.twightlight.hlootchest.utils.Utility;
 
-public class Regular extends BoxManager {
+public class Regular extends AbstractBox {
     private final ArmorStand sword;
     public Regular(Location location, Player player, org.bukkit.inventory.ItemStack icon, TYamlWrapper config, String boxid) {
         super(location, player, icon, config, boxid);

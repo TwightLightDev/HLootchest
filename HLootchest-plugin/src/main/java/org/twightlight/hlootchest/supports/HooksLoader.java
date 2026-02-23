@@ -14,16 +14,16 @@ public class HooksLoader implements org.twightlight.hlootchest.supports.interfac
 
     public HooksLoader() {
         Utility.info("§6§m▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬▬");
-        Utility.info("            §aStarting dependencies loader...");
+        Utility.info("            §aStarting hooks loader...");
         placeholdersAPI = new PlaceholdersAPI();
         headDatabase = new HeadDatabase();
         bw1058 = new BedWars1058();
         bw2023 = new BedWars2023();
         if (!bw1058.hasBedWars() && !bw2023.hasBedWars()) {
-            Utility.info("§cBedWars not found! Disabling BedWars integration...");
+            Utility.info("  §cBedWars not found! Disabling BedWars integration...");
         } else if (bw1058.hasBedWars() && bw2023.hasBedWars()) {
-            Utility.error("§cBoth BedWars1058 and BedWars2023 found! Please delete one");
-            Utility.error("§cDisabling plugin due to error...");
+            Utility.error("  §cBoth BedWars1058 and BedWars2023 found! Please delete one");
+            Utility.error("  §cDisabling plugin due to error...");
             Bukkit.getPluginManager().disablePlugin(HLootChest.getInstance());
         } else {
             Utility.info("§7BedWars: §aEnabled");
@@ -39,10 +39,10 @@ public class HooksLoader implements org.twightlight.hlootchest.supports.interfac
             if (Bukkit.getPluginManager().getPlugin("PlaceholderAPI") != null) {
                 new org.twightlight.hlootchest.supports.hooks.PlaceholdersAPI(HLootChest.getInstance()).register();
                 papi = true;
-                Utility.info("§aPlaceholderAPI found! Starting PlaceholderAPI integration...");
-                Utility.info("§7PlaceholderAPI: §aEnabled");
+                Utility.info("  §aPlaceholderAPI found! Starting PlaceholderAPI integration...");
+                Utility.info("  §7PlaceholderAPI: §aEnabled");
             } else {
-                Utility.info("§cPlaceholderAPI not found! Disabling PlaceholderAPI integration...");
+                Utility.info("  §cPlaceholderAPI not found! Disabling PlaceholderAPI integration...");
             }
         }
 
@@ -59,10 +59,10 @@ public class HooksLoader implements org.twightlight.hlootchest.supports.interfac
             if (Bukkit.getPluginManager().getPlugin("HeadDatabase") != null) {
                 headDb = new org.twightlight.hlootchest.supports.hooks.HeadDatabase();
                 hasHeadDb = true;
-                Utility.info("§aHeadDatabase found! Starting HeadDatabase integration...");
-                Utility.info("§7HeadDatabase: §aEnabled");
+                Utility.info("  §aHeadDatabase found! Starting HeadDatabase integration...");
+                Utility.info("  §7HeadDatabase: §aEnabled");
             } else {
-                Utility.info("§cHeadDatabase not found! Disabling HeadDatabase integration...");
+                Utility.info("  §cHeadDatabase not found! Disabling HeadDatabase integration...");
             }
         }
 
@@ -83,7 +83,7 @@ public class HooksLoader implements org.twightlight.hlootchest.supports.interfac
             if (Bukkit.getPluginManager().getPlugin("BedWars1058") != null) {
                 bw1058 = new BedWars();
                 hasbw = true;
-                Utility.info("§aBedWars1058 found! Starting BedWars1058 integration...");
+                Utility.info("  §aBedWars1058 found! Starting BedWars1058 integration...");
 
             }
         }
@@ -105,7 +105,7 @@ public class HooksLoader implements org.twightlight.hlootchest.supports.interfac
             if (Bukkit.getPluginManager().getPlugin("BedWars2023") != null) {
                 bw2023 = new org.twightlight.hlootchest.supports.hooks.BedWars.BedWars2023.BedWars();
                 hasbw = true;
-                Utility.info("§aBedWars2023 found! Starting BedWars2023 integration...");
+                Utility.info("  §aBedWars2023 found! Starting BedWars2023 integration...");
             }
         }
 

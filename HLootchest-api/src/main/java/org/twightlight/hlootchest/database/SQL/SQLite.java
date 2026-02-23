@@ -3,7 +3,7 @@ package org.twightlight.hlootchest.database.SQL;
 import org.bukkit.plugin.Plugin;
 import org.twightlight.hlootchest.api.enums.DatabaseType;
 import org.twightlight.hlootchest.database.SQLDatabase;
-import org.twightlight.hlootchest.dependency.ClassLoader;
+import org.twightlight.hlootchest.dependency.HClassLoader;
 
 import java.io.File;
 import java.io.IOException;
@@ -13,7 +13,7 @@ import java.sql.Statement;
 
 public class SQLite extends SQLDatabase {
 
-    public SQLite(Plugin plugin, ClassLoader classloader) {
+    public SQLite(Plugin plugin, HClassLoader classloader) {
         super(DatabaseType.SQLITE, createDataSource(plugin, classloader));
     }
 

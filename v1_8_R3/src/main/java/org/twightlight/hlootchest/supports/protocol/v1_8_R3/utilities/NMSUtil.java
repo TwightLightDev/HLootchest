@@ -17,7 +17,6 @@ import org.bukkit.entity.*;
 import org.bukkit.event.player.PlayerTeleportEvent;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ItemSlot;
 import org.twightlight.hlootchest.api.interfaces.internal.NMSService;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
@@ -80,16 +79,16 @@ public class NMSUtil implements NMSService {
     }
 
     public void lockAngle(Player p, Location loc, long duration) {
-        (new BukkitRunnable() {
-            long startTime = System.currentTimeMillis();
-            public void run() {
-                if (System.currentTimeMillis() - this.startTime > duration * 50)
-                    cancel();
-                if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
-                    p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                }
+        long startTime = System.currentTimeMillis();
+        Main.api.getScheduler().runTaskTimer(p, () -> {
+            if (System.currentTimeMillis() - startTime > duration * 50) {
+
+                return;
             }
-        }).runTaskTimer(Main.handler.plugin, 0L, 2L);
+            if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
+                p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
+        }, 0L, 2L);
     }
 
     public void equipIcon(Player p, ArmorStand entityLiving, TIcon icon) {

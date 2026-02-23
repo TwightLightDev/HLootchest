@@ -15,6 +15,7 @@ import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
+import org.twightlight.hlootchest.scheduler.ScheduledRunnable;
 import org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main;
 import org.twightlight.hlootchest.utils.Utility;
 
@@ -24,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BoxManager implements TBox {
+public abstract class AbstractBox implements TBox {
     private Player owner;
     int id;
     private final ArmorStand box;
@@ -43,7 +44,7 @@ public class BoxManager implements TBox {
     public static final ConcurrentHashMap<Integer, TBox> boxlists = new ConcurrentHashMap<>();
     public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
 
-    public BoxManager(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
+    public AbstractBox(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         Main.api.getSessionUtil().getSessionFromPlayer(player).setBox(this);
         this.owner = player;
         Location Plocation = Utility.stringToLocation(config.getString(boxid + ".settings.player-location"));
@@ -66,14 +67,16 @@ public class BoxManager implements TBox {
             vehicle.setInvisible(true);
 
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    player.teleport(Plocation);
-                    vehicle.addPassenger(player);
+            Main.api.getScheduler().runTaskLater(player, () -> {
 
-                }
-            }.runTaskLater(Main.handler.plugin, 2L);
+                player.teleport(location);
+
+                Main.api.getScheduler().runTaskLater(vehicle, () -> {
+                    vehicle.addPassenger(player);
+                }, 1L);
+
+            }, 2L);
+
             vehicles.put(owner, vehicle);
         }
         this.box = this.createArmorStand(location, "", false);

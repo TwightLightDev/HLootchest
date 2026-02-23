@@ -10,7 +10,7 @@ import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.Main;
-import org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes.BoxManager;
+import org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes.AbstractBox;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.buttons.Button;
 
 import java.lang.reflect.Field;
@@ -38,7 +38,7 @@ public class ClickEvent extends PlayerConnection {
             }
             handleButtonInteraction(action, button);
         }
-        TBox box = BoxManager.boxlists.get(entityId);
+        TBox box = AbstractBox.boxlists.get(entityId);
         if (box != null && box.isClickable() && box.isClickToOpen()) {
             handleButtonInteraction(action, box);
         }

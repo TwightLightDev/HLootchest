@@ -12,7 +12,7 @@ import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
-import org.twightlight.hlootchest.api.HLootchest;
+import org.twightlight.hlootchest.api.HLootChest;
 import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 
 import java.net.MalformedURLException;
@@ -24,7 +24,7 @@ import java.util.stream.Collectors;
 
 public class Main extends org.twightlight.hlootchest.supports.protocol.v1_19_R3.Main {
 
-    public Main(Plugin pl, String name, HLootchest api) {
+    public Main(Plugin pl, String name, HLootChest api) {
         super(pl, name, api);
     }
 

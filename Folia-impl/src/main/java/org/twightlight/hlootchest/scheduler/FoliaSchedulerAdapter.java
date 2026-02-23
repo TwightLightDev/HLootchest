@@ -56,25 +56,25 @@ public class FoliaSchedulerAdapter implements SchedulerAdapter {
     }
 
     @Override
-    public ScheduledTask runTaskAsynchronouslyLater(Runnable task, long delayMillis) {
-        long delayTicks = delayMillis * 50L;
+    public ScheduledTask runTaskAsynchronouslyLater(Runnable task, long delayTicks) {
+        long delayMillis = delayTicks * 50L;
 
         return wrap(Bukkit.getAsyncScheduler()
                 .runDelayed(plugin,
                         t -> task.run(),
-                        delayTicks,
+                        delayMillis,
                         TimeUnit.MILLISECONDS));
     }
 
     @Override
-    public ScheduledTask runTaskAsynchronouslyTimer(Runnable task, long delayMillis, long periodMillis) {
-        long delayTicks = delayMillis * 50L;
-        long periodTicks = periodMillis * 50L;
+    public ScheduledTask runTaskAsynchronouslyTimer(Runnable task, long delayTicks, long periodTicks) {
+        long delayMillis = delayTicks * 50L;
+        long periodMillis = periodTicks * 50L;
 
         return wrap(Bukkit.getAsyncScheduler()
                 .runAtFixedRate(plugin,
                         t -> task.run(),
-                        delayTicks, periodTicks,
+                        delayMillis, periodMillis,
                         TimeUnit.MILLISECONDS));
     }
 

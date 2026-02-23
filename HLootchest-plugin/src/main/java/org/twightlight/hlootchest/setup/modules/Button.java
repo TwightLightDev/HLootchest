@@ -1,441 +1,65 @@
 package org.twightlight.hlootchest.setup.modules;
 
-import org.twightlight.libs.xseries.XMaterial;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
+import org.twightlight.hlootchest.api.interfaces.functional.Executable;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
-import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.setup.MenuManager;
 import org.twightlight.hlootchest.setup.Preview;
 import org.twightlight.hlootchest.setup.elements.ButtonsMenu;
 import org.twightlight.hlootchest.setup.elements.ChildrenMenu;
-import org.twightlight.hlootchest.setup.elements.RequirementsMenu;
-import org.twightlight.hlootchest.setup.elements.RotationsMenu;
 import org.twightlight.hlootchest.utils.Utility;
+import org.twightlight.libs.xseries.XMaterial;
 
 import java.util.Arrays;
-import java.util.Collections;
-import java.util.List;
-import java.util.stream.Collectors;
 
-public class Button {
-
-    private final Player p;
-    private final TYamlWrapper templateFile;
-    private final String name;
-    private final String path;
-    private final SetupSession session;
-    private final boolean isChild;
+public class Button extends EntityEditor {
 
     public Button(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, boolean isChild) {
-        this.p = p;
-        this.templateFile = templateFile;
-        this.name = name;
-        this.path = path;
-        this.session = session;
-        this.isChild = isChild;
+        super(p, templateFile, name, path, session, isChild);
+        String title = isChild ? "&7Editing child..." : "&7Editing button...";
+        open(54, title, () -> new Button(p, templateFile, name, path, session, isChild));
+    }
 
-        Inventory inv;
+    @Override
+    protected Executable selfConstructor() {
+        return e -> new Button(p, templateFile, name, path, session, isChild);
+    }
+
+    @Override
+    protected Executable parentBackAction() {
+        if (isChild) return e -> new ChildrenMenu(p, templateFile, name, Utility.getPrevPath(path), session, false);
+        return e -> new ButtonsMenu(p, templateFile, name, Utility.getPrevPath(path), session);
+    }
+
+    @Override
+    protected boolean isRewardType() {
+        return false;
+    }
+
+    @Override
+    protected void populate() {
         if (isChild) {
-            inv = Bukkit.createInventory(null, 54, ChatColor.GRAY + "Editing child...");
-
+            populateChildItems();
         } else {
-            inv = Bukkit.createInventory(null, 54, ChatColor.GRAY + "Editing button...");
+            populateCommonNonChildItems();
+            item(53, XMaterial.GLASS, "&bPreview", Arrays.asList("&eClick to preview!"),
+                    e -> {
+                        new Preview(Utility.stringToLocation(templateFile.getString(fullPath(".location"))),
+                                ButtonType.FUNCTIONAL, p, fullPath(), templateFile);
+                        p.closeInventory();
+                    });
         }
-
-
-        session.setInvConstructor((MenuHandler<Button>) () -> new Button(p, templateFile, name, path, session, isChild));
-        setItems(inv);
     }
 
-    private void setItems(Inventory inv) {
-        if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
-            MenuManager.removeData(p);
-        }
-        inv.clear();
-        if (!isChild) {
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
-                    45,
-                    (e) -> new ButtonsMenu(p, templateFile, name, Utility.getPrevPath(path), session));
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
-                            "&bLocation",
-                            Arrays.asList(new String[]{"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".location", "null"),
-                                    "", "&eClick to set to your current location!"}),
-                            false),
-                    11,
-                    (e) -> {
-                        templateFile.setNotSave(name + path + ".location", Utility.locationToString(p.getLocation()));
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + Utility.locationToString(p.getLocation())));
-                        setItems(inv);
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.CHEST.parseMaterial(), "", 0,
-                            "&bClick sound",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    12,
-                    (e) -> {
-                        new Sound(p, templateFile, name, path + ".click-sound", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.CHEST.parseMaterial(), "", 0,
-                            "&bHover sound",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    13,
-                    (e) -> {
-                        new Sound(p, templateFile, name, path + ".hover-sound", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.COMPASS.parseMaterial(), "", 0,
-                            "&bRotations",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    14,
-                    (e) -> {
-                        new RotationsMenu(p, templateFile, name, path + ".rotations", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.CLOCK.parseMaterial(), "", 0,
-                            "&bDelay",
-                            Arrays.asList(new String[]{"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".delay", "null"),
-                                    "", "&eClick to set a new value!"}),
-                            false),
-                    15,
-                    (e) -> {
-                        p.closeInventory();
-                        ChatSessions sessions = new ChatSessions(p);
-                        sessions.prompt(Arrays.asList(new String[]{"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
-                            if (input.equals("cancel")) {
-                                sessions.end();
-                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                        () -> {
-                                            setItems(inv);
-                                        });
-                                return;
-                            } else if (!Utility.isNumeric(input)) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Value! Cancel the action!"));
-                                sessions.end();
-                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                        () -> {
-                                            setItems(inv);
-                                        });
-                                return;
-                            }
-                            sessions.end();
-                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                    () -> {
-                                        templateFile.setNotSave(name + path + ".delay", Integer.valueOf(input));
-                                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set value to: &e" + input));
-                                        setItems(inv);
-                                    });
-                        });
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.RED_WOOL.parseMaterial(), "", 0,
-                            "&bSpawn Requirements",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    21,
-                    (e) -> {
-                        new RequirementsMenu(p, templateFile, name, path + ".spawn-requirements", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.RED_WOOL.parseMaterial(), "", 0,
-                            "&bClick Requirements",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    22,
-                    (e) -> {
-                        new RequirementsMenu(p, templateFile, name, path + ".click-requirements", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.COMPASS.parseMaterial(), "", 0,
-                            "&bRotate-on-spawn",
-                            Arrays.asList(new String[]{"&aEnable: " + "&7" + templateFile.getBoolean(name + path + ".rotate-on-spawn.enable", false),
-                                    "&aReverse: " + "&7" + templateFile.getBoolean(name + path + ".rotate-on-spawn.reverse", false),
-                                    "&aFinal yaw: " + "&7" + templateFile.getString(name + path + ".rotate-on-spawn.final-yaw", "null"),
-                                    "", "&eLeft-click to change 'Enable' option!",
-                                    "&eRight-click to change 'Reverse' option!",
-                                    "&eShift-left-click to change 'Final yaw' option!"}),
-                            false),
-                    23,
-                    (e) -> {
-                        if (e.isLeftClick() && e.isShiftClick()) {
-                            p.closeInventory();
-                            ChatSessions sessions = new ChatSessions(p);
-                            sessions.prompt(Arrays.asList(new String[]{"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
-                                if (input.equals("cancel")) {
-                                    sessions.end();
-                                    Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                            () -> {
-                                                setItems(inv);
-                                            });
-                                    return;
-                                } else if (!Utility.isNumeric(input)) {
-                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Value! Cancel the action!"));
-                                    sessions.end();
-                                    Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                            () -> {
-                                                setItems(inv);
-                                            });
-                                    return;
-                                }
-                                sessions.end();
-                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                        () -> {
-                                            templateFile.setNotSave(name + path + ".rotate-on-spawn.final-yaw", Float.valueOf(input));
-                                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new final yaw to: &e" + input));
-                                            setItems(inv);
-                                        });
-                            });
-
-                        } else if (e.isRightClick()) {
-                            templateFile.setNotSave(name + path + ".rotate-on-spawn.reverse", !templateFile.getBoolean(name + path + ".rotate-on-spawn.reverse", false));
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".rotate-on-spawn.reverse")));
-                            setItems(inv);
-                        } else if (e.isLeftClick()) {
-                            templateFile.setNotSave(name + path + ".rotate-on-spawn.enable", !templateFile.getBoolean(name + path + ".rotate-on-spawn.enable", false));
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".rotate-on-spawn.enable")));
-                            setItems(inv);
-                        }
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.NAME_TAG.parseMaterial(), "", 0,
-                            "&bDisplay Name Settings",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    24,
-                    (e) -> {
-                        new Name(p, templateFile, name, path + ".name", session, isChild, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.PLAYER_HEAD.parseMaterial(), "", 3,
-                            "&bIcons",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    29,
-                    (e) -> {
-                        new Icon(p, templateFile, name, path + ".icon", session, isChild, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
-                            "&bChildren",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    30,
-                    (e) -> {
-                        new ChildrenMenu(p, templateFile, name, path + ".children", session, false);
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.SHEARS.parseMaterial(), "", 0,
-                            "&bHolding Icon",
-                            Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".holding-icon", true)),
-                                    "", "&eClick to change!"}),
-                            false),
-                    31,
-                    (e) -> {
-                        templateFile.setNotSave(name + path + ".holding-icon", !templateFile.getBoolean(name + path + ".holding-icon", true));
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".holding-icon")));
-                        setItems(inv);
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.GOLD_NUGGET.parseMaterial(), "", 0,
-                            "&bSmall",
-                            Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".small", false)),
-                                    "", "&eClick to change!"}),
-                            false),
-                    32,
-                    (e) -> {
-                        templateFile.setNotSave(name + path + ".small", !templateFile.getBoolean(name + path + ".small", false));
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".small")));
-                        setItems(inv);
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.GLASS.parseMaterial(), "", 0,
-                            "&bPreview",
-                            Arrays.asList(new String[] {"&eClick to preview!"}),
-                            false),
-                    53,
-                    (e) -> {
-                        new Preview(Utility.stringToLocation(templateFile.getString(name + path + ".location")), ButtonType.FUNCTIONAL, p, name + path, templateFile);
-                        p.closeInventory();
-                    });
-            List<String> actions = Collections.emptyList();
-            if (templateFile.getYml().contains(name + path + ".actions")) {
-                actions = templateFile.getList(name + path + ".actions");
-            }
-            actions = actions.stream()
-                    .map(line -> ChatColor.translateAlternateColorCodes('&', "&f" + "- " + line))
-                    .collect(Collectors.toList());
-            actions.add("");
-            actions.add(ChatColor.translateAlternateColorCodes('&', "&eLeft-click to add an action."));
-            actions.add(ChatColor.translateAlternateColorCodes('&', "&eRight-click to remove the last action."));
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(
-                            XMaterial.COMMAND_BLOCK.parseMaterial(),
-                            "",
-                            0,
-                            "&bActions",
-                            actions,
-                            false),
-                    20,
-                    (e) -> {
-                        List<String> actions1 = Collections.emptyList();
-                        if (templateFile.getYml().contains(name + path + ".actions")) {
-                            actions1 = templateFile.getList(name + path + ".actions");
-                        }
-                        if (e.isLeftClick()) {
-                            p.closeInventory();
-                            final List<String> actions2 = actions1;
-                            ChatSessions sessions = new ChatSessions(p);
-                            sessions.prompt(Arrays.asList(new String[]{"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
-                                if (input.equals("cancel")) {
-                                    sessions.end();
-                                    Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                            () -> {
-                                                setItems(inv);
-                                            });
-                                    return;
-                                }
-                                actions2.add(input);
-                                sessions.end();
-                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                        () -> {
-                                            templateFile.setNotSave(name + path + ".actions", actions2);
-                                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully added a new action: &e" + input));
-                                            setItems(inv);
-                                        });
-                            });
-                        } else if (e.isRightClick()) {
-                            actions1.remove(actions1.size() - 1);
-                            templateFile.setNotSave(name + path + ".actions", actions1);
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully removed this action! "));
-                            setItems(inv);
-                        }
-                    });
-        } else {
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
-                    45,
-                    (e) -> new ChildrenMenu(p, templateFile, name, Utility.getPrevPath(path), session, false));
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
-                            "&bLocation",
-                            Arrays.asList(new String[]{"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".location", "null"),
-                                    "", "&eClick to set to your current location!"}),
-                            false),
-                    11,
-                    (e) -> {
-                        templateFile.setNotSave(name + path + ".location", Utility.locationToString(p.getLocation()));
-                        templateFile.setNotSave(name + path + ".location-offset", null);
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + Utility.locationToString(p.getLocation())));
-                        setItems(inv);
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
-                            "&bLocation offset",
-                            Arrays.asList(new String[]{
-                                    "&aCurrent value: " + "&7" + templateFile.getYml().getString(name + path + ".location-offset", "null"),
-                                    "", "&eClick to set to new offset value!"}),
-                            false),
-                    12,
-                    (e) -> {
-                        p.closeInventory();
-                        final SetupSession session2 = session;
-                        ChatSessions sessions = new ChatSessions(p);
-                        sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aLocation-offset support math!", "&aType 'cancel' to cancel!"}), (input) -> {
-                            if (input.equals("cancel")) {
-                                sessions.end();
-                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                        () -> {
-                                            setItems(inv);
-                                        });
-                                return;
-                            }
-                            sessions.end();
-                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                    () -> {
-                                        templateFile.setNotSave(name + path + ".location-offset", input);
-                                        templateFile.setNotSave(name + path + ".location", null);
-                                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + input));
-                                        setItems(inv);
-                                    });
-                        });
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.COMPASS.parseMaterial(), "", 0,
-                            "&bRotations",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    13,
-                    (e) -> {
-                        new RotationsMenu(p, templateFile, name, path + ".rotations", session, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.NAME_TAG.parseMaterial(), "", 0,
-                            "&bDisplay Name Settings",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    14,
-                    (e) -> {
-                        new Name(p, templateFile, name, path + ".name", session, isChild, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.PLAYER_HEAD.parseMaterial(), "", 3,
-                            "&bIcons",
-                            Arrays.asList(new String[]{"&eClick to browse!"}),
-                            false),
-                    15,
-                    (e) -> {
-                        new Icon(p, templateFile, name, path + ".icon", session, isChild, (ev) -> new Button(p, templateFile, name, path, session, isChild));
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.GOLD_NUGGET.parseMaterial(), "", 0,
-                            "&bSmall",
-                            Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".small", false)),
-                                    "", "&eClick to change!"}),
-                            false),
-                    20,
-                    (e) -> {
-                        templateFile.setNotSave(name + path + ".small", !templateFile.getBoolean(name + path + ".small", false));
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".small")));
-                        setItems(inv);
-                    });
-        }
-        p.openInventory(inv);
-    }
+    @Override
+    protected int extraNameSlotOffset() { return 0; }
+    @Override
+    protected int extraIconSlotOffset() { return 0; }
+    @Override
+    protected int extraChildrenSlotOffset() { return 0; }
+    @Override
+    protected int extraHoldingSlotOffset() { return 0; }
+    @Override
+    protected int extraSmallSlotOffset() { return 0; }
 }

@@ -57,7 +57,7 @@ public class BukkitSchedulerAdapter implements SchedulerAdapter {
 
     @Override
     public ScheduledTask runTaskAsynchronouslyTimer(Runnable task, long delayTicks, long periodTicks) {
-        return wrap(Bukkit.getScheduler().runTaskLaterAsynchronously(plugin, task, delayTicks));
+        return wrap(Bukkit.getScheduler().runTaskTimerAsynchronously(plugin, task, delayTicks, periodTicks));
     }
 
 

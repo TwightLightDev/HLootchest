@@ -1,5 +1,6 @@
 package org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes;
 
+import org.twightlight.hlootchest.scheduler.ScheduledRunnable;
 import org.twightlight.libs.xseries.XPotion;
 import net.minecraft.server.v1_12_R1.*;
 import org.bukkit.Bukkit;
@@ -15,7 +16,6 @@ import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.potion.PotionEffect;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
@@ -30,7 +30,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BoxManager implements TBox {
+public abstract class AbstractBox implements TBox {
 
     private Player owner;
     int id;
@@ -51,7 +51,7 @@ public class BoxManager implements TBox {
     public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
     private boolean isOpening;
 
-    public BoxManager(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
+    public AbstractBox(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         Main.api.getSessionUtil().getSessionFromPlayer(player).setBox(this);
 
         this.owner = player;
@@ -82,14 +82,16 @@ public class BoxManager implements TBox {
 
             entityPig.f(tag);
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    player.teleport(Plocation);
-                    vehicle.addPassenger(player);
+            Main.api.getScheduler().runTaskLater(player, () -> {
 
-                }
-            }.runTaskLater(Main.handler.plugin, 2L);
+                player.teleport(location);
+
+                Main.api.getScheduler().runTaskLater(vehicle, () -> {
+                    vehicle.addPassenger(player);
+                }, 1L);
+
+            }, 2L);
+
             vehicles.put(owner, vehicle);
         }
 

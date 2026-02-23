@@ -2,7 +2,7 @@ package org.twightlight.hlootchest.database.SQL;
 
 import org.twightlight.hlootchest.api.enums.DatabaseType;
 import org.twightlight.hlootchest.database.SQLDatabase;
-import org.twightlight.hlootchest.dependency.ClassLoader;
+import org.twightlight.hlootchest.dependency.HClassLoader;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -10,12 +10,12 @@ import java.sql.Statement;
 
 public class MariaDB extends SQLDatabase {
 
-    public MariaDB(ClassLoader classloader, String host, int port, String database,
+    public MariaDB(HClassLoader classloader, String host, int port, String database,
                    String username, String password, boolean ssl) {
         super(DatabaseType.MARIADB, createDataSource(classloader, host, port, database, username, password, ssl));
     }
 
-    private static Object createDataSource(java.lang.ClassLoader libLoader, String host, int port,
+    private static Object createDataSource(HClassLoader libLoader, String host, int port,
                                            String database, String username, String password, boolean useSSL) {
         java.lang.ClassLoader previous = Thread.currentThread().getContextClassLoader();
         try {

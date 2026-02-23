@@ -5,7 +5,7 @@ import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.internal.TDatabase;
 import org.twightlight.hlootchest.api.interfaces.internal.TSession;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.dependency.ClassLoader;
+import org.twightlight.hlootchest.dependency.HClassLoader;
 import org.twightlight.hlootchest.database.DatabaseManager;
 import org.twightlight.hlootchest.scheduler.SchedulerAdapter;
 import org.twightlight.hlootchest.supports.interfaces.HooksLoader;
@@ -13,7 +13,7 @@ import org.twightlight.hlootchest.utils.ActionHandler;
 
 import java.util.Map;
 
-public interface HLootchest {
+public interface HLootChest {
 
     /**
      * Retrieves the configuration utility.
@@ -66,7 +66,7 @@ public interface HLootchest {
 
     HooksLoader getHooksLoader();
 
-    ClassLoader getLibsLoader();
+    HClassLoader getDependencyClassLoader();
 
     SchedulerAdapter getScheduler();
 

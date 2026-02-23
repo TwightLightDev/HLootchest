@@ -18,24 +18,24 @@ public class ConfigManager {
     public static TYamlWrapper registration;
 
     public static void init() {
-        Utility.info("Loading config.yml...");
+        Utility.info("&eLoading config.yml...");
         mainConfig = new MainConfig(HLootChest.getInstance(), "config", path);
 
-        Utility.info("Loading templates...");
+        Utility.info("&eLoading templates...");
         File file = new File((HLootChest.getInstance().getDataFolder().getPath()+ "/templates"), "example_template.yml");
         if (!file.exists()) {
             HLootChest.getInstance().saveResource("templates/example_template.yml", false);
         }
         templateConfig = new YamlWrapper(HLootChest.getInstance(), mainConfig.getString("template"), HLootChest.getInstance().getDataFolder().getPath()+ "/templates");
 
-        Utility.info("Loading messages.yml...");
+        Utility.info("&eLoading messages.yml...");
         File file4 = new File(HLootChest.getInstance().getDataFolder().getPath(), "messages.yml");
         if (!file4.exists()) {
             HLootChest.getInstance().saveResource("messages.yml", false);
         }
         messagesConfig = new YamlWrapper(HLootChest.getInstance(), "messages", path);
 
-        Utility.info("Loading registrations.yml...");
+        Utility.info("&eLoading registrations.yml...");
         File file5 = new File(HLootChest.getInstance().getDataFolder().getPath(), "registrations.yml");
         if (!file5.exists()) {
             HLootChest.getInstance().saveResource("registrations.yml", false);

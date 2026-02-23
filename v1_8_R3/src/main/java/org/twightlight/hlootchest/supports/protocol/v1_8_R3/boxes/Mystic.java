@@ -24,7 +24,7 @@ import org.twightlight.hlootchest.supports.protocol.v1_8_R3.Main;
 import java.util.Collections;
 import java.util.Random;
 
-public class Mystic extends BoxManager {
+public class Mystic extends AbstractBox {
 
     private ArmorStand floatingOrb1;
     private ArmorStand floatingOrb2;

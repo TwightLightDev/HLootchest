@@ -82,20 +82,16 @@ public class NMSUtil implements NMSService {
     }
 
     public void lockAngle(Player p, Location loc, long duration) {
-        (new BukkitRunnable() {
-            long startTime = System.currentTimeMillis();
-            public void run() {
-                if (System.currentTimeMillis() - this.startTime > duration * 50)
-                    cancel();
-                if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
-                    if (Main.hasPacketService()) {
-                        Main.getPacketService().teleport(p, loc);
-                    } else {
-                        p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
-                    }
-                }
+        long startTime = System.currentTimeMillis();
+        Main.api.getScheduler().runTaskTimer(p, () -> {
+            if (System.currentTimeMillis() - startTime > duration * 50) {
+
+                return;
             }
-        }).runTaskTimer(Main.handler.plugin, 0L, 2L);
+            if (p.getLocation().getYaw() != loc.getYaw() || p.getLocation().getPitch() != loc.getPitch()) {
+                p.teleport(loc, PlayerTeleportEvent.TeleportCause.PLUGIN);
+            }
+        }, 0L, 2L);
     }
 
     @SuppressWarnings("unchecked")

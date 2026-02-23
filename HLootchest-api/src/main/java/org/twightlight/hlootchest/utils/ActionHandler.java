@@ -5,18 +5,18 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.ConsoleCommandSender;
 import org.bukkit.entity.Player;
-import org.twightlight.hlootchest.api.HLootchest;
+import org.twightlight.hlootchest.api.HLootChest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.scheduler.SchedulerAdapter;
 
 public class ActionHandler {
 
-    private final HLootchest api;
+    private final HLootChest api;
     private final SchedulerAdapter scheduler;
 
-    public ActionHandler(HLootchest api, SchedulerAdapter scheduler) {
+    public ActionHandler(HLootChest api) {
         this.api = api;
-        this.scheduler = scheduler;
+        this.scheduler = api.getScheduler();
     }
 
     public void handle(String action, Player p, ButtonType type) {

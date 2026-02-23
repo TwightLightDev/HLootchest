@@ -1,133 +1,42 @@
 package org.twightlight.hlootchest.setup.modules;
 
-import org.twightlight.libs.xseries.XMaterial;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
-import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.setup.MenuManager;
+import org.twightlight.hlootchest.setup.BaseMenu;
 import org.twightlight.hlootchest.setup.elements.IconsMenu;
-import org.twightlight.hlootchest.utils.Utility;
+import org.twightlight.libs.xseries.XMaterial;
 
 import java.util.Arrays;
-import java.util.Collections;
 
-public class Icon {
+public class Icon extends BaseMenu {
 
-    private final Player p;
-    private final TYamlWrapper templateFile;
-    private final String name;
-    private final String path;
-    private final SetupSession session;
-    private boolean isChild;
+    private final boolean isChild;
     private final Executable backAction;
+
     public Icon(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, boolean isChild, Executable backAction) {
-        this.p = p;
-        this.templateFile = templateFile;
-        this.name = name;
-        this.path = path;
-        this.session = session;
+        super(p, templateFile, name, path, session);
         this.isChild = isChild;
         this.backAction = backAction;
-
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Editing icon...");
-
-        session.setInvConstructor((MenuHandler<Icon>) () -> new Icon(p, templateFile, name, path, session, isChild, backAction));
-        setItems(inv);
+        open(27, "&7Editing icon...", () -> new Icon(p, templateFile, name, path, session, isChild, backAction));
     }
 
-    private void setItems(Inventory inv) {
-        if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
-            MenuManager.removeData(p);
-        }
-        inv.clear();
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
-                18,
-                backAction);
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(XMaterial.NAME_TAG.parseMaterial(), "", 0,
-                        "&bDynamic",
-                        Arrays.asList(new String[] {"&aCurrent value: " + "&7" + String.valueOf(templateFile.getBoolean(name + path + ".dynamic", false)),
-                                "", "&eClick to change!"}),
-                        true),
-                11,
-                (e) -> {
-                    templateFile.setNotSave(name + path + ".dynamic", !templateFile.getBoolean(name + path + ".dynamic", false));
-                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + templateFile.getBoolean(name + path + ".dynamic")));
-                    setItems(inv);
-                });
-        boolean dynamic = templateFile.getBoolean(name + path + ".dynamic", false);
+    @Override
+    protected void populate() {
+        backButton(18, backAction);
+
+        toggleItem(11, XMaterial.NAME_TAG, "&bDynamic", ".dynamic", false);
+
+        boolean dynamic = templateFile.getBoolean(fullPath(".dynamic"), false);
         if (dynamic) {
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.PLAYER_HEAD.parseMaterial(), "", 0,
-                            "&bIcon List",
-                            Arrays.asList(new String[] {"&eClick to browse!"}),
-                            false),
-                    12,
-                    (e) -> {
-                        new IconsMenu(p, templateFile, name, path+".dynamic-icons", session, isChild, backAction);
-                    });
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.CLOCK.parseMaterial(), "", 0,
-                            "&bRefresh interval",
-                            Arrays.asList(new String[] {"&aCurrent value: " + "&7" + templateFile.getString(name + path + ".refresh-interval", "null"),
-                                    "", "&eClick to set a new value!"}),
-                            false),
-                    13,
-                    (e) -> {
-                        p.closeInventory();
-                        ChatSessions sessions = new ChatSessions(p);
-                        sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aType 'cancel' to cancel!"}), (input) -> {
-                            if (input.equals("cancel")) {
-                                sessions.end();
-                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                        () -> {
-                                            setItems(inv);
-                                        });
-                                return;
-                            } else if (!Utility.isNumeric(input)) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Value! Cancel the action!"));
-                                sessions.end();
-                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                        () -> {
-                                            setItems(inv);
-                                        });
-                                return;
-                            }
-                            sessions.end();
-                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                    () -> {
-                                        templateFile.setNotSave(name + path + ".refresh-interval", Float.valueOf(input).intValue());
-                                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set value to: &e" + input));
-                                        setItems(inv);
-                                    });
-                        });
-                    });
+            submenuItem(12, XMaterial.PLAYER_HEAD, "&bIcon List",
+                    e -> new IconsMenu(p, templateFile, name, path + ".dynamic-icons", session, isChild, backAction));
+            numericChatItem(13, XMaterial.CLOCK, "&bRefresh interval", ".refresh-interval");
         } else {
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.valueOf(templateFile.getString(name + path+ ".material", "BEDROCK")).parseMaterial(),
-                    templateFile.getString(name + path + ".head_value", ""),
-                    templateFile.getInt(name + path + ".data", 0),
-                            "&bIcon Settings",
-                            Arrays.asList(new String[] {"&eClick to browse!"}),
-                            false),
-                    12,
-                    (e) -> {
-                        new IconSettings(p, templateFile, name, path, session, (ev) -> new Icon(p, templateFile, name, path, session, isChild, backAction));
-                    });
+            submenuItem(12, XMaterial.valueOf(templateFile.getString(fullPath(".material"), "BEDROCK")), "&bIcon Settings",
+                    e -> new IconSettings(p, templateFile, name, path, session,
+                            ev -> new Icon(p, templateFile, name, path, session, isChild, backAction)));
         }
-        p.openInventory(inv);
     }
 }

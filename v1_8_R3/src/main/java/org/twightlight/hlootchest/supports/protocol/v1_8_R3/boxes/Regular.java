@@ -19,7 +19,7 @@ import org.twightlight.hlootchest.utils.Utility;
 
 import java.util.HashSet;
 
-public class Regular extends BoxManager {
+public class Regular extends AbstractBox {
 
     private EntityArmorStand sword;
 

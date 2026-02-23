@@ -1,95 +1,31 @@
 package org.twightlight.hlootchest.setup.modules;
 
+import org.bukkit.entity.Player;
+import org.twightlight.hlootchest.api.interfaces.functional.Executable;
+import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
+import org.twightlight.hlootchest.sessions.SetupSession;
+import org.twightlight.hlootchest.setup.BaseMenu;
 import org.twightlight.libs.xseries.XMaterial;
 import org.twightlight.libs.xseries.XSound;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootChest;
-import org.twightlight.hlootchest.api.interfaces.functional.Executable;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
-import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
-import org.twightlight.hlootchest.sessions.ChatSessions;
-import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.setup.MenuManager;
-import org.twightlight.hlootchest.utils.Utility;
 
-import java.util.Arrays;
-import java.util.Collections;
+public class Sound extends BaseMenu {
 
-public class Sound {
-    private final Player p;
-    private final TYamlWrapper templateFile;
-    private final String name;
-    private final String path;
-    private final SetupSession session;
-    private final Inventory inv;
-    private static final int SOUND_SLOT = 11;
-    private static final int YAW_SLOT = 12;
-    private static final int PITCH_SLOT = 13;
     private final Executable backAction;
 
     public Sound(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, Executable backAction) {
-        this.p = p;
-        this.templateFile = templateFile;
-        this.name = name;
-        this.path = path;
-        this.session = session;
+        super(p, templateFile, name, path, session);
         this.backAction = backAction;
-        this.inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Settings");
-
-        session.setInvConstructor((MenuHandler<Sound>) () -> new Sound(p, templateFile, name, path, session, backAction));
-        setItems(inv);
+        open(27, "&7Settings", () -> new Sound(p, templateFile, name, path, session, backAction));
     }
 
-    private void setItems(Inventory inv) {
-        MenuManager.removeData(p);
-        inv.clear();
+    @Override
+    protected void populate() {
+        backButton(18, backAction);
 
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
-                18,
-                backAction);
-        addConfigurableItem(SOUND_SLOT, "sound", "&bSound Type", (input) -> XSound.matchXSound(input).isPresent());
-        addConfigurableItem(YAW_SLOT, "yaw", "&bYaw", Utility::isNumeric);
-        addConfigurableItem(PITCH_SLOT, "pitch", "&bPitch", Utility::isNumeric);
+        validatedChatItem(11, XMaterial.CHEST, "&bSound Type", ".sound",
+                input -> XSound.matchXSound(input).isPresent(), "&cInvalid Sound! Action canceled.");
 
-        p.openInventory(inv);
-    }
-
-    private void addItem(int slot, XMaterial material, String displayName, String value, Executable action) {
-        MenuManager.setItem(
-                p,
-                inv,
-                HLootChest.getNms().createItem(material.parseMaterial(), "", 0, ChatColor.translateAlternateColorCodes('&', displayName), Arrays.asList("&aCurrent value: &7" + value, "","&eClick to set a new value!"), false),
-                slot,
-                action
-        );
-    }
-
-    private void addConfigurableItem(int slot, String key, String displayName, java.util.function.Function<String, Boolean> validator) {
-        String currentValue = templateFile.getString(name + path + "." + key, "null");
-        addItem(slot, XMaterial.CHEST, displayName, currentValue , e -> {
-            p.closeInventory();
-            ChatSessions chatSession = new ChatSessions(p);
-            chatSession.prompt(Arrays.asList("&aType the value you want:", "&aType 'cancel' to cancel!"), input -> {
-                if ("cancel".equalsIgnoreCase(input)) {
-                    chatSession.end();
-                } else if (!validator.apply(input)) {
-                    p.sendMessage(ChatColor.RED + "Invalid Value! Action canceled.");
-                } else {
-                    if ("yaw".equals(key) || "pitch".equals(key)) {
-                        templateFile.setNotSave(name + path + "." + key, Float.valueOf(input).intValue());
-                    } else {
-                        templateFile.setNotSave(name + path + "." + key, input);
-                    }
-                    p.sendMessage(ChatColor.GREEN + "Successfully set " + key + " to: " + ChatColor.YELLOW + input);
-                }
-                chatSession.end();
-                Bukkit.getScheduler().runTask(HLootChest.getInstance(), () -> setItems(inv));
-            });
-        });
+        numericChatItem(12, XMaterial.CHEST, "&bYaw", ".yaw");
+        numericChatItem(13, XMaterial.CHEST, "&bPitch", ".pitch");
     }
 }

@@ -11,7 +11,6 @@ import org.bukkit.entity.ArmorStand;
 import org.bukkit.entity.Pig;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
-import org.bukkit.scheduler.BukkitRunnable;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.events.lootchest.LCSpawnEvent;
 import org.twightlight.hlootchest.api.events.player.PlayerOpenLCEvent;
@@ -26,7 +25,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-public class BoxManager implements TBox {
+public abstract class AbstractBox implements TBox {
 
     private Player owner;
     int id;
@@ -47,7 +46,7 @@ public class BoxManager implements TBox {
     public static final ConcurrentHashMap<Player, TBox> boxPlayerlists = new ConcurrentHashMap<>();
     private boolean isOpening;
 
-    public BoxManager(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
+    public AbstractBox(Location location, Player player, ItemStack icon, TYamlWrapper config, String boxid) {
         Main.api.getSessionUtil().getSessionFromPlayer(player).setBox(this);
 
         this.owner = player;
@@ -58,18 +57,19 @@ public class BoxManager implements TBox {
 
         if (vehicles.get(owner) == null) {
 
-            Pig vehicle = Main.nmsUtil.summonVehicle(Plocation, Pig.class);
+            Pig pig = Main.nmsUtil.summonVehicle(location, Pig.class);
 
-            new BukkitRunnable() {
-                @Override
-                public void run() {
-                    player.teleport(Plocation);
-                    vehicle.setPassenger(player);
+            Main.api.getScheduler().runTaskLater(player, () -> {
 
-                }
-            }.runTaskLater(Main.handler.plugin, 2L);
+                player.teleport(location);
 
-            vehicles.put(owner, vehicle);
+                Main.api.getScheduler().runTaskLater(pig, () -> {
+                    pig.setPassenger(player);
+                }, 1L);
+
+            }, 2L);
+
+            vehicles.put(owner, pig);
         }
 
 

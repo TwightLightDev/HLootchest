@@ -7,8 +7,8 @@ import java.util.List;
 
 public class CLBuilder {
 
-    public static ClassLoader build(File libsFolder,
-                                    java.lang.ClassLoader parent) throws Exception {
+    public static HClassLoader build(File libsFolder,
+                                     java.lang.ClassLoader parent) throws Exception {
 
         File[] jars = libsFolder.listFiles(
                 file -> file.getName().endsWith(".jar"));
@@ -21,7 +21,7 @@ public class CLBuilder {
             }
         }
 
-        return new ClassLoader(
+        return new HClassLoader(
                 urls.toArray(new URL[urls.size()]),
                 parent
         );

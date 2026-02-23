@@ -1,123 +1,50 @@
 package org.twightlight.hlootchest.setup.modules;
 
-import org.twightlight.libs.xseries.XMaterial;
-import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootChest;
 import org.twightlight.hlootchest.api.interfaces.functional.Executable;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
-import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.setup.MenuManager;
+import org.twightlight.hlootchest.setup.BaseMenu;
+import org.twightlight.hlootchest.setup.ChatPrompt;
 import org.twightlight.hlootchest.setup.elements.RotationsMenu;
 import org.twightlight.hlootchest.utils.Utility;
+import org.twightlight.libs.xseries.XMaterial;
 
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 
-public class Rotation {
+public class Rotation extends BaseMenu {
 
-    private static final List<String> POSTITIONS = Arrays.asList("HEAD", "BODY", "RIGHT_ARM", "LEFT_ARM", "RIGHT_LEG", "LEFT_LEG");
-    private final Player p;
-    private final TYamlWrapper templateFile;
-    private final String name;
-    private final String path;
-    private final SetupSession session;
+    private static final List<String> POSITIONS = Arrays.asList("HEAD", "BODY", "RIGHT_ARM", "LEFT_ARM", "RIGHT_LEG", "LEFT_LEG");
     private final Executable backAction;
 
     public Rotation(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, Executable backAction) {
-        this.p = p;
-        this.templateFile = templateFile;
-        this.name = name;
-        this.path = path;
-        this.session = session;
+        super(p, templateFile, name, path, session);
         this.backAction = backAction;
-
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Editing rotation...");
-
-
-        session.setInvConstructor((MenuHandler<Rotation>) () -> new Rotation(p, templateFile, name, path, session, backAction));
-        setItems(inv);
+        open(27, "&7Editing rotation...", () -> new Rotation(p, templateFile, name, path, session, backAction));
     }
-    private void setItems(Inventory inv) {
-        if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
-            MenuManager.removeData(p);
-        }
-        inv.clear();
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
-                18,
-                (e) -> new RotationsMenu(p, templateFile, name, Utility.getPrevPath(path), session, backAction));
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
-                        "&bPosition",
-                        Arrays.asList(new String[]{
-                                "&aCurrent value: " + "&7" + templateFile.getYml().getString(name + path + ".position", "null"),
-                                "", "&eClick to set to new position!"}),
-                        false),
-                11,
-                (e) -> {
-                    if (!POSTITIONS.contains(templateFile.getYml().getString(name + path + ".position", "null"))) {
-                        templateFile.setNotSave(name + path + ".position", POSTITIONS.get(0));
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new position to: &e" + POSTITIONS.get(0)));
-                        setItems(inv);
 
-                    } else {
-                        int i = POSTITIONS.indexOf(templateFile.getYml().getString(name + path + ".position", "null"));
-                        if (i >= POSTITIONS.size()-1) {
-                            i = -1;
-                        }
-                        templateFile.setNotSave(name + path + ".position", POSTITIONS.get(i+1));
-                        p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new position to: &e" + POSTITIONS.get(i+1)));
-                        setItems(inv);
-                    }
-                });
-        MenuManager.setItem(p,
-                inv,
+    @Override
+    protected void populate() {
+        backButton(18, e -> new RotationsMenu(p, templateFile, name, Utility.getPrevPath(path), session, backAction));
 
-                HLootChest.getNms().createItem(XMaterial.ARMOR_STAND.parseMaterial(), "", 0,
-                        "&bRotate Value",
-                        Arrays.asList(new String[]{
-                                "&aCurrent value: " + "&7" + templateFile.getYml().getString(name + path + ".value", "null"),
-                                "", "&eClick to set to new rotate value!"}),
-                        false),
-                12,
-                (e) -> {
-                    p.closeInventory();
-                    final SetupSession session2 = session;
-                    ChatSessions sessions = new ChatSessions(p);
-                    sessions.prompt(Arrays.asList(new String[] {"&aType the value you want: ", "&aThe format should be X, Y, Z", "&aType 'cancel' to cancel!"}), (input) -> {
-                        if (input.equals("cancel")) {
-                            sessions.end();
-                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                    () -> {
-                                        setItems(inv);
-                                    });
-                            return;
-                        } else if (!Utility.isXYZFormat(input)) {
-                            p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cInvalid Format! Cancel the action!"));
-                            sessions.end();
-                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                    () -> {
-                                        setItems(inv);
-                                    });
-                            return;
-                        }
-                        sessions.end();
-                        Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                () -> {
-                                    templateFile.setNotSave(name + path + ".value", input);
-                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aSuccessfully set new value to: &e" + input));
-                                    setItems(inv);
-                                });
-                    });
-                });
-        p.openInventory(inv);
+        cycleItem(11, XMaterial.ARMOR_STAND, "&bPosition", ".position", POSITIONS, "null");
+
+        item(12, XMaterial.ARMOR_STAND, "&bRotate Value",
+                Arrays.asList("&aCurrent value: &7" + templateFile.getYml().getString(fullPath(".value"), "null"),
+                        "", "&eClick to set to new rotate value!"),
+                e -> ChatPrompt.prompt(p,
+                        Arrays.asList("&aType the value you want: ", "&aThe format should be X, Y, Z", "&aType 'cancel' to cancel!"),
+                        input -> {
+                            if (!Utility.isXYZFormat(input)) {
+                                msg("&cInvalid Format! Cancel the action!");
+                                return false;
+                            }
+                            return true;
+                        }, this::buildAndOpen, input -> {
+                            templateFile.setNotSave(fullPath(".value"), input);
+                            msg("&aSuccessfully set new value to: &e" + input);
+                            buildAndOpen();
+                        }));
     }
 }

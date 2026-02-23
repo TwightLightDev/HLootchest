@@ -15,7 +15,7 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.plugin.Plugin;
-import org.twightlight.hlootchest.api.HLootchest;
+import org.twightlight.hlootchest.api.HLootChest;
 import org.twightlight.hlootchest.api.enums.ButtonType;
 import org.twightlight.hlootchest.api.enums.ProtocolVersion;
 import org.twightlight.hlootchest.api.interfaces.functional.LootChestFactory;
@@ -24,7 +24,7 @@ import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TBox;
 import org.twightlight.hlootchest.api.interfaces.lootchest.TButton;
 import org.twightlight.hlootchest.api.version_supports.NMSHandler;
-import org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes.BoxManager;
+import org.twightlight.hlootchest.supports.protocol.v1_12_R1.boxes.AbstractBox;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.buttons.Button;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.listeners.ClickEvent;
 import org.twightlight.hlootchest.supports.protocol.v1_12_R1.utilities.NMSUtil;
@@ -38,12 +38,12 @@ import java.util.stream.Collectors;
 public class Main extends NMSHandler {
 
     public static NMSHandler handler;
-    public static HLootchest api;
+    public static HLootChest api;
     public static NMSUtil nmsUtil;
     private static final Map<String, LootChestFactory> tboxdata = new HashMap<>();
     private static final Map<String, LootChestFactory> effectsList = new HashMap<>();
 
-    public Main(Plugin pl, String name, HLootchest api1) {
+    public Main(Plugin pl, String name, HLootChest api1) {
         super(pl, name);
         handler = this;
         api = api1;
@@ -123,7 +123,7 @@ public class Main extends NMSHandler {
     }
 
     public TBox getBoxFromPlayer(Player player) {
-        return BoxManager.boxPlayerlists.getOrDefault(player, null);
+        return AbstractBox.boxPlayerlists.getOrDefault(player, null);
     }
 
     public void playSound(Player player, Location location, String sound, float yaw, float pitch) {

@@ -20,7 +20,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 
-public class Aeternus extends BoxManager {
+public class Aeternus extends AbstractBox {
 
     private final List<ArmorStand> clockHands = new ArrayList<>();
     private final List<ArmorStand> floatingNumbers = new ArrayList<>();

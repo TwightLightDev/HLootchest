@@ -1,146 +1,64 @@
 package org.twightlight.hlootchest.setup.elements;
 
-import org.twightlight.libs.xseries.XMaterial;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.entity.Player;
-import org.bukkit.inventory.Inventory;
-import org.twightlight.hlootchest.HLootChest;
-import org.twightlight.hlootchest.api.interfaces.functional.MenuHandler;
 import org.twightlight.hlootchest.api.interfaces.internal.TYamlWrapper;
-import org.twightlight.hlootchest.sessions.ChatSessions;
 import org.twightlight.hlootchest.sessions.SetupSession;
-import org.twightlight.hlootchest.setup.MenuManager;
+import org.twightlight.hlootchest.setup.BaseMenu;
+import org.twightlight.hlootchest.setup.ChatPrompt;
 import org.twightlight.hlootchest.setup.modules.Button;
 import org.twightlight.hlootchest.setup.modules.Reward;
 import org.twightlight.hlootchest.utils.Utility;
+import org.twightlight.libs.xseries.XMaterial;
 
 import java.util.Arrays;
 import java.util.Collections;
-import java.util.Set;
 
-public class ChildrenMenu {
-    private final Player p;
-    private final TYamlWrapper templateFile;
-    private final String name;
-    private final String path;
-    private final SetupSession session;
+public class ChildrenMenu extends BaseMenu {
+
     private final boolean isReward;
 
-
     public ChildrenMenu(Player p, TYamlWrapper templateFile, String name, String path, SetupSession session, boolean isReward) {
-        this.p = p;
-        this.templateFile = templateFile;
-        this.name = name;
-        this.path = path;
-        this.session = session;
+        super(p, templateFile, name, path, session);
         this.isReward = isReward;
-        Inventory inv = Bukkit.createInventory(null, 27, ChatColor.GRAY + "Children list");
-
-        session.setInvConstructor((MenuHandler<ChildrenMenu>) () -> new ChildrenMenu(p, templateFile, name, path, session, isReward));
-        setItems(inv);
+        open(27, "&7Children list", () -> new ChildrenMenu(p, templateFile, name, path, session, isReward));
     }
 
-    private void setItems(Inventory inv) {
-        if (MenuManager.getButtonsList().containsKey(p.getUniqueId())) {
-            MenuManager.removeData(p);
-        }
-        inv.clear();
+    @Override
+    protected void populate() {
+        backButton(18, e -> {
+            String prevPath = Utility.getPrevPath(path);
+            if (isReward) new Reward(p, templateFile, name, prevPath, session, false);
+            else new Button(p, templateFile, name, prevPath, session, false);
+        });
 
-        if (isReward) {
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
-                    18,
-                    (e) -> {
-                        new Reward(p, templateFile, name, Utility.getPrevPath(path), session, false);
-                    });
-        } else {
-            MenuManager.setItem(p,
-                    inv,
-                    HLootChest.getNms().createItem(XMaterial.ARROW.parseMaterial(), "", 0, ChatColor.GREEN + "Back", Collections.emptyList(), false),
-                    18,
-                    (e) -> {
-                        new Button(p, templateFile, name, Utility.getPrevPath(path), session, false);
-                    });
-        }
-        MenuManager.setItem(p,
-                inv,
-                HLootChest.getNms().createItem(XMaterial.SLIME_BALL.parseMaterial(), "", 0, ChatColor.GREEN + "Add New Child", Collections.emptyList(), false),
-                26,
-                (e) -> {
-                    p.closeInventory();
-                    ChatSessions sessions = new ChatSessions(p);
-                    sessions.prompt(Arrays.asList(new String[] {"&aType the name of the new child: ", "&aType 'cancel' to cancel!"}), (input) -> {
-                        if (input.equals("cancel")) {
-                            sessions.end();
-                            Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                    () -> {
-                                        setItems(inv);
-                                    });
-                            return;
-                        }
-                        if (templateFile.getYml().contains(name + path)) {
-                            Set<String> buttonList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
-                            if (buttonList.contains(input)) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&cThis child name already exist! Cancel the action!"));
-                                sessions.end();
-                                Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                        () -> {
-                                            setItems(inv);
-                                        });
-                                return;
-                            }
-                        }
-                        sessions.end();
-                        Bukkit.getScheduler().runTask(HLootChest.getInstance(),
-                                () -> {
-                                    p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou successfully created new child: &e"+ input));
-                                    if (isReward) {
-                                        new Reward(p, templateFile, name, path + "." + input, session, true);
+        item(26, XMaterial.SLIME_BALL, ChatColor.GREEN + "Add New Child", Collections.emptyList(),
+                e -> ChatPrompt.promptString(p, this::buildAndOpen, input -> {
+                    if (getKeys("").contains(input)) {
+                        msg("&cThis child name already exists! Cancel the action!");
+                        buildAndOpen();
+                        return;
+                    }
+                    msg("&aYou successfully created new child: &e" + input);
+                    if (isReward) new Reward(p, templateFile, name, path + "." + input, session, true);
+                    else new Button(p, templateFile, name, path + "." + input, session, true);
+                }));
 
-                                    } else {
-                                        new Button(p, templateFile, name, path + "." + input, session, true);
-                                    }
-                                });
-
-                    });
-
-                });
         int i = 0;
-        if (templateFile.getYml().contains(name + path)) {
-            Set<String> childList = templateFile.getYml().getConfigurationSection(name + path).getKeys(false);
-            for (String child : childList) {
-                MenuManager.setItem(p,
-                        inv,
-                        HLootChest.getNms().createItem(XMaterial.STONE_BUTTON.parseMaterial(),
-                                "",
-                                0,
-                                "&eName: " + ChatColor.AQUA + child,
-                                Arrays.asList(new String[] {
-                                        "",
-                                        "&eLeft-click to edit!",
-                                        "&eRight-click to remove!"}),
-                                false),
-                        i,
-                        (e) -> {
-                            if (e.isLeftClick()) {
-                                if (isReward) {
-                                    new Reward(p, templateFile, name, path + "." + child, session, true);
-
-                                } else {
-                                    new Button(p, templateFile, name, path + "." + child, session, true);
-                                }
-                            } else if (e.isRightClick()) {
-                                p.sendMessage(ChatColor.translateAlternateColorCodes('&', "&aYou have successfully removed this child!"));
-                                templateFile.getYml().set(name + path + "." + child, null);
-                                setItems(inv);
-                            }
-                        });
-                i ++;
-            }
+        for (String child : getKeys("")) {
+            item(i, XMaterial.STONE_BUTTON, "&eName: " + ChatColor.AQUA + child,
+                    Arrays.asList("", "&eLeft-click to edit!", "&eRight-click to remove!"),
+                    e -> {
+                        if (e.isLeftClick()) {
+                            if (isReward) new Reward(p, templateFile, name, path + "." + child, session, true);
+                            else new Button(p, templateFile, name, path + "." + child, session, true);
+                        } else if (e.isRightClick()) {
+                            msg("&aYou have successfully removed this child!");
+                            templateFile.getYml().set(fullPath("." + child), null);
+                            buildAndOpen();
+                        }
+                    });
+            i++;
         }
-
-        p.openInventory(inv);
     }
 }
